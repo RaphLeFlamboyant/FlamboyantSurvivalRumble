@@ -1,0 +1,27 @@
+name: FlamboyantSurvivalRumble
+version: 0.0.0.0.0.0.0.1
+author: Raphael CANDELARESI (Raph' le Flamboyant)
+main: flamboyant.survivalrumble.Main
+api-version: 1.16
+commands:
+  f_sr_get_gametime:
+    description: Get the game timer.
+    permission: f_sr_get_gametime.use
+  f_snapshot:
+    description: Log a snapshot of server data
+    permission: f_snapshot.use
+  f_sr_maintenance_load_data:
+    description: Load tha save file data.
+    permission: f_sr_maintenance_load_data.use
+  f_sr_maintenance_reset_server_config:
+    description: Reset the server config
+    permission: f_sr_maintenance_reset_server_config.use
+  f_sr_maintenance_make_server_config:
+    description: Make the server config from the save data
+    permission: f_sr_maintenance_make_server_config.use
+  sr_setup_start:
+    description: Start the Survival Rumble plugin setup
+    permission: sr_setup_start.use
+permissions:
+  f_sr_get_gametime.use:
+    default: true
