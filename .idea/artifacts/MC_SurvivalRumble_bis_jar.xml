@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="MC_SurvivalRumble_bis:jar">
+    <output-path>$PROJECT_DIR$/classes/artifacts/MC_SurvivalRumble_bis_jar</output-path>
+    <root id="archive" name="MC_SurvivalRumble_bis.jar">
+      <element id="module-output" name="FlamboyantSurvivalRumble" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../ServerMC 1.16.5/spigot-1.16.5.jar" path-in-jar="/" />
+      <element id="file-copy" path="$PROJECT_DIR$/plugin.yml" />
+    </root>
+  </artifact>
+</component>
