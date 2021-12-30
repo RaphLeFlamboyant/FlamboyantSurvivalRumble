@@ -1,6 +1,7 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
+import flamboyant.survivalrumble.utils.ScoringTriggerType;
 import flamboyant.survivalrumble.utils.TeamHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -23,6 +24,9 @@ public class ElectricianClass extends APlayerClass {
 
     public ElectricianClass(Player owner) {
         super(owner);
+        this.triggers.add(ScoringTriggerType.BLOCK_BREAK);
+        this.triggers.add(ScoringTriggerType.BLOCK_EXPLOSION);
+        this.triggers.add(ScoringTriggerType.BLOCK_PLACE);
     }
 
     @Override
@@ -54,8 +58,6 @@ public class ElectricianClass extends APlayerClass {
     }
 
     private void handleBlockModification(Block block, boolean broken) {
-        int delta = broken ? -1 : 1;
-
         Location location = block.getLocation();
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
         String ownerTeamName = data().playersTeam.get(owner.getUniqueId());

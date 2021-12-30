@@ -33,6 +33,7 @@ public class PlayerClassMechanicsHelper
 		connectedClasses.put(ScoringTriggerType.BLOCK_BURNED, new ArrayList<APlayerClass>());
 		connectedClasses.put(ScoringTriggerType.BLOCK_EXPLOSION, new ArrayList<APlayerClass>());
 		connectedClasses.put(ScoringTriggerType.BLOCK_MODIFIER, new ArrayList<APlayerClass>());
+		connectedClasses.put(ScoringTriggerType.BLOCK_PLACE, new ArrayList<APlayerClass>());
 		connectedClasses.put(ScoringTriggerType.CHEST_MODIFICATION, new ArrayList<APlayerClass>());
 		connectedClasses.put(ScoringTriggerType.DEATH, new ArrayList<APlayerClass>());
 		connectedClasses.put(ScoringTriggerType.HURT, new ArrayList<APlayerClass>());

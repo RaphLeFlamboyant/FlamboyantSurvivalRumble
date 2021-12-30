@@ -69,8 +69,10 @@ public class PlayerClassSelectionView implements Listener
             PlayerClassMetadata metadata = PlayerClassHelper.playerClassMetadata.get(classType);
             ItemStack item = getIntenvoryItem(classType.toString(), metadata.getPlayerClassRepresentation(), metadata.getDisplayName());
             currentInventory.setItem(i % 36, item);
+            i++;
         }
 
+        pages.add(currentInventory);
         return pages.get(0);
     }
 

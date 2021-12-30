@@ -2,6 +2,7 @@ package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
 import flamboyant.survivalrumble.utils.MaterialHelper;
+import flamboyant.survivalrumble.utils.ScoringTriggerType;
 import flamboyant.survivalrumble.utils.TeamHelper;
 import org.bukkit.Location;
 import org.bukkit.Server;
@@ -13,6 +14,11 @@ import org.bukkit.plugin.Plugin;
 public class ElbmurLavivrusSurvivorClass extends APlayerClass {
     public ElbmurLavivrusSurvivorClass(Player owner) {
         super(owner);
+        this.triggers.add(ScoringTriggerType.BLOCK_BREAK);
+        this.triggers.add(ScoringTriggerType.BLOCK_EXPLOSION);
+        this.triggers.add(ScoringTriggerType.BLOCK_PLACE);
+        this.triggers.add(ScoringTriggerType.BLOCK_BURNED);
+        this.triggers.add(ScoringTriggerType.BLOCK_MODIFIER);
     }
 
     @Override

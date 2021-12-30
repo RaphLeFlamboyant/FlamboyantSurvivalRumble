@@ -2,6 +2,7 @@ package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
 import flamboyant.survivalrumble.utils.ScoringHelper;
+import flamboyant.survivalrumble.utils.ScoringTriggerType;
 import flamboyant.survivalrumble.utils.TeamHelper;
 import org.bukkit.Location;
 import org.bukkit.Server;
@@ -12,6 +13,7 @@ import org.bukkit.plugin.Plugin;
 public class PyromaniacClass extends APlayerClass {
     public PyromaniacClass(Player owner) {
         super(owner);
+        this.triggers.add(ScoringTriggerType.BLOCK_BURNED);
     }
 
     @Override

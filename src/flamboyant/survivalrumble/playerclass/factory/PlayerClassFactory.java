@@ -38,6 +38,10 @@ public class PlayerClassFactory
                 return new CrafterClass(owner);
             case BOMBER:
                 return new BomberClass(owner);
+            case ANTIQUARIAN:
+                return new AntiquarianClass(owner);
+            case WITCH:
+                return new WitchClass(owner);
             default:
                 return new FakeClass(owner);
         }

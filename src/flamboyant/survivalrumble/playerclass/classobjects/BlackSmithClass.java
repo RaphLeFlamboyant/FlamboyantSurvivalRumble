@@ -75,7 +75,7 @@ public class BlackSmithClass extends APlayerClass implements Listener {
         if (!event.getWhoClicked().getUniqueId().equals(owner.getUniqueId())) return;
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(event.getWhoClicked().getLocation());
         if (!concernedTeamName.equals(data().playersTeam.get(owner.getUniqueId()))) return;
-        if (scoreByMaterial.containsKey(event.getInventory().getResult().getType())) return;
+        if (!scoreByMaterial.containsKey(event.getInventory().getResult().getType())) return;
 
         int score = scoreByMaterial.get(event.getInventory().getResult().getType());
         changeScore(concernedTeamName, score);

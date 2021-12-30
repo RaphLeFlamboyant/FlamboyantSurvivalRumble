@@ -4,6 +4,7 @@ public enum PlayerClassType {
 	// Vanilla roles
 	WARRIOR, // Score by killing
 	HUNTER, // Score by hitting foes with arrows
+	WITCH, // Score by throwing potions on foes
 	
 	SCOUT, // Score by being close to foes base
 
@@ -18,6 +19,7 @@ public enum PlayerClassType {
 	BLACKSMITH, // Score when crafting armors in HQ location
 	BADKID, // Score by hitting foes with eggs or snowball
 	CRAFTER, // Score by crafting new items
+	ANTIQUARIAN, // Score by getting rare items
 	
 	// Non Vanilla roles
 	BOMBER, // Score by exploding TNT in foes HQ

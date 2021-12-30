@@ -2,6 +2,7 @@ package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
 import flamboyant.survivalrumble.utils.ScoringHelper;
+import flamboyant.survivalrumble.utils.ScoringTriggerType;
 import flamboyant.survivalrumble.utils.TeamHelper;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,10 +14,14 @@ import org.bukkit.plugin.Plugin;
 public class PeasantClass extends APlayerClass {
     public PeasantClass(Player owner) {
         super(owner);
+        this.triggers.add(ScoringTriggerType.BLOCK_BREAK);
+        this.triggers.add(ScoringTriggerType.BLOCK_EXPLOSION);
+        this.triggers.add(ScoringTriggerType.BLOCK_PLACE);
+        this.triggers.add(ScoringTriggerType.BLOCK_BURNED);
     }
 
     @Override
-    public PlayerClassType getClassType() { return null; }
+    public PlayerClassType getClassType() { return PlayerClassType.PEASANT; }
 
     @Override
     public void gameStarted(Server server, Plugin plugin) { }
@@ -29,6 +34,12 @@ public class PeasantClass extends APlayerClass {
 
     @Override
     public void onBlockBreakTrigger(Player playerWhoBreaks, Block block)
+    {
+        handleBlockBreak(block);
+    }
+
+    @Override
+    public void onBlockBurnedTrigger(Block block)
     {
         handleBlockBreak(block);
     }

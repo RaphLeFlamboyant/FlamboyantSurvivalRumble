@@ -15,12 +15,14 @@
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
-      <library name="spigot-1.16.5.jar">
+      <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../ServerMC 1.16.5/spigot-1.16.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/dependencies/spigot.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/dependencies/spigot.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
   </component>

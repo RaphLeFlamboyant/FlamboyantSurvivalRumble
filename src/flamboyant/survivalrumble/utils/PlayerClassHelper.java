@@ -34,6 +34,8 @@ public class PlayerClassHelper
         put(PlayerClassType.BLACKSMITH, new PlayerClassMetadata(PlayerClassType.BLACKSMITH, Material.ANVIL, "FORGERON", Sound.BLOCK_ANVIL_USE, "Forgeron", "Forge son avenir"));
         put(PlayerClassType.BADKID, new PlayerClassMetadata(PlayerClassType.BADKID, Material.ARMOR_STAND, "SALEGAMIN", Sound.ENTITY_PARROT_IMITATE_WITCH, "Sale Gamin", "Le roi du prank"));
         put(PlayerClassType.CRAFTER, new PlayerClassMetadata(PlayerClassType.CRAFTER, Material.CRAFTING_TABLE, "FABRIQUANT", Sound.BLOCK_SMITHING_TABLE_USE, "Fabriquant", "Jouer lui suffira à gagner"));
+        put(PlayerClassType.ANTIQUARIAN, new PlayerClassMetadata(PlayerClassType.ANTIQUARIAN, Material.ANCIENT_DEBRIS, "ANTIQUAIRE", Sound.BLOCK_CHEST_OPEN, "Antiquaire", "Étend ses collections"));
+        put(PlayerClassType.WITCH, new PlayerClassMetadata(PlayerClassType.WITCH, Material.SPLASH_POTION, "SORCIÈRE", Sound.ENTITY_WITCH_AMBIENT, "sorcière", "Concocte votre défaite"));
 
     }};
 }

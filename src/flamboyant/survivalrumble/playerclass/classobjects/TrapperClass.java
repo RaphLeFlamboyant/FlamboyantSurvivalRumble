@@ -1,6 +1,7 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
+import flamboyant.survivalrumble.utils.ScoringTriggerType;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -8,6 +9,7 @@ import org.bukkit.plugin.Plugin;
 public class TrapperClass extends APlayerClass {
     public TrapperClass(Player owner) {
         super(owner);
+        this.triggers.add(ScoringTriggerType.DEATH);
     }
 
     @Override
