@@ -15,22 +15,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 
-public class PlayerClassSelectionManager implements Listener
-{
-    private SurvivalRumbleData data()
-    {
-        return SurvivalRumbleData.getSingleton();
-    }
+public class PlayerClassSelectionManager implements Listener {
     private JavaPlugin plugin;
     private Server server;
     private Player opPlayer;
-
     private List<List<UUID>> playerSorted = new ArrayList<>();
     private int currentPlayerTeamIndex = 0;
     private int currentPlayerIndex = -1;
-
-    public PlayerClassSelectionManager(JavaPlugin plugin, Server server, Player opPlayer)
-    {
+    public PlayerClassSelectionManager(JavaPlugin plugin, Server server, Player opPlayer) {
         this.plugin = plugin;
         this.server = server;
         this.opPlayer = opPlayer;
@@ -41,35 +33,31 @@ public class PlayerClassSelectionManager implements Listener
         playerSorted.sort(Comparator.comparingInt(List::size));
         Collections.reverse(playerSorted);
 
-        for(int i = 0; i < playerSorted.size(); i++)
-        {
+        for (int i = 0; i < playerSorted.size(); i++) {
             List<UUID> line = playerSorted.get(i);
             System.out.println(i + "rd line size = " + line.size());
-            for(UUID id : line)
-            {
+            for (UUID id : line) {
                 System.out.println(">>  " + id);
             }
         }
     }
 
-    public void dispatchSelectionView()
-    {
+    private SurvivalRumbleData data() {
+        return SurvivalRumbleData.getSingleton();
+    }
+
+    public void dispatchSelectionView() {
         UUID playerId;
-        if (currentPlayerIndex == -1)
-        {
+        if (currentPlayerIndex == -1) {
             currentPlayerIndex = 0;
             playerId = playerSorted.get(0).get(0);
-        }
-        else
-        {
-            if (++currentPlayerTeamIndex == playerSorted.size())
-            {
+        } else {
+            if (++currentPlayerTeamIndex == playerSorted.size()) {
                 currentPlayerTeamIndex = 0;
                 currentPlayerIndex++;
             }
 
-            if (currentPlayerIndex == playerSorted.get(currentPlayerTeamIndex).size())
-            {
+            if (currentPlayerIndex == playerSorted.get(currentPlayerTeamIndex).size()) {
                 unregisterEvents();
                 PlayerClassSelectionView.getInstance().unregisterEvents();
 
@@ -89,19 +77,15 @@ public class PlayerClassSelectionManager implements Listener
     }
 
     @EventHandler
-    public void onInventoryClose(InventoryCloseEvent event)
-    {
-        if (PlayerClassSelectionView.getInstance().isInView(event.getInventory()))
-        {
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (PlayerClassSelectionView.getInstance().isInView(event.getInventory())) {
             disclaimClassChoice();
             Bukkit.getScheduler().runTaskLater(plugin, () -> dispatchSelectionView(), 60L);
         }
     }
 
-    private void disclaimWhosTurn(String playerName)
-    {
-        for(UUID playerId : data().playersTeam.keySet())
-        {
+    private void disclaimWhosTurn(String playerName) {
+        for (UUID playerId : data().playersTeam.keySet()) {
             Player player = server.getPlayer(playerId);
             if (player.getDisplayName().equals(playerName)) continue;
             Location playerLocation = player.getLocation();
@@ -111,13 +95,11 @@ public class PlayerClassSelectionManager implements Listener
         }
     }
 
-    private void disclaimClassChoice()
-    {
+    private void disclaimClassChoice() {
         PlayerClassType lastSelection = PlayerClassSelectionView.getInstance().lastChosenClass;
         PlayerClassMetadata playerClassMetadata = PlayerClassHelper.playerClassMetadata.get(lastSelection);
 
-        for(UUID playerId : data().playersTeam.keySet())
-        {
+        for (UUID playerId : data().playersTeam.keySet()) {
             Player player = server.getPlayer(playerId);
             Location playerLocation = player.getLocation();
 
@@ -126,8 +108,7 @@ public class PlayerClassSelectionManager implements Listener
         }
     }
 
-    private void unregisterEvents()
-    {
+    private void unregisterEvents() {
         InventoryCloseEvent.getHandlerList().unregister(this);
     }
 }

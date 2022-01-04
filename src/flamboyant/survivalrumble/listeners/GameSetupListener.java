@@ -1,7 +1,5 @@
 package flamboyant.survivalrumble.listeners;
 
-import flamboyant.survivalrumble.data.PlayerClassMetadata;
-import flamboyant.survivalrumble.data.PlayerClassType;
 import flamboyant.survivalrumble.data.SurvivalRumbleData;
 import flamboyant.survivalrumble.playerclass.managers.PlayerClassSelectionManager;
 import flamboyant.survivalrumble.utils.ItemHelper;
@@ -30,99 +28,80 @@ import org.bukkit.scoreboard.Objective;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 
-public class GameSetupListener implements Listener
-{
+public class GameSetupListener implements Listener {
     private JavaPlugin plugin;
     private Server server;
-    private SurvivalRumbleData data()
-    {
-        return SurvivalRumbleData.getSingleton();
-    }
 
-    public GameSetupListener(JavaPlugin plugin, Server server)
-    {
+    public GameSetupListener(JavaPlugin plugin, Server server) {
         this.plugin = plugin;
         this.server = server;
     }
 
+    private SurvivalRumbleData data() {
+        return SurvivalRumbleData.getSingleton();
+    }
+
     @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event)
-    {
+    public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         ItemStack item = event.getItem();
 
-        if (isTeamSelectionItem(item))
-        {
+        if (isTeamSelectionItem(item)) {
             Inventory teamSelectionView = TeamSelectionView.getInstance().getViewInstance();
             player.openInventory(teamSelectionView);
-        }
-        else if (ItemHelper.isExactlySameItemKind(item, ItemHelper.getGameSetupItem()))
-        {
+        } else if (ItemHelper.isExactlySameItemKind(item, ItemHelper.getGameSetupItem())) {
             Inventory gameSetupView = GameSetupView.getInstance().getViewInstance();
             player.openInventory(gameSetupView);
-        }
-        else if (ItemHelper.isExactlySameItemKind(item, ItemHelper.getTeamHQItem()))
-        {
+        } else if (ItemHelper.isExactlySameItemKind(item, ItemHelper.getTeamHQItem())) {
             Inventory teamHQView = TeamHQParametersView.getInstance().getViewInstance();
             player.openInventory(teamHQView);
-        }
-        else if (ItemHelper.isExactlySameItemKind(item, ItemHelper.getLaunchItem()))
-        {
+        } else if (ItemHelper.isExactlySameItemKind(item, ItemHelper.getLaunchItem())) {
             if (data().playersClass.size() == 0)
                 lanchClassSelectionStep(player);
             else
-                launchGame();
+                launchGame(player);
         }
 
         event.setCancelled(true);
     }
 
     @EventHandler
-    public void onPlayerDropItem(PlayerDropItemEvent event)
-    {
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
         System.out.println("Drop canceled");
         event.setCancelled(true);
     }
 
     @EventHandler
-    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event)
-    {
+    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
         System.out.println("Swap canceled");
         event.setCancelled(true);
     }
 
     @EventHandler
-    public void onBlockBreak(BlockBreakEvent event)
-    {
+    public void onBlockBreak(BlockBreakEvent event) {
         event.setCancelled(true);
     }
 
     @EventHandler
-    public void onBlockPlace(BlockPlaceEvent event)
-    {
+    public void onBlockPlace(BlockPlaceEvent event) {
         event.setCancelled(true);
     }
 
     @EventHandler
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent event)
-    {
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         event.setCancelled(true);
     }
 
-    private boolean isTeamSelectionItem(ItemStack item)
-    {
+    private boolean isTeamSelectionItem(ItemStack item) {
         return ItemHelper.isExactlySameItemKind(item, ItemHelper.getTeamSelectionItem());
     }
 
-    private void lanchClassSelectionStep(Player opPlayer)
-    {
+    private void lanchClassSelectionStep(Player opPlayer) {
         cleanEmptyTeams();
-        if (isHeadquarterMissing())
-        {
-            opPlayer.sendMessage( ChatColor.RED + "Headquarter location are missing");
+        if (isHeadquarterMissing()) {
+            opPlayer.sendMessage(ChatColor.RED + "Headquarter location are missing");
             return;
         }
 
@@ -134,8 +113,7 @@ public class GameSetupListener implements Listener
         TeamHQParametersView.getInstance().unregisterEvents();
 
         Collection<UUID> playerIds = data().players.values();
-        for (UUID playerId : playerIds)
-        {
+        for (UUID playerId : playerIds) {
             Player player = server.getPlayer(playerId);
             Inventory inv = player.getInventory();
             inv.clear();
@@ -148,10 +126,8 @@ public class GameSetupListener implements Listener
         Bukkit.getScheduler().runTaskLater(plugin, () -> manager.dispatchSelectionView(), 100L);
     }
 
-    private void announceClassSelection()
-    {
-        for(UUID playerId : data().playersTeam.keySet())
-        {
+    private void announceClassSelection() {
+        for (UUID playerId : data().playersTeam.keySet()) {
             Player player = server.getPlayer(playerId);
             Location playerLocation = player.getLocation();
 
@@ -160,14 +136,11 @@ public class GameSetupListener implements Listener
         }
     }
 
-    private void fillPlayersByTeamData()
-    {
-        for (String teamName : TeamHelper.teamNames)
-        {
+    private void fillPlayersByTeamData() {
+        for (String teamName : TeamHelper.teamNames) {
             data().playersByTeam.put(teamName, new ArrayList<>());
 
-            for (UUID playerId : data().playersTeam.keySet())
-            {
+            for (UUID playerId : data().playersTeam.keySet()) {
                 // System.out.println("Player " + playerId + " has team from data  : " + data().playersTeam.get(playerId) + " compared to " + teamName + " and result is " + data().playersTeam.get(playerId).equals(teamName));
                 if (data().playersTeam.get(playerId).equals(teamName))
                     data().playersByTeam.get(teamName).add(playerId);
@@ -175,13 +148,10 @@ public class GameSetupListener implements Listener
         }
     }
 
-    private void cleanEmptyTeams()
-    {
-        for(int i = 0; i < data().teams.size(); i++)
-        {
+    private void cleanEmptyTeams() {
+        for (int i = 0; i < data().teams.size(); i++) {
             String name = data().teams.get(i);
-            if (!data().playersTeam.containsValue(name))
-            {
+            if (!data().playersTeam.containsValue(name)) {
                 System.out.println("Removing team " + name + " because it doesn't contain any player");
                 data().teams.remove(i);
                 if (data().teamHeadquarterLocation.containsKey(name))
@@ -192,10 +162,8 @@ public class GameSetupListener implements Listener
         }
     }
 
-    private boolean isHeadquarterMissing()
-    {
-        for(String teamName : data().teams)
-        {
+    private boolean isHeadquarterMissing() {
+        for (String teamName : data().teams) {
             System.out.println("isHeadquarterMissing for " + teamName + " ?");
             if (!data().teamHeadquarterLocation.containsKey(teamName))
                 return true;
@@ -205,21 +173,18 @@ public class GameSetupListener implements Listener
         return false;
     }
 
-    private void setupScores()
-    {
+    private void setupScores() {
         ScoreboardBricklayer scoreboardBricklayer = ScoreboardBricklayer.getSingleton();
         Objective scoreObj = scoreboardBricklayer.createObjective("Score", "Score", DisplaySlot.SIDEBAR);
-        for (String teamName : data().teams)
-        {
+        for (String teamName : data().teams) {
             scoreObj.getScore(teamName).setScore(0);
             data().teamScores.put(teamName, 0);
         }
     }
 
-    private void launchGame()
-    {
-        for(UUID playerId : data().playersTeam.keySet())
-        {
+    private void launchGame(Player opPlayer) {
+        opPlayer.getInventory().clear();
+        for (UUID playerId : data().playersTeam.keySet()) {
             Player player = server.getPlayer(playerId);
             Location target = data().teamHeadquarterLocation.get(data().playersTeam.get(playerId));
             player.sendMessage(ChatColor.LIGHT_PURPLE + "Tu es dans l'équipe " + data().playersTeam.get(playerId) + ChatColor.GOLD +
@@ -232,15 +197,13 @@ public class GameSetupListener implements Listener
         Bukkit.getScheduler().runTaskLater(plugin, () -> launchGameCountDown(5), 20L);
     }
 
-    private void launchGameCountDown(Integer countDown)
-    {
+    private void launchGameCountDown(Integer countDown) {
         if (countDown-- == 0)
             launchGameListeners();
         else {
             int finalCountDown = countDown;
 
-            for(UUID playerId : data().playersTeam.keySet())
-            {
+            for (UUID playerId : data().playersTeam.keySet()) {
                 Player player = server.getPlayer(playerId);
                 player.sendTitle(ChatColor.RED + countDown.toString(), "", 0, 20, 0);
             }
@@ -249,8 +212,7 @@ public class GameSetupListener implements Listener
         }
     }
 
-    private void launchGameListeners()
-    {
+    private void launchGameListeners() {
         this.unregisterEvents();
 
         PlayerClassMechanicsHelper.getSingleton().initClassesAtGameLaunch(server, plugin);
@@ -260,8 +222,7 @@ public class GameSetupListener implements Listener
         listener.initListener();
     }
 
-    public void unregisterEvents()
-    {
+    public void unregisterEvents() {
         PlayerInteractEvent.getHandlerList().unregister(this);
         PlayerDropItemEvent.getHandlerList().unregister(this);
         PlayerSwapHandItemsEvent.getHandlerList().unregister(this);

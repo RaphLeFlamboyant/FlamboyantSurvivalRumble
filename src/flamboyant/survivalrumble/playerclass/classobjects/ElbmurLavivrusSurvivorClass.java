@@ -5,6 +5,7 @@ import flamboyant.survivalrumble.utils.MaterialHelper;
 import flamboyant.survivalrumble.utils.ScoringTriggerType;
 import flamboyant.survivalrumble.utils.TeamHelper;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -32,41 +33,35 @@ public class ElbmurLavivrusSurvivorClass extends APlayerClass {
     }
 
     @Override
-    public Integer onBlockModifierTrigger(Integer score, BlockData blockData, Location blockLocation, String teamConcerned)
-    {
+    public Integer onBlockModifierTrigger(Integer score, BlockData blockData, Location blockLocation, String teamConcerned) {
         if (!teamConcerned.equals(data().playersTeam.get(owner.getUniqueId()))) return score;
 
         return score * -1;
     }
 
     @Override
-    public void onBlockPlaceTrigger(Player playerWhoBreaks, Block block)
-    {
+    public void onBlockPlaceTrigger(Player playerWhoBreaks, Block block) {
         handleBlockModification(block, false);
     }
 
     @Override
-    public void onBlockBreakTrigger(Player playerWhoBreaks, Block block)
-    {
+    public void onBlockBreakTrigger(Player playerWhoBreaks, Block block) {
         handleBlockModification(block, true);
     }
 
     @Override
-    public void onExplosionTrigger(Block block)
-    {
+    public void onExplosionTrigger(Block block) {
         handleBlockModification(block, true);
     }
 
     @Override
-    public void onBlockBurnedTrigger(Block block)
-    {
+    public void onBlockBurnedTrigger(Block block) {
         handleBlockModification(block, true);
     }
 
-    private void handleBlockModification(Block block, boolean broken)
-    {
+    private void handleBlockModification(Block block, boolean broken) {
         MaterialHelper mh = new MaterialHelper();
-        if (mh.scoringMaterial.containsKey(block.getType())) return;
+        if (mh.scoringMaterial.containsKey(block.getType()) || block.getType() == Material.WATER || block.getType() == Material.LAVA) return;
         Location location = block.getLocation();
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
         String ownerTeamName = data().playersTeam.get(owner.getUniqueId());

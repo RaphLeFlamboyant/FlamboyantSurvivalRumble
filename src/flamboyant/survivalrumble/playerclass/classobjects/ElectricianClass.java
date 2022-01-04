@@ -40,20 +40,17 @@ public class ElectricianClass extends APlayerClass {
     }
 
     @Override
-    public void onBlockPlaceTrigger(Player playerWhoBreaks, Block block)
-    {
+    public void onBlockPlaceTrigger(Player playerWhoBreaks, Block block) {
         handleBlockModification(block, false);
     }
 
     @Override
-    public void onBlockBreakTrigger(Player playerWhoBreaks, Block block)
-    {
+    public void onBlockBreakTrigger(Player playerWhoBreaks, Block block) {
         handleBlockModification(block, true);
     }
 
     @Override
-    public void onExplosionTrigger(Block block)
-    {
+    public void onExplosionTrigger(Block block) {
         handleBlockModification(block, true);
     }
 
@@ -62,36 +59,29 @@ public class ElectricianClass extends APlayerClass {
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
         String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
         if (concernedTeamName == null || !ownerTeamName.equals(concernedTeamName)) return;
-        if (location.getWorld().getHighestBlockYAt(location.getBlockX(), location.getBlockZ()) != location.getBlockY()) return;
+        if (location.getWorld().getHighestBlockYAt(location.getBlockX(), location.getBlockZ()) != location.getBlockY())
+            return;
 
-        if (Arrays.asList(Material.IRON_BLOCK, Material.GOLD_BLOCK, Material.REDSTONE_BLOCK).contains(block.getType()))
-        {
+        if (Arrays.asList(Material.IRON_BLOCK, Material.GOLD_BLOCK, Material.REDSTONE_BLOCK).contains(block.getType())) {
             handleBlockLocation(tier1BlockLocationList, block, broken);
-        }
-        else if (Arrays.asList(Material.EMERALD_BLOCK, Material.LAPIS_BLOCK).contains(block.getType()))
-        {
+        } else if (Arrays.asList(Material.EMERALD_BLOCK, Material.LAPIS_BLOCK).contains(block.getType())) {
             handleBlockLocation(tier2BlockLocationList, block, broken);
-        }
-        else if (Arrays.asList(Material.DIAMOND_BLOCK).contains(block.getType()))
-        {
+        } else if (Arrays.asList(Material.DIAMOND_BLOCK).contains(block.getType())) {
             handleBlockLocation(tier3BlockLocationList, block, broken);
-        }
-        else if (Arrays.asList(Material.NETHERITE_BLOCK).contains(block.getType()))
-        {
+        } else if (Arrays.asList(Material.NETHERITE_BLOCK).contains(block.getType())) {
             handleBlockLocation(tier4BlockLocationList, block, broken);
         }
     }
 
-    private void handleBlockLocation(List<Location> blockLocationList, Block block, boolean broken)
-    {
-        if (!broken){
+    private void handleBlockLocation(List<Location> blockLocationList, Block block, boolean broken) {
+        if (!broken) {
             blockLocationList.add(block.getLocation());
             return;
         }
 
         Location loc = block.getLocation();
-        for(Location existingLocation : blockLocationList) {
-            if(existingLocation.equals(loc)) {
+        for (Location existingLocation : blockLocationList) {
+            if (existingLocation.equals(loc)) {
                 blockLocationList.remove(existingLocation);
                 return;
             }
@@ -101,9 +91,9 @@ public class ElectricianClass extends APlayerClass {
     private void updateScoring() {
         double scoreDelta = numberOfCorrectLocation(tier1BlockLocationList)
                 + numberOfCorrectLocation(tier2BlockLocationList) * 2.0
-                + numberOfCorrectLocation(tier3BlockLocationList) * 5.0
-                + numberOfCorrectLocation(tier4BlockLocationList) * 20.0;
-        int scoreToCountNow = (int)scoreDelta;
+                + numberOfCorrectLocation(tier3BlockLocationList) * 3.0
+                + numberOfCorrectLocation(tier4BlockLocationList) * 10.0;
+        int scoreToCountNow = (int) scoreDelta;
 
         this.changeScore(data().playersTeam.get(owner.getUniqueId()), scoreToCountNow);
     }

@@ -1,9 +1,7 @@
 package flamboyant.survivalrumble.utils;
 
-public class ScoringHelper
-{
-    public static double scoreAltitudeCoefficient(int blockLocationY)
-    {
+public class ScoringHelper {
+    public static double scoreAltitudeCoefficient(int blockLocationY) {
         if (blockLocationY >= 58 && blockLocationY < 80)
             return 1;
         if (blockLocationY < 20 || blockLocationY > 200)
@@ -15,9 +13,7 @@ public class ScoringHelper
         if (blockLocationY > 64) {
             baseY = 136;
             relative = blockLocationY - 64;
-        }
-        else
-        {
+        } else {
             baseY = 44;
             relative = 64 - blockLocationY;
         }

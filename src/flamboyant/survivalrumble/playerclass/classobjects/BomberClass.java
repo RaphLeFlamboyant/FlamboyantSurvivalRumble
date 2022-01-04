@@ -25,8 +25,7 @@ public class BomberClass extends APlayerClass implements Listener {
     }
 
     @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event)
-    {
+    public void onPlayerInteract(PlayerInteractEvent event) {
         if (!event.getPlayer().getUniqueId().equals(owner.getUniqueId())) return;
         if (!event.hasItem() || event.getItem().getType() != Material.TNT) return;
 

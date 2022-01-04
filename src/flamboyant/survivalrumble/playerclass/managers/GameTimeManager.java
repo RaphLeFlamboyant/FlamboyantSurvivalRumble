@@ -5,42 +5,36 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
-public class GameTimeManager
-{
-    private SurvivalRumbleData data()
-    {
-        return SurvivalRumbleData.getSingleton();
-    }
+public class GameTimeManager {
     private BukkitTask updateGameTimeTask = null;
     private JavaPlugin plugin;
 
-    public void launchGameTimeManagement(JavaPlugin plugin)
-    {
+    private SurvivalRumbleData data() {
+        return SurvivalRumbleData.getSingleton();
+    }
+
+    public void launchGameTimeManagement(JavaPlugin plugin) {
         this.plugin = plugin;
         scheduleStopTask();
         scheduleUpdateGameTimeTask();
     }
 
-    private void scheduleStopTask()
-    {
+    private void scheduleStopTask() {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             stopGame();
         }, data().minutesBeforeEnd * 60 * 20L);
     }
 
-    private void scheduleUpdateGameTimeTask()
-    {
+    private void scheduleUpdateGameTimeTask() {
         updateGameTimeTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             updateGameTime();
         }, 60 * 20L, 60 * 20L);
     }
 
-    private void updateGameTime()
-    {
+    private void updateGameTime() {
         data().minutesBeforeEnd--;
 
-        for(int i = 0; i < data().meetupTimer.size(); i++)
-        {
+        for (int i = 0; i < data().meetupTimer.size(); i++) {
             int timer = data().meetupTimer.get(i) - 1;
 
             if (timer > 0)
@@ -52,17 +46,14 @@ public class GameTimeManager
         data().saveData();
     }
 
-    private void stopGame()
-    {
+    private void stopGame() {
         int highiestScore = -1;
         String winnerTeam = null;
 
         int iColor = 0;
         int iWinner = 0;
-        for (String teamName : data().teams)
-        {
-            if (winnerTeam == null || data().teamScores.get(teamName) > highiestScore)
-            {
+        for (String teamName : data().teams) {
+            if (winnerTeam == null || data().teamScores.get(teamName) > highiestScore) {
                 winnerTeam = teamName;
                 highiestScore = data().teamScores.get(teamName);
                 iWinner = iColor;

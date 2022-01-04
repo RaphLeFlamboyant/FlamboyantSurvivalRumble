@@ -6,15 +6,10 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class PlayerClassHelper
-{
-    public static Map<PlayerClassType, PlayerClassMetadata> playerClassMetadata = new HashMap<PlayerClassType, PlayerClassMetadata>()
-    {{
+public class PlayerClassHelper {
+    public static Map<PlayerClassType, PlayerClassMetadata> playerClassMetadata = new HashMap<PlayerClassType, PlayerClassMetadata>() {{
         //put(PlayerClassType.ASSASSIN, new PlayerClassMetadata(PlayerClassType.ASSASSIN, Material.STONE_SWORD, "ASSASSIN", Sound.BLOCK_CHAIN_PLACE, "Assassin", "Vous serez persécutés"));
         put(PlayerClassType.WARRIOR, new PlayerClassMetadata(PlayerClassType.WARRIOR, Material.DIAMOND_CHESTPLATE, "GUERRIER", Sound.ENTITY_PLAYER_ATTACK_STRONG, "Guerrier ", "Prêt à vous écraser"));
         put(PlayerClassType.SCOUT, new PlayerClassMetadata(PlayerClassType.SCOUT, Material.TORCH, "ÉCLAIREUR", Sound.BLOCK_GRASS_STEP, "Éclaireur", "connait votre base par coeur"));
@@ -35,7 +30,10 @@ public class PlayerClassHelper
         put(PlayerClassType.BADKID, new PlayerClassMetadata(PlayerClassType.BADKID, Material.ARMOR_STAND, "SALEGAMIN", Sound.ENTITY_PARROT_IMITATE_WITCH, "Sale Gamin", "Le roi du prank"));
         put(PlayerClassType.CRAFTER, new PlayerClassMetadata(PlayerClassType.CRAFTER, Material.CRAFTING_TABLE, "FABRIQUANT", Sound.BLOCK_SMITHING_TABLE_USE, "Fabriquant", "Jouer lui suffira à gagner"));
         put(PlayerClassType.ANTIQUARIAN, new PlayerClassMetadata(PlayerClassType.ANTIQUARIAN, Material.ANCIENT_DEBRIS, "ANTIQUAIRE", Sound.BLOCK_CHEST_OPEN, "Antiquaire", "Étend ses collections"));
-        put(PlayerClassType.WITCH, new PlayerClassMetadata(PlayerClassType.WITCH, Material.SPLASH_POTION, "SORCIÈRE", Sound.ENTITY_WITCH_AMBIENT, "sorcière", "Concocte votre défaite"));
+        put(PlayerClassType.WITCH, new PlayerClassMetadata(PlayerClassType.WITCH, Material.SPLASH_POTION, "SORCIÈRE", Sound.ENTITY_WITCH_AMBIENT, "Sorcière", "Concocte votre défaite"));
+        put(PlayerClassType.DEFEATIST, new PlayerClassMetadata(PlayerClassType.DEFEATIST, Material.POISONOUS_POTATO, "DÉFAITISTE", Sound.ENTITY_VILLAGER_AMBIENT, "Défaitiste", "Sa défaite est la vôtre"));
+        put(PlayerClassType.CHEERLEADER, new PlayerClassMetadata(PlayerClassType.CHEERLEADER, Material.FIREWORK_STAR, "POM-POM GIRL", Sound.ENTITY_VILLAGER_CELEBRATE, "Pom-pom Girl", "Ses alliés sont sa force"));
+        put(PlayerClassType.FISHER, new PlayerClassMetadata(PlayerClassType.FISHER, Material.FISHING_ROD, "PÊCHEUR", Sound.ENTITY_FISHING_BOBBER_THROW, "Pêcheur", "Une force tranquille"));
 
     }};
 }

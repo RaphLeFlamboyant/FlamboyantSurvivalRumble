@@ -4,12 +4,9 @@ import flamboyant.survivalrumble.data.PlayerClassType;
 import flamboyant.survivalrumble.playerclass.classobjects.*;
 import org.bukkit.entity.Player;
 
-public class PlayerClassFactory
-{
-    public APlayerClass generatePlayerClass(PlayerClassType playerClass, Player owner)
-    {
-        switch (playerClass)
-        {
+public class PlayerClassFactory {
+    public APlayerClass generatePlayerClass(PlayerClassType playerClass, Player owner) {
+        switch (playerClass) {
             case MASON:
                 return new MasonClass(owner);
             case WARRIOR:
@@ -42,6 +39,12 @@ public class PlayerClassFactory
                 return new AntiquarianClass(owner);
             case WITCH:
                 return new WitchClass(owner);
+            case DEFEATIST:
+                return new DefeatistClass(owner);
+            case CHEERLEADER:
+                return new CheerleaderClass(owner);
+            case FISHER:
+                return new FisherClass(owner);
             default:
                 return new FakeClass(owner);
         }

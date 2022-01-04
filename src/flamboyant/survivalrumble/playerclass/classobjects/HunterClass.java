@@ -27,18 +27,17 @@ public class HunterClass extends APlayerClass implements Listener {
     }
 
     @EventHandler
-    public void onProjectileHit(ProjectileHitEvent event)
-    {
+    public void onProjectileHit(ProjectileHitEvent event) {
         if (event.getEntity().getType() != EntityType.ARROW) return;
         if (event.getHitEntity() == null) return;
         ProjectileSource source = event.getEntity().getShooter();
-        if (!(source instanceof  Player)) return;
-        Player shooter = (Player)source;
+        if (!(source instanceof Player)) return;
+        Player shooter = (Player) source;
         if (!shooter.getUniqueId().equals(owner.getUniqueId())) return;
         Entity ety = event.getHitEntity();
         if (!(ety instanceof Player)) return;
-        Player player = (Player)ety;
-        if (data().playersTeam.get(owner).equals(data().playersTeam.get(player.getDisplayName()))) return;
+        Player player = (Player) ety;
+        if (data().playersTeam.get(owner.getUniqueId()).equals(data().playersTeam.get(player.getUniqueId()))) return;
 
         String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
         changeScore(ownerTeamName, 15);

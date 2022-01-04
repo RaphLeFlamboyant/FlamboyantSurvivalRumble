@@ -17,19 +17,21 @@ public class PyromaniacClass extends APlayerClass {
     }
 
     @Override
-    public PlayerClassType getClassType() { return PlayerClassType.PYROMANIAC; }
+    public PlayerClassType getClassType() {
+        return PlayerClassType.PYROMANIAC;
+    }
 
     @Override
-    public void gameStarted(Server server, Plugin plugin) { }
+    public void gameStarted(Server server, Plugin plugin) {
+    }
 
     @Override
-    public void onBlockBurnedTrigger(Block block)
-    {
+    public void onBlockBurnedTrigger(Block block) {
         Location location = block.getLocation();
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
         String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
         if (concernedTeamName == null || ownerTeamName.equals(concernedTeamName)) return;
 
-        changeScore(ownerTeamName, (int)(20 * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY())));
+        changeScore(ownerTeamName, (int) (20 * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY())));
     }
 }

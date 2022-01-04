@@ -1,6 +1,7 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
+import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -27,18 +28,17 @@ public class BadKidClass extends APlayerClass implements Listener {
     }
 
     @EventHandler
-    public void onProjectileHit(ProjectileHitEvent event)
-    {
-        if (event.getEntity().getType() != EntityType.SNOWBALL || event.getEntity().getType() != EntityType.EGG) return;
+    public void onProjectileHit(ProjectileHitEvent event) {
+        if (event.getEntity().getType() != EntityType.SNOWBALL && event.getEntity().getType() != EntityType.EGG) return;
         if (event.getHitEntity() == null) return;
         ProjectileSource source = event.getEntity().getShooter();
-        if (!(source instanceof  Player)) return;
-        Player shooter = (Player)source;
+        if (!(source instanceof Player)) return;
+        Player shooter = (Player) source;
         if (!shooter.getUniqueId().equals(owner.getUniqueId())) return;
         Entity ety = event.getHitEntity();
         if (!(ety instanceof Player)) return;
-        Player player = (Player)ety;
-        if (data().playersTeam.get(owner).equals(data().playersTeam.get(player.getDisplayName()))) return;
+        Player player = (Player) ety;
+        if (data().playersTeam.get(owner.getUniqueId()).equals(data().playersTeam.get(player.getUniqueId()))) return;
 
         String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
         changeScore(ownerTeamName, 15);

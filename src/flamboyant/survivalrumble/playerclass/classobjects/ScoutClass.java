@@ -46,14 +46,13 @@ public class ScoutClass extends APlayerClass {
                 : distToHqCenter < 100 ? 1
                 : 0;
 
-        scoreBase = (int)(scoreBase * ScoringHelper.scoreAltitudeCoefficient(owner.getLocation().getBlockY()));
+        scoreBase = (int) (scoreBase * ScoringHelper.scoreAltitudeCoefficient(owner.getLocation().getBlockY()));
 
         return scoreBase;
     }
 
-    private String teamHQNearby(Location location)
-    {
-        for(String teamName : data().teamHeadquarterLocation.keySet()) {
+    private String teamHQNearby(Location location) {
+        for (String teamName : data().teamHeadquarterLocation.keySet()) {
             if (ownerTeam.equals(teamName)) continue;
 
             Location hqLocation = data().teamHeadquarterLocation.get(teamName);

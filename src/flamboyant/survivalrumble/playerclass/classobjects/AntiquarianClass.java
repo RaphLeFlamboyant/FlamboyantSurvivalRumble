@@ -13,51 +13,44 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public class AntiquarianClass  extends APlayerClass implements Listener {
+public class AntiquarianClass extends APlayerClass implements Listener {
     private HashSet<Material> collectedItems = new HashSet<>();
 
-    private Map<Material, Integer> scoreByMaterial = new HashMap<Material, Integer>()
-    {{
-        put(Material.HEART_OF_THE_SEA, 500);
+    private Map<Material, Integer> scoreByMaterial = new HashMap<Material, Integer>() {{
+        put(Material.HEART_OF_THE_SEA, 250);
         put(Material.WITHER_SKELETON_SKULL, 1000);
-        put(Material.SPONGE, 500);
-        put(Material.ANCIENT_DEBRIS, 500);
-        put(Material.BELL, 150);
-        put(Material.CRYING_OBSIDIAN, 500);
-        put(Material.ELYTRA, 250);
-        put(Material.DRAGON_HEAD, 250);
-        put(Material.DRAGON_EGG, 1000);
-        put(Material.NETHER_STAR, 2000);
-        put(Material.LEATHER_HORSE_ARMOR, 150);
-        put(Material.IRON_HORSE_ARMOR, 250);
-        put(Material.GOLDEN_HORSE_ARMOR, 350);
-        put(Material.DIAMOND_HORSE_ARMOR, 450);
-        put(Material.MUSIC_DISC_11, 50);
-        put(Material.MUSIC_DISC_13, 50);
-        put(Material.MUSIC_DISC_BLOCKS, 50);
-        put(Material.MUSIC_DISC_CAT, 50);
-        put(Material.MUSIC_DISC_CHIRP, 50);
-        put(Material.MUSIC_DISC_FAR, 50);
-        put(Material.MUSIC_DISC_MALL, 50);
-        put(Material.MUSIC_DISC_MELLOHI, 50);
-        put(Material.MUSIC_DISC_PIGSTEP, 50);
-        put(Material.MUSIC_DISC_STAL, 50);
-        put(Material.MUSIC_DISC_STRAD, 50);
-        put(Material.MUSIC_DISC_WAIT, 50);
-        put(Material.MUSIC_DISC_WARD, 50);
-        put(Material.NAME_TAG, 100);
-        put(Material.NAUTILUS_SHELL, 100);
-        put(Material.NAUTILUS_SHELL, 100);
-        put(Material.NAUTILUS_SHELL, 100);
-        put(Material.NAUTILUS_SHELL, 100);
-        put(Material.NAUTILUS_SHELL, 100);
-        put(Material.NAUTILUS_SHELL, 100);
-        put(Material.NAUTILUS_SHELL, 100);
-        put(Material.SADDLE, 1000);
-        put(Material.SCUTE, 500);
-        put(Material.TRIDENT, 1000);
-        put(Material.TOTEM_OF_UNDYING, 500);
-        put(Material.LEAD, 250);
+        put(Material.SPONGE, 250);
+        put(Material.ANCIENT_DEBRIS, 300);
+        put(Material.BELL, 50);
+        put(Material.CRYING_OBSIDIAN, 150);
+        put(Material.ELYTRA, 500);
+        put(Material.DRAGON_HEAD, 500);
+        put(Material.DRAGON_EGG, 500);
+        put(Material.NETHER_STAR, 1000);
+        put(Material.LEATHER_HORSE_ARMOR, 50);
+        put(Material.IRON_HORSE_ARMOR, 100);
+        put(Material.GOLDEN_HORSE_ARMOR, 150);
+        put(Material.DIAMOND_HORSE_ARMOR, 200);
+        put(Material.MUSIC_DISC_11, 25);
+        put(Material.MUSIC_DISC_13, 25);
+        put(Material.MUSIC_DISC_BLOCKS, 25);
+        put(Material.MUSIC_DISC_CAT, 25);
+        put(Material.MUSIC_DISC_CHIRP, 25);
+        put(Material.MUSIC_DISC_FAR, 25);
+        put(Material.MUSIC_DISC_MALL, 25);
+        put(Material.MUSIC_DISC_MELLOHI, 25);
+        put(Material.MUSIC_DISC_PIGSTEP, 25);
+        put(Material.MUSIC_DISC_STAL, 25);
+        put(Material.MUSIC_DISC_STRAD, 25);
+        put(Material.MUSIC_DISC_WAIT, 25);
+        put(Material.MUSIC_DISC_WARD, 25);
+        put(Material.NAME_TAG, 75);
+        put(Material.NAUTILUS_SHELL, 50);
+        put(Material.SADDLE, 150);
+        put(Material.SCUTE, 300);
+        put(Material.TRIDENT, 750);
+        put(Material.TOTEM_OF_UNDYING, 250);
+        put(Material.LEAD, 50);
     }};
 
 

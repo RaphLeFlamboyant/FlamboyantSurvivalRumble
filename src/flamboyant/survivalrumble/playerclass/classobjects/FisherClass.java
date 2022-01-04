@@ -4,26 +4,21 @@ import flamboyant.survivalrumble.data.PlayerClassType;
 import flamboyant.survivalrumble.utils.ScoringHelper;
 import flamboyant.survivalrumble.utils.TeamHelper;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.plugin.Plugin;
 
-import java.util.HashSet;
-
-public class CrafterClass extends APlayerClass implements Listener {
-    private HashSet<Material> carftedItems = new HashSet<>();
-
-    public CrafterClass(Player owner) {
+public class FisherClass extends APlayerClass implements Listener {
+    public FisherClass(Player owner) {
         super(owner);
     }
 
     @Override
     public PlayerClassType getClassType() {
-        return PlayerClassType.CRAFTER;
+        return PlayerClassType.FISHER;
     }
 
     @Override
@@ -32,14 +27,14 @@ public class CrafterClass extends APlayerClass implements Listener {
     }
 
     @EventHandler
-    public void onCraftItem(CraftItemEvent event) {
-        if (!event.getWhoClicked().getUniqueId().equals(owner.getUniqueId())) return;
-        if (carftedItems.contains(event.getInventory().getResult().getType())) return;
-        Location location = event.getWhoClicked().getLocation();
+    public void onPlayerFish(PlayerFishEvent event) {
+        if (event.getPlayer() != owner) return;
+        if (event.getState() != PlayerFishEvent.State.CAUGHT_FISH && event.getState() != PlayerFishEvent.State.CAUGHT_ENTITY)
+            return;
+        Location location = event.getPlayer().getLocation();
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
-        if (!concernedTeamName.equals(data().playersTeam.get(owner.getUniqueId()))) return;
+        if (concernedTeamName == null || !data().playersTeam.get(owner.getUniqueId()).equals(concernedTeamName)) return;
 
         changeScore(concernedTeamName, (int) (5 * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY())));
-        carftedItems.add(event.getInventory().getResult().getType());
     }
 }

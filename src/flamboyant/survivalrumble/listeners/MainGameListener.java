@@ -29,55 +29,44 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class MainGameListener implements Listener
-{
+public class MainGameListener implements Listener {
     private JavaPlugin plugin;
     private Server server;
 
     private Map<UUID, Integer> playerCompassingTeamIndex = new HashMap<>();
 
-    private SurvivalRumbleData data()
-    {
-        return SurvivalRumbleData.getSingleton();
-    }
-
-    public MainGameListener(JavaPlugin plugin, Server server)
-    {
+    public MainGameListener(JavaPlugin plugin, Server server) {
         this.plugin = plugin;
         this.server = server;
     }
 
-    public void initListener()
-    {
+    private SurvivalRumbleData data() {
+        return SurvivalRumbleData.getSingleton();
+    }
+
+    public void initListener() {
     }
 
     @EventHandler
-    public void onPlayerSpawn(PlayerRespawnEvent event)
-    {
-        if (!event.isBedSpawn())
-        {
+    public void onPlayerSpawn(PlayerRespawnEvent event) {
+        if (!event.isBedSpawn()) {
             Location loc = data().teamHeadquarterLocation.get(data().playersTeam.get(event.getPlayer().getUniqueId()));
             event.setRespawnLocation(loc);
         }
     }
 
     @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event)
-    {
-        if (event.getEntity() != null)
-        {
-            for(APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.DEATH))
-            {
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        if (event.getEntity() != null) {
+            for (APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.DEATH)) {
                 playerClass.onPlayerDeathTrigger(event.getEntity(), event.getEntity().getKiller());
             }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onBlockBreak(BlockBreakEvent event)
-    {
-        for(APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.BLOCK_BREAK))
-        {
+    public void onBlockBreak(BlockBreakEvent event) {
+        for (APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.BLOCK_BREAK)) {
             playerClass.onBlockBreakTrigger(event.getPlayer(), event.getBlock());
         }
 
@@ -88,10 +77,8 @@ public class MainGameListener implements Listener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onBlockBurn(BlockBurnEvent event)
-    {
-        for(APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.BLOCK_BURNED))
-        {
+    public void onBlockBurn(BlockBurnEvent event) {
+        for (APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.BLOCK_BURNED)) {
             playerClass.onBlockBurnedTrigger(event.getBlock());
         }
 
@@ -102,15 +89,12 @@ public class MainGameListener implements Listener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onBlockExplode(BlockExplodeEvent event)
-    {
-        for(APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.BLOCK_EXPLOSION))
-        {
+    public void onBlockExplode(BlockExplodeEvent event) {
+        for (APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.BLOCK_EXPLOSION)) {
             playerClass.onExplosionTrigger(event.getBlock());
         }
 
-        for(Block block : event.blockList())
-        {
+        for (Block block : event.blockList()) {
             Location blockLocation = block.getLocation();
             BlockData blockData = block.getBlockData();
             handleBlockDestruction(blockData, blockLocation);
@@ -120,10 +104,8 @@ public class MainGameListener implements Listener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityExplode(EntityExplodeEvent event)
-    {
-        for(Block block : event.blockList())
-        {
+    public void onEntityExplode(EntityExplodeEvent event) {
+        for (Block block : event.blockList()) {
             Location blockLocation = block.getLocation();
             BlockData blockData = block.getBlockData();
             handleBlockDestruction(blockData, blockLocation);
@@ -133,10 +115,8 @@ public class MainGameListener implements Listener
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onBlockPlace(BlockPlaceEvent event)
-    {
-        for(APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.BLOCK_PLACE))
-        {
+    public void onBlockPlace(BlockPlaceEvent event) {
+        for (APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.BLOCK_PLACE)) {
             playerClass.onBlockPlaceTrigger(event.getPlayer(), event.getBlock());
         }
 
@@ -148,18 +128,16 @@ public class MainGameListener implements Listener
 
         MaterialHelper mh = new MaterialHelper();
         BlockData blockData = event.getBlock().getBlockData();
-        if (mh.scoringMaterial.containsKey(blockData.getMaterial()))
-        {
+        if (mh.scoringMaterial.containsKey(blockData.getMaterial())) {
             int scoreChange = mh.scoringMaterial.get(blockData.getMaterial());
 
-            for(APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.BLOCK_MODIFIER))
-            {
+            for (APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.BLOCK_MODIFIER)) {
                 scoreChange = playerClass.onBlockModifierTrigger(scoreChange, blockData, location, concernedTeam);
             }
 
             Objective scoring = ScoreboardBricklayer.getSingleton().getObjective("Score");
 
-            int points = data().teamScores.get(concernedTeam) + (int)(scoreChange * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY()));
+            int points = data().teamScores.get(concernedTeam) + (int) (scoreChange * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY()));
             scoring.getScore(concernedTeam).setScore(points);
             data().teamScores.put(concernedTeam, points);
             data().saveData();
@@ -167,18 +145,15 @@ public class MainGameListener implements Listener
     }
 
     @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event)
-    {
+    public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         ItemStack item = event.getItem();
 
-        if (item != null && item.getType() == Material.COMPASS)
-        {
+        if (item != null && item.getType() == Material.COMPASS) {
             int index = 0;
             if (!playerCompassingTeamIndex.containsKey(player.getUniqueId()))
                 playerCompassingTeamIndex.put(player.getUniqueId(), 0);
-            else
-            {
+            else {
                 index = playerCompassingTeamIndex.get(player.getUniqueId());
                 index = (index + 1) % data().teams.size();
                 playerCompassingTeamIndex.put(player.getUniqueId(), index);
@@ -191,33 +166,29 @@ public class MainGameListener implements Listener
         }
     }
 
-    private void handleBlockDestruction(BlockData blockData, Location blockLocation)
-    {
+    private void handleBlockDestruction(BlockData blockData, Location blockLocation) {
         String concernedTeam = TeamHelper.getTeamHeadquarterName(blockLocation);
 
         if (concernedTeam == null)
             return;
 
         MaterialHelper mh = new MaterialHelper();
-        if (mh.scoringMaterial.containsKey(blockData.getMaterial()))
-        {
+        if (mh.scoringMaterial.containsKey(blockData.getMaterial())) {
             int scoreChange = mh.scoringMaterial.get(blockData.getMaterial());
 
-            if (blockData instanceof Slab)
-            {
+            if (blockData instanceof Slab) {
                 Slab slab = (Slab) blockData;
                 if (slab.getType() == Slab.Type.DOUBLE)
                     scoreChange *= 2;
             }
 
-            for(APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.BLOCK_MODIFIER))
-            {
+            for (APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.BLOCK_MODIFIER)) {
                 scoreChange = playerClass.onBlockModifierTrigger(scoreChange, blockData, blockLocation, concernedTeam);
             }
 
             Objective scoring = ScoreboardBricklayer.getSingleton().getObjective("Score");
 
-            int points = data().teamScores.get(concernedTeam) - (int)(scoreChange * ScoringHelper.scoreAltitudeCoefficient(blockLocation.getBlockY()));
+            int points = data().teamScores.get(concernedTeam) - (int) (scoreChange * ScoringHelper.scoreAltitudeCoefficient(blockLocation.getBlockY()));
             scoring.getScore(concernedTeam).setScore(points);
             data().teamScores.put(concernedTeam, points);
             data().saveData();

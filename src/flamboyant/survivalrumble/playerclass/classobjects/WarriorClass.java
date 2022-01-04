@@ -6,16 +6,16 @@ import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-public class WarriorClass extends APlayerClass
-{
-    public WarriorClass(Player owner)
-    {
+public class WarriorClass extends APlayerClass {
+    public WarriorClass(Player owner) {
         super(owner);
         this.triggers.add(ScoringTriggerType.DEATH);
     }
 
     @Override
-    public PlayerClassType getClassType() { return PlayerClassType.WARRIOR; }
+    public PlayerClassType getClassType() {
+        return PlayerClassType.WARRIOR;
+    }
 
     @Override
     public void gameStarted(Server server, Plugin plugin) {
@@ -23,14 +23,11 @@ public class WarriorClass extends APlayerClass
     }
 
     @Override
-    public void onPlayerDeathTrigger(Player killed, Player killer)
-    {
-        if (killer == owner)
-        {
+    public void onPlayerDeathTrigger(Player killed, Player killer) {
+        if (killer == owner) {
             String teamName = data().playersTeam.get(owner.getUniqueId());
-            if (!data().playersTeam.get(killed.getUniqueId()).equals(teamName))
-            {
-                changeScore(teamName, 300);
+            if (!data().playersTeam.get(killed.getUniqueId()).equals(teamName)) {
+                changeScore(teamName, 250);
             }
         }
     }

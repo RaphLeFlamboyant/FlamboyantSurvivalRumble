@@ -16,39 +16,31 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class GameSetupView implements Listener
-{
+public class GameSetupView implements Listener {
+    private static GameSetupView instance;
     private Inventory view;
     private List<String> stuffList = Arrays.asList("Stuff basique", "Stuff déplacements rapides", "Stuff minage");
-    private String selectedStuff = stuffList.get(0);
 
-    private SurvivalRumbleData data()
-    {
-        return SurvivalRumbleData.getSingleton();
+    protected GameSetupView() {
     }
 
-    private static GameSetupView instance;
-    public static GameSetupView getInstance()
-    {
-        if (instance == null)
-        {
+    public static GameSetupView getInstance() {
+        if (instance == null) {
             instance = new GameSetupView();
         }
 
         return instance;
     }
 
-    protected GameSetupView ()
-    {
-    }
-
-    public static String getViewID()
-    {
+    public static String getViewID() {
         return "Game setup view";
     }
 
-    public Inventory getViewInstance()
-    {
+    private SurvivalRumbleData data() {
+        return SurvivalRumbleData.getSingleton();
+    }
+
+    public Inventory getViewInstance() {
         if (view == null) {
             // TODO  : rendre cette portion générique pour qu'on ait un flag par team
             Inventory myInventory = Bukkit.createInventory(null, 45, getViewID());
@@ -64,8 +56,7 @@ public class GameSetupView implements Listener
     }
 
     @EventHandler
-    public void onInventoryClick(InventoryClickEvent event)
-    {
+    public void onInventoryClick(InventoryClickEvent event) {
         Inventory inventory = event.getInventory();
         if (inventory != getViewInstance()) return;
 
@@ -81,37 +72,32 @@ public class GameSetupView implements Listener
             HandleGameTimeItemClicked(event, clicked);
         else if (ItemHelper.isSameItemKind(clicked, pvpIntensityItem()))
             HandlePvpIntensityItemClicked(event, clicked);
-        else if (Arrays.asList(Material.COOKED_BEEF, Material.ENDER_PEARL, Material.IRON_PICKAXE).contains(clicked.getType()))
-        {
-            for (int i = 1; i < 4; i++) {
+        else if (Arrays.asList(Material.COOKED_BEEF, Material.ENDER_PEARL, Material.IRON_PICKAXE).contains(clicked.getType())) {
+            for (int i = 9 * 3 + 3; i < 9 * 3 + 6; i++) {
                 ItemStack item = event.getInventory().getItem(i);
                 item.removeEnchantment(Enchantment.KNOCKBACK);
             }
 
             clicked.addUnsafeEnchantment(Enchantment.KNOCKBACK, 1);
-            selectedStuff = clicked.getItemMeta().getDisplayName();
+            data().selectedStuff = clicked.getType();
         }
-        // TODO : ajouter ce que ça change dans la data (?)
     }
 
-    private void HandlePvpIntensityItemClicked(InventoryClickEvent event, ItemStack clicked)
-    {
+    private void HandlePvpIntensityItemClicked(InventoryClickEvent event, ItemStack clicked) {
         UpdateItemOnClick(event, clicked);
 
         data().pvpIntensity = clicked.getAmount();
         data().saveData();
     }
 
-    private void HandleGameTimeItemClicked(InventoryClickEvent event, ItemStack clicked)
-    {
+    private void HandleGameTimeItemClicked(InventoryClickEvent event, ItemStack clicked) {
         UpdateItemOnClick(event, clicked);
 
         data().minutesBeforeEnd = clicked.getAmount() * 60;
         data().saveData();
     }
 
-    private void UpdateItemOnClick(InventoryClickEvent event, ItemStack clicked)
-    {
+    private void UpdateItemOnClick(InventoryClickEvent event, ItemStack clicked) {
         int amount = clicked.getAmount();
         System.out.println("Before change : " + amount + "; IsRightClick : " + event.isRightClick());
         if (event.isRightClick())
@@ -126,33 +112,27 @@ public class GameSetupView implements Listener
         else clicked.setAmount(amount);
     }
 
-    private ItemStack gameTimeItem()
-    {
+    private ItemStack gameTimeItem() {
         return ItemHelper.generateItem(Material.CLOCK, 4, "Game time (h)", new ArrayList<String>(), false, null, false, false);
     }
 
-    private ItemStack pvpIntensityItem()
-    {
+    private ItemStack pvpIntensityItem() {
         return ItemHelper.generateItem(Material.DIAMOND_SWORD, 2, "Pvp intensity (meetup, etc)", new ArrayList<String>(), false, null, false, false);
     }
 
-    private ItemStack basicStuffItem()
-    {
+    private ItemStack basicStuffItem() {
         return ItemHelper.generateItem(Material.COOKED_BEEF, 1, stuffList.get(0), new ArrayList<String>(), true, Enchantment.KNOCKBACK, true, false);
     }
 
-    private ItemStack goFastStuffItem()
-    {
+    private ItemStack goFastStuffItem() {
         return ItemHelper.generateItem(Material.ENDER_PEARL, 1, stuffList.get(1), new ArrayList<String>(), false, null, true, false);
     }
 
-    private ItemStack fastStartStuffItem()
-    {
+    private ItemStack fastStartStuffItem() {
         return ItemHelper.generateItem(Material.IRON_PICKAXE, 1, stuffList.get(2), new ArrayList<String>(), false, null, true, false);
     }
 
-    public void unregisterEvents()
-    {
+    public void unregisterEvents() {
         InventoryClickEvent.getHandlerList().unregister(this);
     }
 }

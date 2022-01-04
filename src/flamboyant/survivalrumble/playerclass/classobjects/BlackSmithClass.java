@@ -1,7 +1,6 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
-import flamboyant.survivalrumble.utils.ScoringHelper;
 import flamboyant.survivalrumble.utils.TeamHelper;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -15,13 +14,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BlackSmithClass extends APlayerClass implements Listener {
-    private int leatherBasePoints = 4;
-    private int ironBasePoints = 4;
-    private int goldBasePoints = 5;
-    private int diamondBasePoints = 20;
+    private int leatherBasePoints = 2;
+    private int ironBasePoints = 2;
+    private int goldBasePoints = 3;
+    private int diamondBasePoints = 6;
 
-    private Map<Material, Integer> scoreByMaterial = new HashMap<Material, Integer>()
-    {{
+    private Map<Material, Integer> scoreByMaterial = new HashMap<Material, Integer>() {{
         put(Material.LEATHER_CHESTPLATE, 8 * leatherBasePoints);
         put(Material.LEATHER_BOOTS, 4 * leatherBasePoints);
         put(Material.LEATHER_HELMET, 5 * leatherBasePoints);

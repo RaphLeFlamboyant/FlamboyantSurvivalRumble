@@ -8,14 +8,11 @@ import org.bukkit.Material;
 import java.util.Arrays;
 import java.util.List;
 
-public class TeamHelper
-{
+public class TeamHelper {
     public static List<String> teamNames = Arrays.asList("RED", "BLUE", "GREEN", "GOLD");
 
-    public static ChatColor getTeamColor(String teamName)
-    {
-        switch (teamName)
-        {
+    public static ChatColor getTeamColor(String teamName) {
+        switch (teamName) {
             case "RED":
                 return ChatColor.RED;
             case "BLUE":
@@ -29,10 +26,8 @@ public class TeamHelper
         }
     }
 
-    public static Material getTeamFlagMaterial(String teamName)
-    {
-        switch (teamName)
-        {
+    public static Material getTeamFlagMaterial(String teamName) {
+        switch (teamName) {
             case "RED":
                 return Material.RED_BANNER;
             case "BLUE":
@@ -46,10 +41,8 @@ public class TeamHelper
         }
     }
 
-    public static Material getTeamConcreteMaterial(String teamName)
-    {
-        switch (teamName)
-        {
+    public static Material getTeamConcreteMaterial(String teamName) {
+        switch (teamName) {
             case "RED":
                 return Material.RED_CONCRETE;
             case "BLUE":
@@ -63,12 +56,24 @@ public class TeamHelper
         }
     }
 
-    public static String getTeamHeadquarterName(Location location)
-    {
-        for (String teamName : SurvivalRumbleData.getSingleton().teams)
-        {
-            if (isLocationInHeadQuarter(location, teamName))
-            {
+    public static Material getTeamBedMaterial(String teamName) {
+        switch (teamName) {
+            case "RED":
+                return Material.RED_BED;
+            case "BLUE":
+                return Material.BLUE_BED;
+            case "GREEN":
+                return Material.GREEN_BED;
+            case "GOLD":
+                return Material.YELLOW_BED;
+            default:
+                return Material.BLACK_BED;
+        }
+    }
+
+    public static String getTeamHeadquarterName(Location location) {
+        for (String teamName : SurvivalRumbleData.getSingleton().teams) {
+            if (isLocationInHeadQuarter(location, teamName)) {
                 return teamName;
             }
         }
@@ -76,8 +81,7 @@ public class TeamHelper
         return null;
     }
 
-    public static Boolean isLocationInHeadQuarter(Location location, String teamName)
-    {
+    public static Boolean isLocationInHeadQuarter(Location location, String teamName) {
         Location teamHQLocation = SurvivalRumbleData.getSingleton().teamHeadquarterLocation.get(teamName);
 
         return Math.abs(location.getBlockX() - teamHQLocation.getBlockX()) < 25
