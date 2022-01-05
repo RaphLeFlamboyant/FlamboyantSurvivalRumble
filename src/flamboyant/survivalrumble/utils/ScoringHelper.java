@@ -1,10 +1,15 @@
 package flamboyant.survivalrumble.utils;
 
 public class ScoringHelper {
+    public static int fullScoreMinY = 58;
+    public static int fullScoreMaxY = 80;
+    public static int zeroScoreYUnderground = 20;
+    public static int zeroScoreYInSky = 200;
+
     public static double scoreAltitudeCoefficient(int blockLocationY) {
-        if (blockLocationY >= 58 && blockLocationY < 80)
+        if (blockLocationY >= fullScoreMinY && blockLocationY < fullScoreMaxY)
             return 1;
-        if (blockLocationY < 20 || blockLocationY > 200)
+        if (blockLocationY < zeroScoreYUnderground || blockLocationY > zeroScoreYInSky)
             return 0;
 
         double baseY;

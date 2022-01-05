@@ -3,13 +3,14 @@ package flamboyant.survivalrumble.data;
 public enum PlayerClassType {
     // Vanilla roles
     WARRIOR, // Score by killing
-    HUNTER, // Score by hitting foes with arrows
+    ARCHER, // Score by hitting foes with arrows
     WITCH, // Score by throwing potions on foes
 
     SCOUT, // Score by being close to foes base
 
     MASON, // Clay based Bricks give twice the amount of points, warned when blocs are destroys in the base
     PEASANT, // Hay bale is a 10 points based bloc instead 0
+    BOORISH, // Ores give points instead 0
     BUNGLER, // Destroy the foes blocs to get points
     ELBMURLAVIVRUS, // revert bloc score in his hq and destroy natural bloc earn points
 
@@ -23,6 +24,8 @@ public enum PlayerClassType {
     DEFEATIST, // Score by dying
     CHEERLEADER, // Score when foes are killed by an ally < 50 blocs away
     FISHER, // Score when fishing in its HQ
+    HUNTER, // Score by killing mobs
+
 
     // Non Vanilla roles
     BOMBER, // Score by exploding TNT in foes HQ

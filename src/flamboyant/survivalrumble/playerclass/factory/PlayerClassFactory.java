@@ -23,6 +23,8 @@ public class PlayerClassFactory {
                 return new PeasantClass(owner);
             case ELBMURLAVIVRUS:
                 return new ElbmurLavivrusSurvivorClass(owner);
+            case ARCHER:
+                return new ArcherClass(owner);
             case HUNTER:
                 return new HunterClass(owner);
             case ELECTRICIAN:
@@ -45,6 +47,8 @@ public class PlayerClassFactory {
                 return new CheerleaderClass(owner);
             case FISHER:
                 return new FisherClass(owner);
+            case BOORISH:
+                return new BoorishClass(owner);
             default:
                 return new FakeClass(owner);
         }

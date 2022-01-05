@@ -25,7 +25,7 @@ public class PlayerClassHelper {
         //put(PlayerClassType.WEREWOLF, new PlayerClassMetadata(PlayerClassType.WEREWOLF, Material.BONE, "LOUP GAROU", Sound.ENTITY_WOLF_GROWL, "Loup Garou", "Il salive d'impatience"));
         put(PlayerClassType.ELBMURLAVIVRUS, new PlayerClassMetadata(PlayerClassType.ELBMURLAVIVRUS, Material.BAKED_POTATO, "SURVIVANT DU ELBMUR LAVIVRUS", Sound.ENTITY_VILLAGER_CELEBRATE, "Le Survivant", "du Elbmur Lavivrus"));
         put(PlayerClassType.PEASANT, new PlayerClassMetadata(PlayerClassType.PEASANT, Material.HAY_BLOCK, "PAYSAN", Sound.BLOCK_GRASS_BREAK, "Paysan", "Il cultive sa victoire"));
-        put(PlayerClassType.HUNTER, new PlayerClassMetadata(PlayerClassType.HUNTER, Material.BOW, "CHASSEUR", Sound.ITEM_CROSSBOW_HIT, "Chasseur", "Ses flèches vous harcèlent"));
+        put(PlayerClassType.ARCHER, new PlayerClassMetadata(PlayerClassType.ARCHER, Material.BOW, "ARCHER", Sound.ITEM_CROSSBOW_HIT, "Archer", "Ses flèches vous harcèlent"));
         put(PlayerClassType.BLACKSMITH, new PlayerClassMetadata(PlayerClassType.BLACKSMITH, Material.ANVIL, "FORGERON", Sound.BLOCK_ANVIL_USE, "Forgeron", "Forge son avenir"));
         put(PlayerClassType.BADKID, new PlayerClassMetadata(PlayerClassType.BADKID, Material.ARMOR_STAND, "SALEGAMIN", Sound.ENTITY_PARROT_IMITATE_WITCH, "Sale Gamin", "Le roi du prank"));
         put(PlayerClassType.CRAFTER, new PlayerClassMetadata(PlayerClassType.CRAFTER, Material.CRAFTING_TABLE, "FABRIQUANT", Sound.BLOCK_SMITHING_TABLE_USE, "Fabriquant", "Jouer lui suffira à gagner"));
@@ -34,6 +34,8 @@ public class PlayerClassHelper {
         put(PlayerClassType.DEFEATIST, new PlayerClassMetadata(PlayerClassType.DEFEATIST, Material.POISONOUS_POTATO, "DÉFAITISTE", Sound.ENTITY_VILLAGER_AMBIENT, "Défaitiste", "Sa défaite est la vôtre"));
         put(PlayerClassType.CHEERLEADER, new PlayerClassMetadata(PlayerClassType.CHEERLEADER, Material.FIREWORK_STAR, "POM-POM GIRL", Sound.ENTITY_VILLAGER_CELEBRATE, "Pom-pom Girl", "Ses alliés sont sa force"));
         put(PlayerClassType.FISHER, new PlayerClassMetadata(PlayerClassType.FISHER, Material.FISHING_ROD, "PÊCHEUR", Sound.ENTITY_FISHING_BOBBER_THROW, "Pêcheur", "Une force tranquille"));
+        put(PlayerClassType.BOORISH, new PlayerClassMetadata(PlayerClassType.BOORISH, Material.COAL_ORE, "RUSTRE", Sound.ENTITY_PILLAGER_AMBIENT, "Rustre", "Il vit dans une grotte"));
+        put(PlayerClassType.HUNTER, new PlayerClassMetadata(PlayerClassType.HUNTER, Material.BEEF, "CHASSEUR", Sound.ENTITY_COW_DEATH, "Chasseur", "Un flair inégalé"));
 
     }};
 }
