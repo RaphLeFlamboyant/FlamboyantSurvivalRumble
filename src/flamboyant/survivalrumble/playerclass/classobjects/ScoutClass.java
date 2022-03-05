@@ -1,6 +1,7 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
+import flamboyant.survivalrumble.utils.ScoreType;
 import flamboyant.survivalrumble.utils.ScoringHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -35,7 +36,7 @@ public class ScoutClass extends APlayerClass {
         Location hqLocation = data().teamHeadquarterLocation.get(hqNearby);
         int maxDist = Math.max(Math.abs(hqLocation.getBlockX() - owner.getLocation().getBlockX()), Math.abs(hqLocation.getBlockZ() - owner.getLocation().getBlockZ()));
 
-        changeScore(ownerTeam, getScoring(maxDist));
+        ScoringHelper.addScore(ownerTeam, getScoring(maxDist), ScoreType.FLAT);
     }
 
     private int getScoring(int distToHqCenter) {

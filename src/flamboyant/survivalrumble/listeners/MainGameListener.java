@@ -135,12 +135,8 @@ public class MainGameListener implements Listener {
                 scoreChange = playerClass.onBlockModifierTrigger(scoreChange, blockData, location, concernedTeam);
             }
 
-            Objective scoring = ScoreboardBricklayer.getSingleton().getObjective("Score");
-
-            int points = data().teamScores.get(concernedTeam) + (int) (scoreChange * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY()));
-            scoring.getScore(concernedTeam).setScore(points);
-            data().teamScores.put(concernedTeam, points);
-            data().saveData();
+            int changes = (int) (scoreChange * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY()));
+            ScoringHelper.addScore(concernedTeam, changes, ScoreType.REVERSIBLE);
         }
     }
 
@@ -186,12 +182,8 @@ public class MainGameListener implements Listener {
                 scoreChange = playerClass.onBlockModifierTrigger(scoreChange, blockData, blockLocation, concernedTeam);
             }
 
-            Objective scoring = ScoreboardBricklayer.getSingleton().getObjective("Score");
-
-            int points = data().teamScores.get(concernedTeam) - (int) (scoreChange * ScoringHelper.scoreAltitudeCoefficient(blockLocation.getBlockY()));
-            scoring.getScore(concernedTeam).setScore(points);
-            data().teamScores.put(concernedTeam, points);
-            data().saveData();
+            int changes = - (int) (scoreChange * ScoringHelper.scoreAltitudeCoefficient(blockLocation.getBlockY()));
+            ScoringHelper.addScore(concernedTeam, changes, ScoreType.REVERSIBLE);
         }
     }
 

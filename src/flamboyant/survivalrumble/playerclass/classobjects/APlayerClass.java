@@ -2,6 +2,7 @@ package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
 import flamboyant.survivalrumble.data.SurvivalRumbleData;
+import flamboyant.survivalrumble.utils.ScoreType;
 import flamboyant.survivalrumble.utils.ScoreboardBricklayer;
 import flamboyant.survivalrumble.utils.ScoringTriggerType;
 import org.bukkit.Location;
@@ -63,12 +64,5 @@ public abstract class APlayerClass {
     }
 
     public void onBlockBreakTrigger(Player playerWhoBreaks, Block block) {
-    }
-
-    protected void changeScore(String teamName, int modifier) {
-        int points = data().teamScores.get(teamName) + modifier;
-        ScoreboardBricklayer.getSingleton().setTeamScore("Score", teamName, points);
-        data().teamScores.put(teamName, points);
-        data().saveData();
     }
 }

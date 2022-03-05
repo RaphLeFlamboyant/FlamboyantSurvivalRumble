@@ -1,6 +1,8 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
+import flamboyant.survivalrumble.utils.ScoreType;
+import flamboyant.survivalrumble.utils.ScoringHelper;
 import flamboyant.survivalrumble.utils.ScoringTriggerType;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
@@ -29,6 +31,6 @@ public class CheerleaderClass extends APlayerClass {
         if (data().playersTeam.get(killed.getUniqueId()).equals(ownerTeamName)) return;
         if (owner.getLocation().distance(killed.getLocation()) > 50) return;
 
-        changeScore(ownerTeamName, 125);
+        ScoringHelper.addScore(ownerTeamName, 125, ScoreType.FLAT);
     }
 }

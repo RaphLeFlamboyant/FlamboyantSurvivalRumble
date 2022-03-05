@@ -1,6 +1,8 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
+import flamboyant.survivalrumble.utils.ScoreType;
+import flamboyant.survivalrumble.utils.ScoringHelper;
 import org.bukkit.Server;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -37,6 +39,6 @@ public class HunterClass extends APlayerClass implements Listener {
         if (!isTier1 && !tier2EntityTypes.contains(event.getEntity().getType())) return;
 
         String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
-        changeScore(ownerTeamName, isTier1 ? 1 : 2);
+        ScoringHelper.addScore(ownerTeamName, isTier1 ? 1 : 2, ScoreType.FLAT);
     }
 }

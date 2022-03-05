@@ -178,7 +178,9 @@ public class GameSetupListener implements Listener {
         Objective scoreObj = scoreboardBricklayer.createObjective("Score", "Score", DisplaySlot.SIDEBAR);
         for (String teamName : data().teams) {
             scoreObj.getScore(teamName).setScore(0);
-            data().teamScores.put(teamName, 0);
+            data().teamReversibleScores.put(teamName, 0);
+            data().teamFlatScores.put(teamName, 0);
+            data().teamPerfectScores.put(teamName, 0);
         }
     }
 

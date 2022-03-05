@@ -1,6 +1,8 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
+import flamboyant.survivalrumble.utils.ScoreType;
+import flamboyant.survivalrumble.utils.ScoringHelper;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
@@ -31,6 +33,6 @@ public class BomberClass extends APlayerClass implements Listener {
 
         event.getPlayer().getWorld().createExplosion(event.getPlayer().getLocation(), 3.5f, true);
         event.getPlayer().setHealth(0);
-        changeScore(data().playersTeam.get(owner.getUniqueId()), -200);
+        ScoringHelper.addScore(data().playersTeam.get(owner.getUniqueId()), -200, ScoreType.PERFECT);
     }
 }

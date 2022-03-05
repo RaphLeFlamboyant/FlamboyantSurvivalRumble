@@ -3,7 +3,9 @@ package flamboyant.survivalrumble.listeners;
 import flamboyant.survivalrumble.data.SurvivalRumbleData;
 import flamboyant.survivalrumble.playerclass.managers.GameTimeManager;
 import flamboyant.survivalrumble.utils.ItemHelper;
+import flamboyant.survivalrumble.utils.ScoreType;
 import flamboyant.survivalrumble.utils.ScoreboardBricklayer;
+import flamboyant.survivalrumble.utils.ScoringHelper;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -14,7 +16,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -106,9 +107,7 @@ public class RunToBaseListener implements Listener {
             pointsTick = 0;
             ScoreboardBricklayer sb = ScoreboardBricklayer.getSingleton();
             for (String teamName : data().teams) {
-                int score = data().teamScores.get(teamName) + reachesByTeam.get(teamName);
-                sb.setTeamScore("Score", teamName, score);
-                data().teamScores.put(teamName, score);
+                ScoringHelper.addScore(teamName, reachesByTeam.get(teamName), ScoreType.FLAT);
             }
 
             data().saveData();

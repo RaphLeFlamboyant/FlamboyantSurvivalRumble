@@ -1,6 +1,7 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
+import flamboyant.survivalrumble.utils.ScoreType;
 import flamboyant.survivalrumble.utils.ScoringHelper;
 import flamboyant.survivalrumble.utils.TeamHelper;
 import org.bukkit.Location;
@@ -39,7 +40,7 @@ public class CrafterClass extends APlayerClass implements Listener {
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
         if (!concernedTeamName.equals(data().playersTeam.get(owner.getUniqueId()))) return;
 
-        changeScore(concernedTeamName, (int) (5 * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY())));
+        ScoringHelper.addScore(concernedTeamName, (int) (5 * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY())), ScoreType.FLAT);
         carftedItems.add(event.getInventory().getResult().getType());
     }
 }

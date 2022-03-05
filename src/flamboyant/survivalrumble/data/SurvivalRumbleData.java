@@ -32,7 +32,9 @@ public class SurvivalRumbleData implements Serializable {
     public Map<String, List<UUID>> playersByTeam = new HashMap<>();
     public HashMap<UUID, PlayerClassType> playersClass = new HashMap<UUID, PlayerClassType>();
     // Registered in game setup listener when launching game start (game starts with the class selection)
-    public HashMap<String, Integer> teamScores = new HashMap<String, Integer>();
+    public HashMap<String, Integer> teamReversibleScores = new HashMap<String, Integer>();
+    public HashMap<String, Integer> teamFlatScores = new HashMap<String, Integer>();
+    public HashMap<String, Integer> teamPerfectScores = new HashMap<String, Integer>();
     public List<Integer> meetupTimer = new ArrayList<Integer>();
 
     protected SurvivalRumbleData() {
@@ -75,6 +77,13 @@ public class SurvivalRumbleData implements Serializable {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public int getTotalScore(String teamName) {
+        if (teamReversibleScores.containsKey(teamName) && teamFlatScores.containsKey(teamName) && teamPerfectScores.containsKey(teamName))
+            return teamReversibleScores.get(teamName) + teamFlatScores.get(teamName) +teamPerfectScores.get(teamName);
+
+        return 0; // TODO : guard
     }
 
     public boolean saveData() {

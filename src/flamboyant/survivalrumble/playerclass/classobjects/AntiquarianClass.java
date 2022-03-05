@@ -1,6 +1,8 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
+import flamboyant.survivalrumble.utils.ScoreType;
+import flamboyant.survivalrumble.utils.ScoringHelper;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
@@ -76,7 +78,7 @@ public class AntiquarianClass extends APlayerClass implements Listener {
         if (collectedItems.contains(material)) return;
 
         int score = scoreByMaterial.get(material);
-        changeScore(data().playersTeam.get(owner.getUniqueId()), score);
+        ScoringHelper.addScore(data().playersTeam.get(owner.getUniqueId()), score, ScoreType.FLAT);
 
         collectedItems.add(material);
     }

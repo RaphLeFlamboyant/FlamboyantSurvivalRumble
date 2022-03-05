@@ -81,7 +81,7 @@ public class ConsistencyCommands implements CommandExecutor {
             senderPlayer.sendMessage("Ajout de la team " + teamName);
             Team team = scoreboardBricklayer.addNewTeam(teamName);
             team.setColor(teamColors[iColor++]);
-            int teamScore = data().teamScores.get(teamName);
+            int teamScore = data().getTotalScore(teamName);
             scoreObj.getScore(teamName).setScore(teamScore);
         }
 
@@ -132,9 +132,9 @@ public class ConsistencyCommands implements CommandExecutor {
         String winnerTeam = null;
 
         for (String teamName : data().teams) {
-            if (winnerTeam == null || data().teamScores.get(teamName) > highiestScore) {
+            if (winnerTeam == null || data().getTotalScore(teamName) > highiestScore) {
                 winnerTeam = teamName;
-                highiestScore = data().teamScores.get(teamName);
+                highiestScore = data().getTotalScore(teamName);
             }
         }
 

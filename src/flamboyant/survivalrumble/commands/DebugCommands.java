@@ -113,12 +113,12 @@ public class DebugCommands implements CommandExecutor {
                 consistency &= MsgOnError(offlinePlayerNames.size() == data().playersTeam.size(), "offlinePlayerNames and playersTeam not the same size", consistencyFailedReasons);
                 Bukkit.broadcastMessage(" ");
 
-                Bukkit.broadcastMessage("§6  - teamScores : " + data().teamScores.size());
-                for (String key : data().teamScores.keySet()) {
-                    Bukkit.broadcastMessage("    > " + key + " - " + data().teamScores.get(key));
+                Bukkit.broadcastMessage("§6  - teamScores : " + data().teamPerfectScores.size());
+                for (String key : data().teamPerfectScores.keySet()) {
+                    Bukkit.broadcastMessage("    > " + key + " - " + data().getTotalScore(key));
                     consistency &= MsgOnError(teamNames.contains(key), "teamNames doesn't contains " + key + " that is in teamScores", consistencyFailedReasons);
                 }
-                consistency &= MsgOnError(teamNames.size() == data().teamScores.size(), "teamNames and teamScores not the same size", consistencyFailedReasons);
+                consistency &= MsgOnError(teamNames.size() == data().teamPerfectScores.size(), "teamNames and teamScores not the same size", consistencyFailedReasons);
                 Bukkit.broadcastMessage(" ");
 
                 Bukkit.broadcastMessage("§6  - minutesBeforeEnd : " + data().minutesBeforeEnd);

@@ -1,6 +1,8 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
+import flamboyant.survivalrumble.utils.ScoreType;
+import flamboyant.survivalrumble.utils.ScoringHelper;
 import org.bukkit.Server;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -56,7 +58,7 @@ public class WitchClass extends APlayerClass implements Listener {
                 scoreDelta += 40;
         }
 
-        changeScore(ownerTeamName, scoreDelta);
+        ScoringHelper.addScore(ownerTeamName, scoreDelta, ScoreType.FLAT);
     }
 
     private int potionPositivity(ThrownPotion potion) {

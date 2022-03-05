@@ -2,6 +2,8 @@ package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
 import flamboyant.survivalrumble.utils.MaterialHelper;
+import flamboyant.survivalrumble.utils.ScoreType;
+import flamboyant.survivalrumble.utils.ScoringHelper;
 import flamboyant.survivalrumble.utils.ScoringTriggerType;
 import flamboyant.survivalrumble.utils.TeamHelper;
 import org.bukkit.Location;
@@ -68,6 +70,6 @@ public class ElbmurLavivrusSurvivorClass extends APlayerClass {
         if (concernedTeamName == null || !ownerTeamName.equals(concernedTeamName)) return;
 
         int coef = broken ? 1 : -1;
-        changeScore(ownerTeamName, (coef * 2));
+        ScoringHelper.addScore(ownerTeamName, (coef * 2), ScoreType.REVERSIBLE);
     }
 }

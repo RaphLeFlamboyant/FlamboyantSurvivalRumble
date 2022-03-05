@@ -1,6 +1,8 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
+import flamboyant.survivalrumble.utils.ScoreType;
+import flamboyant.survivalrumble.utils.ScoringHelper;
 import flamboyant.survivalrumble.utils.ScoringTriggerType;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
@@ -27,7 +29,7 @@ public class DefeatistClass extends APlayerClass {
         if (killed == owner) {
             String teamName = data().playersTeam.get(owner.getUniqueId());
             if (!data().playersTeam.get(killer.getUniqueId()).equals(teamName)) {
-                changeScore(teamName, 50);
+                ScoringHelper.addScore(teamName, 50, ScoreType.FLAT);
             }
         }
     }

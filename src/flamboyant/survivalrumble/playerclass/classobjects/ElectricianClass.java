@@ -1,6 +1,8 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
+import flamboyant.survivalrumble.utils.ScoreType;
+import flamboyant.survivalrumble.utils.ScoringHelper;
 import flamboyant.survivalrumble.utils.ScoringTriggerType;
 import flamboyant.survivalrumble.utils.TeamHelper;
 import org.bukkit.Bukkit;
@@ -95,7 +97,7 @@ public class ElectricianClass extends APlayerClass {
                 + numberOfCorrectLocation(tier4BlockLocationList) * 10.0;
         int scoreToCountNow = (int) scoreDelta;
 
-        this.changeScore(data().playersTeam.get(owner.getUniqueId()), scoreToCountNow);
+        ScoringHelper.addScore(data().playersTeam.get(owner.getUniqueId()), scoreToCountNow, ScoreType.FLAT);
     }
 
     private int numberOfCorrectLocation(List<Location> blockLocationList) {

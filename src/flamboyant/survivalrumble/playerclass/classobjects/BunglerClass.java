@@ -2,6 +2,7 @@ package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
 import flamboyant.survivalrumble.utils.MaterialHelper;
+import flamboyant.survivalrumble.utils.ScoreType;
 import flamboyant.survivalrumble.utils.ScoringHelper;
 import flamboyant.survivalrumble.utils.ScoringTriggerType;
 import flamboyant.survivalrumble.utils.TeamHelper;
@@ -36,6 +37,6 @@ public class BunglerClass extends APlayerClass {
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
         if (concernedTeamName == null || data().playersTeam.get(owner.getUniqueId()).equals(concernedTeamName)) return;
 
-        changeScore(data().playersTeam.get(owner.getUniqueId()), (int) (5 * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY())));
+        ScoringHelper.addScore(data().playersTeam.get(owner.getUniqueId()), (int) (5 * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY())), ScoreType.FLAT);
     }
 }

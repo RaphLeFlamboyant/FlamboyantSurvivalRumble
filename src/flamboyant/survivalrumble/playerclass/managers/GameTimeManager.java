@@ -53,9 +53,9 @@ public class GameTimeManager {
         int iColor = 0;
         int iWinner = 0;
         for (String teamName : data().teams) {
-            if (winnerTeam == null || data().teamScores.get(teamName) > highiestScore) {
+            if (winnerTeam == null || data().getTotalScore(teamName) > highiestScore) {
                 winnerTeam = teamName;
-                highiestScore = data().teamScores.get(teamName);
+                highiestScore = data().getTotalScore(teamName);
                 iWinner = iColor;
             }
             iColor++;

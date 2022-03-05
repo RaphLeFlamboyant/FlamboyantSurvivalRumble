@@ -1,6 +1,8 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
+import flamboyant.survivalrumble.utils.ScoreType;
+import flamboyant.survivalrumble.utils.ScoringHelper;
 import flamboyant.survivalrumble.utils.ScoringTriggerType;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
@@ -27,6 +29,6 @@ public class TrapperClass extends APlayerClass {
         if (data().playersTeam.get(killed.getUniqueId()).equals(data().playersTeam.get(owner.getUniqueId()))) return;
         if (owner.getLocation().distance(killed.getLocation()) > 100) return;
 
-        changeScore(data().playersTeam.get(owner.getUniqueId()), 400);
+        ScoringHelper.addScore(data().playersTeam.get(owner.getUniqueId()), 400, ScoreType.FLAT);
     }
 }

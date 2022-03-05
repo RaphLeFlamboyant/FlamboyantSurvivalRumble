@@ -1,6 +1,8 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
+import flamboyant.survivalrumble.utils.ScoreType;
+import flamboyant.survivalrumble.utils.ScoringHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.entity.Entity;
@@ -41,6 +43,6 @@ public class BadKidClass extends APlayerClass implements Listener {
         if (data().playersTeam.get(owner.getUniqueId()).equals(data().playersTeam.get(player.getUniqueId()))) return;
 
         String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
-        changeScore(ownerTeamName, 15);
+        ScoringHelper.addScore(ownerTeamName, 15, ScoreType.FLAT);
     }
 }

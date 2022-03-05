@@ -1,6 +1,8 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
+import flamboyant.survivalrumble.utils.ScoreType;
+import flamboyant.survivalrumble.utils.ScoringHelper;
 import flamboyant.survivalrumble.utils.TeamHelper;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -76,6 +78,6 @@ public class BlackSmithClass extends APlayerClass implements Listener {
         if (!scoreByMaterial.containsKey(event.getInventory().getResult().getType())) return;
 
         int score = scoreByMaterial.get(event.getInventory().getResult().getType());
-        changeScore(concernedTeamName, score);
+        ScoringHelper.addScore(concernedTeamName, score, ScoreType.FLAT);
     }
 }

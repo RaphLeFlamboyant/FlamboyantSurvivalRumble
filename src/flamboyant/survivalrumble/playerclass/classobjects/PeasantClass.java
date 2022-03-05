@@ -1,6 +1,7 @@
 package flamboyant.survivalrumble.playerclass.classobjects;
 
 import flamboyant.survivalrumble.data.PlayerClassType;
+import flamboyant.survivalrumble.utils.ScoreType;
 import flamboyant.survivalrumble.utils.ScoringHelper;
 import flamboyant.survivalrumble.utils.ScoringTriggerType;
 import flamboyant.survivalrumble.utils.TeamHelper;
@@ -61,6 +62,6 @@ public class PeasantClass extends APlayerClass {
         String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
         if (concernedTeamName == null || !ownerTeamName.equals(concernedTeamName)) return;
 
-        changeScore(ownerTeamName, (coef * (int) (10 * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY()))));
+        ScoringHelper.addScore(ownerTeamName, (coef * (int) (10 * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY()))), ScoreType.REVERSIBLE);
     }
 }
