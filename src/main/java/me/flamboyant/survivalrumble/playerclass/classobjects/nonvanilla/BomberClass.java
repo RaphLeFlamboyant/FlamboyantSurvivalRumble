@@ -18,6 +18,11 @@ public class BomberClass extends ANonVanillaClass implements Listener {
     }
 
     @Override
+    protected String getClassDescriptionCorpus() {
+        return "Utiliser une TNT provoque une énorme explosion. En contrepartie, l'explosion te tue et ton équipe perd 200 points";
+    }
+
+    @Override
     protected int getScoreMalus() {
         return 0;
     }
