@@ -1,0 +1,126 @@
+package me.flamboyant.survivalrumble.playerclass.classobjects.nonvanilla;
+
+import me.flamboyant.survivalrumble.data.PlayerClassType;
+import me.flamboyant.survivalrumble.utils.Common;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.world.TimeSkipEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitTask;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
+public class Werewolf extends ANonVanillaClass implements Listener {
+    private BukkitTask currentTask;
+    private List<EntityPotionEffectEvent.Cause> effectCausesToCancel = Arrays.asList(EntityPotionEffectEvent.Cause.ARROW, EntityPotionEffectEvent.Cause.POTION_DRINK, EntityPotionEffectEvent.Cause.POTION_SPLASH);
+    private HashMap<PotionEffectType, Integer> werewolfPotionEffects = new HashMap<PotionEffectType, Integer>() {{
+        put(PotionEffectType.INCREASE_DAMAGE, 1);
+        put(PotionEffectType.NIGHT_VISION, 1);
+        put(PotionEffectType.SPEED, 1);
+    }};
+
+    public Werewolf(Player owner) {
+        super(owner);
+    }
+
+    @Override
+    protected String getClassDescriptionCorpus() {
+        return "Tu obtiens les effets FORCE 1, SPEED 1 et NIGHT VISION la nuit. Ces effets ne disparaissent pas en "
+                + "consommant un seau de lait. Les potions affectants ces effets ne fonctionneront pas sur toi "
+                + "(que ça soit une potion FORCE 2 ou une potion WEAKNESS)";
+    }
+
+    @Override
+    public PlayerClassType getClassType() {
+        return PlayerClassType.WEREWOLF;
+    }
+
+    @Override
+    protected int getScoreMalus() {
+        return -5000;
+    }
+
+    @Override
+    public void enableClass() {
+        super.enableClass();
+
+        long time = owner.getWorld().getTime();
+
+        if (time > 12000) {
+            time -= 12000;
+            enableEffects((int) (20 * 60 * 10 * (12000 - time) / 12000));
+        }
+
+        currentTask = Bukkit.getScheduler().runTaskLater(Common.plugin, () -> switchState(), 20L * 60 * 10 * (12000 - time) / 12000);
+    }
+
+    private void enableEffects(int durationTicks) {
+        for (PotionEffectType effectType : werewolfPotionEffects.keySet())
+            owner.addPotionEffect(new PotionEffect(effectType, durationTicks, werewolfPotionEffects.get(effectType), false, false, true));
+    }
+
+    private void disableEffects() {
+        for (PotionEffectType effectType : werewolfPotionEffects.keySet())
+            owner.removePotionEffect(effectType);
+    }
+
+    private void switchState() {
+        long worldTime = owner.getWorld().getTime();
+        if (worldTime < 12000) {
+            disableEffects();
+        }
+        else {
+            worldTime -= 12000;
+            enableEffects((int) (20 * 60 * 10 * (12000 - worldTime) / 12000));
+        }
+
+        currentTask = Bukkit.getScheduler().runTaskLater(Common.plugin, () -> switchState(), 20L * 60 * 10);
+    }
+
+    @EventHandler
+    private void onTimeSkip(TimeSkipEvent event) {
+        long newTime = event.getSkipAmount() + owner.getWorld().getTime();
+        Bukkit.getScheduler().cancelTask(currentTask.getTaskId());
+        if (newTime < 12000) {
+            disableEffects();
+        }
+        else {
+            newTime -= 12000;
+            enableEffects((int) (20 * 60 * 10 * (12000 - newTime) / 12000));
+        }
+
+        currentTask = Bukkit.getScheduler().runTaskLater(Common.plugin, () -> switchState(), 20L * 60 * 10 * (12000 - newTime) / 12000);
+    }
+
+    @EventHandler
+    private void onPlayerItemConsume(PlayerItemConsumeEvent event) {
+        if (event.getPlayer() != owner) return;
+        if (event.getItem().getType() != Material.MILK_BUCKET) return;
+
+        Bukkit.getScheduler().runTaskLater(Common.plugin, () -> {
+            long worldTime = owner.getWorld().getTime();
+            if (worldTime >= 12000) {
+                worldTime -= 12000;
+                enableEffects((int) (20 * 60 * 10 * (12000 - worldTime) / 12000));
+            }
+        }, 1L);
+    }
+
+    @EventHandler
+    private void onPotionEffectEvent(EntityPotionEffectEvent event) {
+        if (event.getEntityType() != EntityType.PLAYER) return;
+        if (!effectCausesToCancel.contains(event.getCause())) return;
+        if (!werewolfPotionEffects.containsKey(event.getOldEffect().getType())) return;
+
+        event.setCancelled(true);
+    }
+}
