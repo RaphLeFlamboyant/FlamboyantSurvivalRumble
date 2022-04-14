@@ -1,7 +1,9 @@
 package me.flamboyant.survivalrumble.playerclass.classobjects.nonvanilla;
 
+import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.survivalrumble.utils.Common;
+import me.flamboyant.survivalrumble.utils.ScoreType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -9,7 +11,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.world.TimeSkipEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -19,7 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class Werewolf extends ANonVanillaClass implements Listener {
+public class WerewolfClass extends ANonVanillaClass implements Listener {
     private BukkitTask currentTask;
     private List<EntityPotionEffectEvent.Cause> effectCausesToCancel = Arrays.asList(EntityPotionEffectEvent.Cause.ARROW, EntityPotionEffectEvent.Cause.POTION_DRINK, EntityPotionEffectEvent.Cause.POTION_SPLASH);
     private HashMap<PotionEffectType, Integer> werewolfPotionEffects = new HashMap<PotionEffectType, Integer>() {{
@@ -28,7 +32,7 @@ public class Werewolf extends ANonVanillaClass implements Listener {
         put(PotionEffectType.SPEED, 1);
     }};
 
-    public Werewolf(Player owner) {
+    public WerewolfClass(Player owner) {
         super(owner);
     }
 
@@ -36,7 +40,7 @@ public class Werewolf extends ANonVanillaClass implements Listener {
     protected String getClassDescriptionCorpus() {
         return "Tu obtiens les effets FORCE 1, SPEED 1 et NIGHT VISION la nuit. Ces effets ne disparaissent pas en "
                 + "consommant un seau de lait. Les potions affectants ces effets ne fonctionneront pas sur toi "
-                + "(que ça soit une potion FORCE 2 ou une potion WEAKNESS)";
+                + "(que ça soit une potion FORCE 2 ou une potion WEAKNESS). Vous gagnez 250 points part kill de nuit.";
     }
 
     @Override
@@ -61,6 +65,7 @@ public class Werewolf extends ANonVanillaClass implements Listener {
         }
 
         currentTask = Bukkit.getScheduler().runTaskLater(Common.plugin, () -> switchState(), 20L * 60 * 10 * (12000 - time) / 12000);
+        Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
     private void enableEffects(int durationTicks) {
@@ -116,11 +121,31 @@ public class Werewolf extends ANonVanillaClass implements Listener {
     }
 
     @EventHandler
-    private void onPotionEffectEvent(EntityPotionEffectEvent event) {
+    private void onPotionEffect(EntityPotionEffectEvent event) {
         if (event.getEntityType() != EntityType.PLAYER) return;
         if (!effectCausesToCancel.contains(event.getCause())) return;
         if (!werewolfPotionEffects.containsKey(event.getOldEffect().getType())) return;
 
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    private void onPlayerRespawn(PlayerRespawnEvent event) {
+        if (event.getPlayer() != owner) return;
+        long worldTime = owner.getWorld().getTime();
+        if (worldTime >= 12000) {
+            worldTime -= 12000;
+            enableEffects((int) (20 * 60 * 10 * (12000 - worldTime) / 12000));
+        }
+    }
+
+    @EventHandler
+    private void onPlayerDeath(PlayerDeathEvent event) {
+        Player killed = event.getEntity();
+        if (killed.getKiller() != owner) return;
+        if (owner.getWorld().getTime() < 12000) return;
+        if (data().playersTeam.get(killed.getUniqueId()) == data().playersTeam.get(owner.getUniqueId())) return;
+
+        GameManager.getInstance().addScore(data().playersTeam.get(owner.getUniqueId()), 250, ScoreType.FLAT);
     }
 }
