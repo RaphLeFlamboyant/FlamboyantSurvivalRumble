@@ -51,7 +51,5 @@ public class PluginTasks {
 
             data().meetupTimer.add(meetupTime);
         }
-
-        data().saveData();
     }
 }

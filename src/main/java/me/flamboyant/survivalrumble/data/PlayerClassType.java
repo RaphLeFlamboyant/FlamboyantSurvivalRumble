@@ -34,9 +34,10 @@ public enum PlayerClassType {
     // Non Vanilla
     ASSASSIN, // Score by killing, can detect foes location
     WEREWOLF, // Score by killing foes by night, has Night Vision, Strengh I and Speed I by night. -1000 pts
+    THIEF, // Score by putting foes blocs in the base, earn a copy of one ennemy player crafted items
     NINJA, // Score by being close to foes, location undetectable, can be invisible
 
     // Vanilla
-    THIEF, // Score by stealing things in foes chests
     BANKER, // Each gold block in HQ chest generatese points (like electrician block for example)
+    FAKE_CLASS, // Score by killing foes by night, has Night Vision, Strengh I and Speed I by night. -1000 pts
 }

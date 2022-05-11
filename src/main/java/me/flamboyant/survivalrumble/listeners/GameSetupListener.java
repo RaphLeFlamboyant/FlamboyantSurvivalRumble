@@ -61,7 +61,7 @@ public class GameSetupListener implements Listener {
             player.openInventory(teamHQView);
         } else if (ItemHelper.isExactlySameItemKind(item, ItemHelper.getLaunchItem())) {
             if (data().playersClass.size() == 0)
-                lanchClassSelectionStep(player);
+                launchClassSelectionStep(player);
             else
                 launchGame(player);
         }
@@ -107,7 +107,7 @@ public class GameSetupListener implements Listener {
         return ItemHelper.isExactlySameItemKind(item, ItemHelper.getTeamSelectionItem());
     }
 
-    private void lanchClassSelectionStep(Player opPlayer) {
+    private void launchClassSelectionStep(Player opPlayer) {
         cleanEmptyTeams();
         if (isHeadquarterMissing()) {
             opPlayer.sendMessage(ChatUtils.debugMessage("Headquarter location are missing"));

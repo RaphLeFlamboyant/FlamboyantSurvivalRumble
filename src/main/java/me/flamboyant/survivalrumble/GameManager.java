@@ -28,11 +28,11 @@ public class GameManager {
         // TODO : gérer le case score < 0 (?)
         switch (scoreType) {
             case REVERSIBLE:
-                data.teamReversibleScores.put(teamName, Math.max(0, score + data.teamReversibleScores.get(teamName)));
+                data.teamReversibleScores.put(teamName, score + data.teamReversibleScores.get(teamName));
                 result = data.teamReversibleScores.get(teamName);
                 break;
             case FLAT:
-                data.teamFlatScores.put(teamName, Math.max(0, score + data.teamFlatScores.get(teamName)));
+                data.teamFlatScores.put(teamName, score + data.teamFlatScores.get(teamName));
                 result = data.teamFlatScores.get(teamName);
                 break;
             case PERFECT:
@@ -41,7 +41,6 @@ public class GameManager {
                 break;
         }
 
-        data.saveData();
         ScoreboardBricklayer.getSingleton().setTeamScore("Score", teamName, data.getTotalScore(teamName));
         checkScoresForRemontadaMechanics();
 

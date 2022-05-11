@@ -33,7 +33,6 @@ public class ComebackMechanicsManager implements IComebackMechanicsOwner {
 
     // TODO : en fait avec des triggers c'est tjr le plus petit qui va sortir
     public void onScoreGapCalculation(int scoreGap, String bestTeamName) {
-        System.out.println("Check triggers for gap " + scoreGap + " from team " + bestTeamName);
         if (activatedByTeam.get(bestTeamName)) return;
 
         List<IComebackMechanics> possibleMechanics = new ArrayList<>();

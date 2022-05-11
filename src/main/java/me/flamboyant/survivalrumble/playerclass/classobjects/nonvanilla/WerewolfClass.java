@@ -49,7 +49,7 @@ public class WerewolfClass extends ANonVanillaClass implements Listener {
     }
 
     @Override
-    protected int getScoreMalus() {
+    public int getScoreMalus() {
         return -5000;
     }
 

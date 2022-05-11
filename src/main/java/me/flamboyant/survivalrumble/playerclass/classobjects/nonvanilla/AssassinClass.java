@@ -2,6 +2,9 @@ package me.flamboyant.survivalrumble.playerclass.classobjects.nonvanilla;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
+import me.flamboyant.survivalrumble.data.classes.AssassinClassData;
+import me.flamboyant.survivalrumble.data.classes.ElectricianClassData;
+import me.flamboyant.survivalrumble.data.classes.PlayerClassData;
 import me.flamboyant.survivalrumble.utils.ChatUtils;
 import me.flamboyant.survivalrumble.utils.Common;
 import me.flamboyant.survivalrumble.utils.ScoreType;
@@ -40,6 +43,7 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
     private Location overworldLocationBeforePortal;
     private Location netherLocationBeforePortal;
     private ItemStack currentContractItem;
+    private AssassinClassData classData;
 
     public AssassinClass(Player owner) {
         super(owner);
@@ -49,6 +53,9 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
     public PlayerClassType getClassType() {
         return PlayerClassType.ASSASSIN;
     }
+
+    @Override
+    public PlayerClassData buildClassData() { return new AssassinClassData(); }
 
     @Override
     protected String getClassDescriptionCorpus() {
@@ -61,13 +68,19 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
     }
 
     @Override
-    protected int getScoreMalus() {
-        return 3000;
+    public int getScoreMalus() {
+        return -3000;
     }
 
     @Override
     public void enableClass() {
         super.enableClass();
+        classData = (AssassinClassData) data().playerClassDataList.get(getClassType());
+        System.out.println("Assassin enabling with target id = " + classData.targetPlayerId);
+        if (classData.targetPlayerId != null) {
+            launchContract();
+        }
+
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
@@ -128,6 +141,7 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
         if (isContract) {
             owner.sendMessage(ChatUtils.personalAnnouncement("Le contrat est annulé", "Le contrat sur " + targetPlayer.getDisplayName() + " est annulé. Tu ne peux pas relancer de contrat pendant 30 minutes."));
             targetPlayer = null;
+            classData.targetPlayerId = null;
             nextAvailableContrat = LocalTime.now().plusMinutes(30);
             owner.getInventory().remove(currentContractItem);
             currentContractItem = null;
@@ -135,27 +149,34 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
             if (cancelContractTask != null) Bukkit.getScheduler().cancelTask(cancelContractTask.getTaskId());
         }
         else {
-            if (LocalTime.now().compareTo(nextAvailableContrat) < 0) {
+            if (nextAvailableContrat != null && LocalTime.now().compareTo(nextAvailableContrat) < 0) {
                 Long diff = ChronoUnit.MINUTES.between(LocalTime.now(), nextAvailableContrat) + 1;
                 owner.sendMessage(ChatUtils.feedback("Tu dois encore attendre " + diff + " minutes avant de pouvoir relancer un contrat"));
                 return;
             }
             String selectedTeam = data().teams.stream().filter(t -> !t.equals(data().playersTeam.get(owner.getUniqueId()))).collect(Collectors.toList()).get(Common.rng.nextInt(data().teams.size() - 1));
             List<UUID> playersInTeam = data().playersByTeam.get(selectedTeam);
-            targetPlayer = Common.server.getPlayer(playersInTeam.get(Common.rng.nextInt(playersInTeam.size())));
+            classData.targetPlayerId = playersInTeam.get(Common.rng.nextInt(playersInTeam.size()));
             owner.getInventory().remove(paper);
-            ItemStack contract = new ItemStack(Material.PAPER);
-            ItemMeta data = contract.getItemMeta();
-            data.setDisplayName("Contrat sur " + targetPlayer.getDisplayName());
-            data.setLore(Arrays.asList("Tu dois tuer le joueur " + targetPlayer.getDisplayName() + " pour remporter 500 points."));
-
-            owner.sendMessage(ChatUtils.personalAnnouncement("Nouveau contrat",
-                    "Un nouveau contrat est établi sur la tête de " + targetPlayer.getDisplayName()));
-
-            this.currentContractItem = contract;
-            warnPlayersTask = Bukkit.getScheduler().runTaskLater(Common.plugin, () -> warnPlayers(), 20L * 60 * 15);
-            cancelContractTask = Bukkit.getScheduler().runTaskLater(Common.plugin, () -> cancelContract(), 20L * 60 * 60);
+            launchContract();
         }
+    }
+
+    private void launchContract() {
+        ItemStack contract = new ItemStack(Material.PAPER);
+        ItemMeta data = contract.getItemMeta();
+        targetPlayer = Common.server.getPlayer(classData.targetPlayerId);
+        data.setDisplayName("Contrat sur " + targetPlayer.getDisplayName());
+        data.setLore(Arrays.asList("Tu dois tuer le joueur " + targetPlayer.getDisplayName() + " pour remporter 500 points."));
+        contract.setItemMeta(data);
+        owner.getInventory().addItem(contract);
+        this.currentContractItem = contract;
+
+        owner.sendMessage(ChatUtils.personalAnnouncement("Nouveau contrat",
+                "Un nouveau contrat est établi sur la tête de " + targetPlayer.getDisplayName()));
+
+        warnPlayersTask = Bukkit.getScheduler().runTaskLater(Common.plugin, () -> warnPlayers(), 20L * 60 * 15);
+        cancelContractTask = Bukkit.getScheduler().runTaskLater(Common.plugin, () -> cancelContract(), 20L * 60 * 60);
     }
 
     private void warnPlayers() {
@@ -167,11 +188,13 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
     private void cancelContract() {
         owner.sendMessage(ChatUtils.personalAnnouncement("Le contrat est annulé", "Le contrat sur " + targetPlayer.getDisplayName() + " est annulé."));
         targetPlayer = null;
+        classData.targetPlayerId = null;
         cancelContractTask = null;
     }
 
     private void handleCompass(ItemStack compass) {
         if (targetPlayer == null) return;
+        System.out.println("handleCompass");
         Location huntedLocation = targetPlayer.getLocation();
         String huntedWorldName = huntedLocation.getWorld().getName();
         int huntedWorldLength = huntedWorldName.length();

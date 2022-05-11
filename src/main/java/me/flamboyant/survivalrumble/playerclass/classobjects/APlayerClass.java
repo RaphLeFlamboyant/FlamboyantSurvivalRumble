@@ -2,6 +2,7 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
+import me.flamboyant.survivalrumble.data.classes.PlayerClassData;
 import me.flamboyant.survivalrumble.quests.Quest;
 import me.flamboyant.survivalrumble.utils.ChatUtils;
 import me.flamboyant.survivalrumble.utils.PlayerClassHelper;
@@ -18,10 +19,8 @@ import java.util.Map;
 public abstract class APlayerClass {
     public ArrayList<ScoringTriggerType> triggers = new ArrayList<ScoringTriggerType>();
     protected Player owner;
-    protected Map<String, Object> parameters = new HashMap<>();
     protected ArrayList<Quest> questList = new ArrayList<>();
     protected String scoringDescription;
-    private int currentQuestIndex = 0;
 
     public APlayerClass(Player owner) {
         this.owner = owner;
@@ -33,6 +32,8 @@ public abstract class APlayerClass {
 
     public abstract PlayerClassType getClassType();
 
+    public PlayerClassData buildClassData() { return new PlayerClassData(); }
+
     public void enableClass() {
         buildQuestList();
 
@@ -40,7 +41,7 @@ public abstract class APlayerClass {
         owner.sendMessage(message);
 
         if (questList.size() > 0)
-            questList.get(currentQuestIndex).startQuest();
+            questList.get(data().playerClassDataList.get(getClassType()).currentQuestIndex).startQuest();
     }
 
     protected String getClassDescription() {
@@ -49,14 +50,12 @@ public abstract class APlayerClass {
                         + ". Tu peux également marquer des points gréce é ta suite de quétes secondaires.");
     }
 
+    public int getScoreMalus() { return 0; }
+
     protected void buildQuestList() {
     }
 
     // TODO : ajouter un game ended pour disable les listeners
-
-    public void setParameters(Map<String, Object> parameters) {
-        this.parameters = parameters;
-    }
 
     public Integer onBlockModifierTrigger(Integer score, BlockData blockData, Location blockLocation, String teamConcerned) {
         return score;
@@ -87,12 +86,12 @@ public abstract class APlayerClass {
     }
 
     public void onQuestOver() {
-        if (++currentQuestIndex >= questList.size()) {
+        if (++data().playerClassDataList.get(getClassType()).currentQuestIndex >= questList.size()) {
             String message = ChatUtils.personalAnnouncement("QUéTES TERMINéES", "Bravo ! Tu as terminé toutes tes quétes secondaires !");
             owner.sendMessage(message);
             return;
         }
 
-        questList.get(currentQuestIndex).startQuest();
+        questList.get(data().playerClassDataList.get(getClassType()).currentQuestIndex).startQuest();
     }
 }

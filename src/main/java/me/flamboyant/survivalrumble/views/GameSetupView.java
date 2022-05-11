@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,14 +88,17 @@ public class GameSetupView implements Listener {
         UpdateItemOnClick(event, clicked);
 
         data().pvpIntensity = clicked.getAmount();
-        data().saveData();
     }
 
     private void HandleGameTimeItemClicked(InventoryClickEvent event, ItemStack clicked) {
-        UpdateItemOnClick(event, clicked);
+        if (event.isRightClick())
+            data().minutesBeforeEnd = Math.max(0, data().minutesBeforeEnd - 10);
+        else if (event.isLeftClick())
+            data().minutesBeforeEnd += 10;
 
-        data().minutesBeforeEnd = clicked.getAmount() * 60;
-        data().saveData();
+        ItemMeta meta = clicked.getItemMeta();
+        meta.setLore(Arrays.asList("" + (data().minutesBeforeEnd / 60) + "h" + (data().minutesBeforeEnd % 60) + "m"));
+        clicked.setItemMeta(meta);
     }
 
     private void UpdateItemOnClick(InventoryClickEvent event, ItemStack clicked) {
@@ -113,7 +117,7 @@ public class GameSetupView implements Listener {
     }
 
     private ItemStack gameTimeItem() {
-        return ItemHelper.generateItem(Material.CLOCK, 4, "Game time (h)", new ArrayList<String>(), false, null, false, false);
+        return ItemHelper.generateItem(Material.CLOCK, 4, "Game time (h)", Arrays.asList("" + (data().minutesBeforeEnd / 60) + "h" + (data().minutesBeforeEnd % 60) + "m"), false, null, false, false);
     }
 
     private ItemStack pvpIntensityItem() {

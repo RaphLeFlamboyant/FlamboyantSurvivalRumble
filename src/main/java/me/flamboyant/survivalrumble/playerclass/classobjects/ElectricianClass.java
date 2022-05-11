@@ -2,6 +2,8 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
+import me.flamboyant.survivalrumble.data.classes.ElectricianClassData;
+import me.flamboyant.survivalrumble.data.classes.PlayerClassData;
 import me.flamboyant.survivalrumble.quests.Quest;
 import me.flamboyant.survivalrumble.quests.component.*;
 import me.flamboyant.survivalrumble.utils.*;
@@ -43,7 +45,7 @@ public class ElectricianClass extends APlayerClass {
         put(Material.NETHERITE_BLOCK, 0.9f);
     }};
 
-    private HashMap<Location, Float> blockLocationList = new HashMap<>();
+    private ElectricianClassData classData;
 
     private int checkInterval = 5;
     private float total = 0f;
@@ -135,8 +137,12 @@ public class ElectricianClass extends APlayerClass {
     }
 
     @Override
+    public PlayerClassData buildClassData() { return new ElectricianClassData(); }
+
+    @Override
     public void enableClass() {
         super.enableClass();
+        classData = (ElectricianClassData) data().playerClassDataList.get(getClassType());
         Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> updateScoring(), 0l, checkInterval * 20l);
     }
 
@@ -163,7 +169,7 @@ public class ElectricianClass extends APlayerClass {
         if (location.getWorld().getHighestBlockYAt(location.getBlockX(), location.getBlockZ()) != location.getBlockY())
             return;
 
-        handleBlockLocation(blockLocationList, block, broken);
+        handleBlockLocation(classData.blockLocationList, block, broken);
     }
 
     private void handleBlockLocation(HashMap<Location, Float> blockLocationAndScore, Block block, boolean broken) {
@@ -188,13 +194,13 @@ public class ElectricianClass extends APlayerClass {
     private void updateScoring() {
         int lastTotal = (int) total;
 
-        for (Location loc : blockLocationList.keySet()) {
+        for (Location loc : classData.blockLocationList.keySet()) {
             if (loc.getWorld().getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) == loc.getBlockY()) {
-                float score = blockLocationList.get(loc);
+                float score = classData.blockLocationList.get(loc);
                 float earned = scoreByBlockType.get(loc.getBlock().getType()) * checkInterval / 60f; // coef is score by minute
                 score += earned;
                 total += earned;
-                blockLocationList.put(loc, score);
+                classData.blockLocationList.put(loc, score);
             }
         }
 

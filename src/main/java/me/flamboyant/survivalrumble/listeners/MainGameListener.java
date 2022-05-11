@@ -30,14 +30,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class MainGameListener implements Listener {
-    private JavaPlugin plugin;
-    private Server server;
-
-    private Map<UUID, Integer> playerCompassingTeamIndex = new HashMap<>();
-
-    public MainGameListener(JavaPlugin plugin, Server server) {
-        this.plugin = plugin;
-        this.server = server;
+    public MainGameListener() {
     }
 
     private SurvivalRumbleData data() {
@@ -74,7 +67,6 @@ public class MainGameListener implements Listener {
         Location blockLocation = event.getBlock().getLocation();
         BlockData blockData = event.getBlock().getBlockData();
         handleBlockDestruction(blockData, blockLocation);
-        data().saveData();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -86,7 +78,6 @@ public class MainGameListener implements Listener {
         Location blockLocation = event.getBlock().getLocation();
         BlockData blockData = event.getBlock().getBlockData();
         handleBlockDestruction(blockData, blockLocation);
-        data().saveData();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -100,8 +91,6 @@ public class MainGameListener implements Listener {
             BlockData blockData = block.getBlockData();
             handleBlockDestruction(blockData, blockLocation);
         }
-
-        data().saveData();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -111,8 +100,6 @@ public class MainGameListener implements Listener {
             BlockData blockData = block.getBlockData();
             handleBlockDestruction(blockData, blockLocation);
         }
-
-        data().saveData();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -127,10 +114,9 @@ public class MainGameListener implements Listener {
         if (concernedTeam == null)
             return;
 
-        MaterialHelper mh = new MaterialHelper();
         BlockData blockData = event.getBlock().getBlockData();
-        if (mh.scoringMaterial.containsKey(blockData.getMaterial())) {
-            int scoreChange = mh.scoringMaterial.get(blockData.getMaterial());
+        if (MaterialHelper.scoringMaterial.containsKey(blockData.getMaterial())) {
+            int scoreChange = MaterialHelper.scoringMaterial.get(blockData.getMaterial());
 
             for (APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.BLOCK_MODIFIER)) {
                 scoreChange = playerClass.onBlockModifierTrigger(scoreChange, blockData, location, concernedTeam);
@@ -141,37 +127,14 @@ public class MainGameListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        ItemStack item = event.getItem();
-
-        if (item != null && item.getType() == Material.COMPASS) {
-            int index = 0;
-            if (!playerCompassingTeamIndex.containsKey(player.getUniqueId()))
-                playerCompassingTeamIndex.put(player.getUniqueId(), 0);
-            else {
-                index = playerCompassingTeamIndex.get(player.getUniqueId());
-                index = (index + 1) % data().teams.size();
-                playerCompassingTeamIndex.put(player.getUniqueId(), index);
-            }
-
-            Location hq = data().teamHeadquarterLocation.get(data().playersTeam.get(player.getUniqueId()));
-            player.setCompassTarget(hq);
-            String teamName = data().teams.get(index);
-            player.sendMessage(ChatUtils.feedback("Ton compas pointe désormais la base de la team " + TeamHelper.getTeamColor(teamName) + teamName));
-        }
-    }
-
     private void handleBlockDestruction(BlockData blockData, Location blockLocation) {
         String concernedTeam = TeamHelper.getTeamHeadquarterName(blockLocation);
 
         if (concernedTeam == null)
             return;
 
-        MaterialHelper mh = new MaterialHelper();
-        if (mh.scoringMaterial.containsKey(blockData.getMaterial())) {
-            int scoreChange = mh.scoringMaterial.get(blockData.getMaterial());
+        if (MaterialHelper.scoringMaterial.containsKey(blockData.getMaterial())) {
+            int scoreChange = MaterialHelper.scoringMaterial.get(blockData.getMaterial());
 
             if (blockData instanceof Slab) {
                 Slab slab = (Slab) blockData;

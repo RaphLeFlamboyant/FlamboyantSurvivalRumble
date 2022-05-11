@@ -120,8 +120,6 @@ public class RunToBaseListener implements Listener {
             for (String teamName : data().teams) {
                 GameManager.getInstance().addScore(teamName, reachesByTeam.get(teamName), ScoreType.FLAT);
             }
-
-            data().saveData();
         } else
             pointsTick++;
     }
@@ -136,8 +134,7 @@ public class RunToBaseListener implements Listener {
         String message = ChatUtils.generalAnnouncement("L'AVENTURE COMMENCE !",
                 "Chaque joueur a atteint la base de son équipe ! Vous pouvez "
                         + "de nouveau poser et casser des blocs. Marquez des points en complétant votre quéte principale ou en posant des blocs de "
-                        + "construction dans votre base (plus vous étes proches de la couche 64 plus éa marque de points). "
-                        + "Pour détecter les bases adverses, utilisez une boussole !");
+                        + "construction dans votre base (plus vous étes proches de la couche 64 plus éa marque de points). ");
         for (UUID playerId : data().playersTeam.keySet()) {
             Player player = server.getPlayer(playerId);
             player.sendMessage(message);
@@ -153,7 +150,7 @@ public class RunToBaseListener implements Listener {
 
         unregisterEvents();
 
-        MainGameListener listener = new MainGameListener(plugin, server);
+        MainGameListener listener = new MainGameListener();
         server.getPluginManager().registerEvents(listener, plugin);
         listener.initListener();
     }

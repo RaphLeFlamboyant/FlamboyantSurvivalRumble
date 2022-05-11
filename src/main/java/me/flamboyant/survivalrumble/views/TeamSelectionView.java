@@ -83,8 +83,6 @@ public class TeamSelectionView implements Listener {
         if (!data().players.containsKey(player.getDisplayName()))
             data().players.put(player.getDisplayName(), player.getUniqueId());
 
-        data().saveData();
-
         player.sendMessage(ChatUtils.feedback("Tu as choisi l'équipe " + TeamHelper.getTeamColor(teamName) + teamName));
     }
 

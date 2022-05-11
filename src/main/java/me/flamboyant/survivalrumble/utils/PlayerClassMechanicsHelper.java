@@ -33,10 +33,6 @@ public class PlayerClassMechanicsHelper {
         return instance;
     }
 
-    private SurvivalRumbleData data() {
-        return SurvivalRumbleData.getSingleton();
-    }
-
     private void addPlayerClassToTriggers(APlayerClass playerClass) {
         for (ScoringTriggerType trigger : playerClass.triggers) {
             System.out.println("Setup trigger " + trigger.toString() + " for class " + playerClass.getClassType().toString());
@@ -48,6 +44,10 @@ public class PlayerClassMechanicsHelper {
         addPlayerClassToTriggers(playerClass);
 
         playerClasses.put(player.getUniqueId(), playerClass);
+    }
+
+    public void enablePlayerClass(UUID playerId) {
+        playerClasses.get(playerId).enableClass();
     }
 
     public void enablePlayerClasses() {

@@ -11,7 +11,7 @@ public class MaterialHelper {
     public static ArrayList<Material> banners = new ArrayList<Material>(Arrays.asList(Material.BLUE_BANNER, Material.RED_BANNER, Material.GREEN_BANNER, Material.YELLOW_BANNER, Material.BLACK_BANNER, Material.PURPLE_BANNER));
 
     // idée : une option pour rendre les points random pour pousser é tout tester
-    public Map<Material, Integer> scoringMaterial = new HashMap<Material, Integer>() {{
+    public static Map<Material, Integer> scoringMaterial = new HashMap<Material, Integer>() {{
         put(Material.BRICKS, 6);
         put(Material.BRICK_SLAB, 3);
         put(Material.BRICK_STAIRS, 6);

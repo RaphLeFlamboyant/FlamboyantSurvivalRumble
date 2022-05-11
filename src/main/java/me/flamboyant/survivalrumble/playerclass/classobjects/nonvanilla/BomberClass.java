@@ -23,11 +23,6 @@ public class BomberClass extends ANonVanillaClass implements Listener {
     }
 
     @Override
-    protected int getScoreMalus() {
-        return 0;
-    }
-
-    @Override
     public PlayerClassType getClassType() {
         return PlayerClassType.BOMBER;
     }

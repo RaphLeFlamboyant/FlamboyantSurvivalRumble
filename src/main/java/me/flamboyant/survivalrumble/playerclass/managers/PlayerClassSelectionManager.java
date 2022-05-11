@@ -4,6 +4,7 @@ import me.flamboyant.survivalrumble.data.PlayerClassMetadata;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.utils.ChatUtils;
+import me.flamboyant.survivalrumble.utils.Common;
 import me.flamboyant.survivalrumble.utils.ItemHelper;
 import me.flamboyant.survivalrumble.utils.PlayerClassHelper;
 import me.flamboyant.survivalrumble.views.PlayerClassSelectionView;
@@ -20,6 +21,7 @@ public class PlayerClassSelectionManager implements Listener {
     private JavaPlugin plugin;
     private Server server;
     private Player opPlayer;
+    private UUID currentPlayerId;
     private List<List<UUID>> playerSorted = new ArrayList<>();
     private int currentPlayerTeamIndex = 0;
     private int currentPlayerIndex = -1;
@@ -74,6 +76,7 @@ public class PlayerClassSelectionManager implements Listener {
         Player player = server.getPlayer(playerId);
         disclaimWhosTurn(player.getDisplayName());
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            currentPlayerId = playerId;
             player.openInventory(PlayerClassSelectionView.getInstance().getViewInstance());
         }, 60L);
     }
@@ -81,6 +84,12 @@ public class PlayerClassSelectionManager implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         if (PlayerClassSelectionView.getInstance().isInView(event.getInventory())) {
+            if (currentPlayerId != PlayerClassSelectionView.getInstance().lastPlayerClick) {
+                Bukkit.getScheduler().runTaskLater(Common.plugin, () ->
+                        Common.server.getPlayer(currentPlayerId).openInventory(PlayerClassSelectionView.getInstance().getViewInstance()), 1L);
+                return;
+            }
+
             disclaimClassChoice();
             Bukkit.getScheduler().runTaskLater(plugin, () -> dispatchSelectionView(), 60L);
         }
@@ -93,7 +102,7 @@ public class PlayerClassSelectionManager implements Listener {
             Location playerLocation = player.getLocation();
 
             player.playSound(playerLocation, Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.MASTER, 1, 1);
-            player.sendTitle("Au tour de " + playerName, "", 10, 80, 10);
+            player.sendTitle(ChatColor.RED + playerName, ChatColor.BLUE + "À lui/elle de choisir", 10, 80, 10);
         }
     }
 

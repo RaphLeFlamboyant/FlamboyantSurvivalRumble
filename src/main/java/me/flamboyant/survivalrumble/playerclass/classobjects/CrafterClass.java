@@ -2,6 +2,9 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
+import me.flamboyant.survivalrumble.data.classes.CrafterClassData;
+import me.flamboyant.survivalrumble.data.classes.ElectricianClassData;
+import me.flamboyant.survivalrumble.data.classes.PlayerClassData;
 import me.flamboyant.survivalrumble.quests.Quest;
 import me.flamboyant.survivalrumble.quests.component.HangingPlaceQuestComponent;
 import me.flamboyant.survivalrumble.quests.component.KillMobQuestComponent;
@@ -26,12 +29,12 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public class CrafterClass extends APlayerClass implements Listener {
-    private HashSet<Material> carftedItems = new HashSet<>();
+    private CrafterClassData classData;
 
     public CrafterClass(Player owner) {
         super(owner);
 
-        scoringDescription = "Crafter des items que tu n'as pas encore crafté";
+        scoringDescription = "Crafter, dans ta base, des items que tu n'as pas encore crafté";
     }
 
     @Override
@@ -60,20 +63,24 @@ public class CrafterClass extends APlayerClass implements Listener {
     }
 
     @Override
+    public PlayerClassData buildClassData() { return new CrafterClassData(); }
+
+    @Override
     public void enableClass() {
         super.enableClass();
+        classData = (CrafterClassData) data().playerClassDataList.get(getClassType());
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
     @EventHandler
     public void onCraftItem(CraftItemEvent event) {
         if (!event.getWhoClicked().getUniqueId().equals(owner.getUniqueId())) return;
-        if (carftedItems.contains(event.getInventory().getResult().getType())) return;
+        if (classData.carftedItems.contains(event.getInventory().getResult().getType())) return;
         Location location = event.getWhoClicked().getLocation();
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
         if (!concernedTeamName.equals(data().playersTeam.get(owner.getUniqueId()))) return;
 
         GameManager.getInstance().addScore(concernedTeamName, (int) (5 * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY())), ScoreType.FLAT);
-        carftedItems.add(event.getInventory().getResult().getType());
+        classData.carftedItems.add(event.getInventory().getResult().getType());
     }
 }

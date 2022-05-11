@@ -2,9 +2,8 @@ package me.flamboyant.survivalrumble.commands;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.listeners.GameSetupListener;
-import me.flamboyant.survivalrumble.utils.ItemHelper;
-import me.flamboyant.survivalrumble.utils.ScoreboardBricklayer;
-import me.flamboyant.survivalrumble.utils.TeamHelper;
+import me.flamboyant.survivalrumble.listeners.PlayerSelectionOnFlyListener;
+import me.flamboyant.survivalrumble.utils.*;
 import me.flamboyant.survivalrumble.views.GameSetupView;
 import me.flamboyant.survivalrumble.views.TeamHQParametersView;
 import me.flamboyant.survivalrumble.views.TeamSelectionView;
@@ -44,6 +43,8 @@ public class GameSetupCommands implements CommandExecutor {
         switch (cmd.getName()) {
             case "sr_setup_start":
                 return startSetup(senderPlayer, args);
+            case "sr_add_player_on_fly":
+                return addPlayerOnFly(senderPlayer, args);
             default:
                 break;
         }
@@ -51,6 +52,34 @@ public class GameSetupCommands implements CommandExecutor {
         System.out.println("End command no match");
 
         return false;
+    }
+
+    private boolean addPlayerOnFly(Player senderPlayer, String[] args) {
+        if (args.length < 2) {
+            senderPlayer.sendMessage("Il faut deux args à la commande : player name et team name");
+            return false;
+        }
+
+        String playerName = args[0];
+        String teamName = args[1];
+
+        Player player = Common.server.getPlayer(playerName);
+        if (player == null) {
+            senderPlayer.sendMessage("Player name pas bon");
+            return false;
+        }
+        if (!data().teams.contains(teamName)) {
+            senderPlayer.sendMessage("Team name pas bon");
+            return false;
+        }
+
+        data().players.put(playerName, player.getUniqueId());
+        data().playersTeam.put(player.getUniqueId(), teamName);
+        data().playersByTeam.get(teamName).add(player.getUniqueId());
+        PlayerSelectionOnFlyListener listener = new PlayerSelectionOnFlyListener(player, teamName);
+        listener.start();
+
+        return true;
     }
 
     private boolean startSetup(Player senderPlayer, String[] args) {
@@ -89,8 +118,6 @@ public class GameSetupCommands implements CommandExecutor {
         server.getPluginManager().registerEvents(TeamSelectionView.getInstance(), plugin);
 
         giveSenderOpItems(senderPlayer, plugin);
-
-        data().saveData();
 
         return true;
     }

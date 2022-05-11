@@ -42,8 +42,6 @@ public class GameTimeManager {
             else
                 data().meetupTimer.remove(i--);
         }
-
-        data().saveData();
     }
 
     private void stopGame() {
