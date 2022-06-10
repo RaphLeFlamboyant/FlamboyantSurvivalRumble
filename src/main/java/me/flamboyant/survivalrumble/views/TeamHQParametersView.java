@@ -86,7 +86,6 @@ public class TeamHQParametersView implements Listener {
             data().teamSpawnLocation.put(teamName, location);
         else
             placeTeamHeadquarter(teamName, location);
-        data().saveData();
 
         ItemMeta meta = clicked.getItemMeta();
         String displayBase = meta.getDisplayName().split(" | ")[0];

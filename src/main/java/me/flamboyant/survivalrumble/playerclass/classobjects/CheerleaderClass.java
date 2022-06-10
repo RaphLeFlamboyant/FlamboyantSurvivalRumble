@@ -90,7 +90,8 @@ public class CheerleaderClass extends APlayerClass {
         String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
         if (!data().playersTeam.get(killer.getUniqueId()).equals(ownerTeamName)) return;
         if (data().playersTeam.get(killed.getUniqueId()).equals(ownerTeamName)) return;
-        if (owner.getLocation().distance(killed.getLocation()) > 50) return;
+        if (owner.getLocation().getWorld() != killed.getWorld()
+                || owner.getLocation().distance(killed.getLocation()) > 50) return;
 
         GameManager.getInstance().addScore(ownerTeamName, 125, ScoreType.FLAT);
     }

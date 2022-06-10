@@ -11,7 +11,7 @@ public class FakeClass extends APlayerClass {
 
     @Override
     public PlayerClassType getClassType() {
-        return PlayerClassType.WEREWOLF;
+        return PlayerClassType.FAKE_CLASS;
     }
 
     @Override

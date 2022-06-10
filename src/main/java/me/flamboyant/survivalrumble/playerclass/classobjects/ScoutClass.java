@@ -96,7 +96,7 @@ public class ScoutClass extends APlayerClass {
     }
 
     private void updateScoring(Server server) {
-        owner = server.getPlayer(owner.getUniqueId()); // TODO : check si c'est nécessaire
+        if (!owner.getWorld().getName().equals("world")) return;
         double distance = getCloserHeadQuarterDistance(owner.getLocation());
         if (distance > 100) return;
 

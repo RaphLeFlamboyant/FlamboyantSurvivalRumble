@@ -28,10 +28,10 @@ public class DebugCommands implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String msg, String[] args) {
-        if (cmd.getName().equalsIgnoreCase("f_add_score")) {
+        if (cmd.getName().equalsIgnoreCase("d_add_score")) {
             addScore(args[0], Integer.parseInt(args[1]));
         }
-        if (cmd.getName().equalsIgnoreCase("f_snapshot")) {
+        if (cmd.getName().equalsIgnoreCase("d_snapshot")) {
             List<String> arguments = Arrays.asList(args);
             List<OfflinePlayer> offlinePlayers = Arrays.asList(server.getOfflinePlayers());
             List<String> offlinePlayerNames = offlinePlayers.stream().filter(p -> p.getPlayer() != null).map(p -> p.getName()).collect(Collectors.toList());

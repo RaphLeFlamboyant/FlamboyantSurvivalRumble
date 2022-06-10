@@ -1,5 +1,7 @@
 package me.flamboyant.survivalrumble.data;
 
+import me.flamboyant.survivalrumble.data.classes.PlayerClassData;
+import me.flamboyant.survivalrumble.utils.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -8,8 +10,6 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
 
 import java.io.*;
 import java.util.*;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 public class SurvivalRumbleData implements Serializable {
     private static final long serialVersionUID = -4333287600817371123L;
@@ -28,10 +28,10 @@ public class SurvivalRumbleData implements Serializable {
     public Material selectedStuff = Material.BEEF;
     // Registered in teams parameter view
     public HashMap<String, Location> teamHeadquarterLocation = new HashMap<String, Location>();
-    public HashMap<String, Location> teamSpawnLocation = new HashMap<String, Location>();
     // Registered in class selection view
     public Map<String, List<UUID>> playersByTeam = new HashMap<>();
     public HashMap<UUID, PlayerClassType> playersClass = new HashMap<UUID, PlayerClassType>();
+    public HashMap<PlayerClassType, PlayerClassData> playerClassDataList = new HashMap<PlayerClassType, PlayerClassData>();
     // Registered in game setup listener when launching game start (game starts with the class selection)
     public HashMap<String, Integer> teamReversibleScores = new HashMap<String, Integer>();
     public HashMap<String, Integer> teamFlatScores = new HashMap<String, Integer>();
@@ -42,8 +42,10 @@ public class SurvivalRumbleData implements Serializable {
     }
 
     public static SurvivalRumbleData getSingleton() {
-        if (instance == null)
+        if (instance == null) {
             instance = new SurvivalRumbleData();
+            instance.scheduleDataSave();
+        }
 
         return instance;
     }
@@ -55,23 +57,10 @@ public class SurvivalRumbleData implements Serializable {
                 return false;
             }
 
-            BukkitObjectInputStream in = new BukkitObjectInputStream(new GZIPInputStream(new FileInputStream(dataSaveFile)));
-            SurvivalRumbleData toto = (SurvivalRumbleData) in.readObject();
-            instance = toto;
-
-
-            Bukkit.broadcastMessage("é6  - playersTeam : " + toto.playersTeam.size());
-            for (UUID key : toto.playersTeam.keySet()) {
-                Bukkit.broadcastMessage("    > " + key + " - " + toto.playersTeam.get(key));
-            }
-            Bukkit.broadcastMessage("é6  - playersTeam : " + instance.playersTeam.size());
-            for (UUID key : instance.playersTeam.keySet()) {
-                Bukkit.broadcastMessage("    > " + key + " - " + instance.playersTeam.get(key));
-            }
-
-
-            in.close();
-
+            BukkitObjectInputStream inStream = new BukkitObjectInputStream(new FileInputStream(dataSaveFile));
+            instance = (SurvivalRumbleData) inStream.readObject();
+            inStream.close();
+            instance.scheduleDataSave();
             return true;
         } catch (ClassNotFoundException | IOException e) {
             // TODO Auto-generated catch block
@@ -87,9 +76,14 @@ public class SurvivalRumbleData implements Serializable {
         return 0; // TODO : guard
     }
 
-    public boolean saveData() {
+    private void scheduleDataSave() {
+        Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> saveData(), 60 * 20L, 60 * 20L);
+    }
+
+    private boolean saveData() {
         try {
-            BukkitObjectOutputStream out = new BukkitObjectOutputStream(new GZIPOutputStream(new FileOutputStream(dataSaveFile)));
+            if (teams.size() <= 0) return false; // Data empty means OutOfMemory issue ongoing so we won't erase the last saved file
+            BukkitObjectOutputStream out = new BukkitObjectOutputStream(new FileOutputStream(dataSaveFile));
             out.writeObject(this);
             out.close();
             return true;

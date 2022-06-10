@@ -11,11 +11,15 @@ public class MaterialHelper {
     public static ArrayList<Material> banners = new ArrayList<Material>(Arrays.asList(Material.BLUE_BANNER, Material.RED_BANNER, Material.GREEN_BANNER, Material.YELLOW_BANNER, Material.BLACK_BANNER, Material.PURPLE_BANNER));
 
     // idée : une option pour rendre les points random pour pousser é tout tester
-    public Map<Material, Integer> scoringMaterial = new HashMap<Material, Integer>() {{
+    public static Map<Material, Integer> scoringMaterial = new HashMap<Material, Integer>() {{
         put(Material.BRICKS, 6);
         put(Material.BRICK_SLAB, 3);
         put(Material.BRICK_STAIRS, 6);
         put(Material.BRICK_WALL, 6);
+        put(Material.MUD_BRICKS, 2);
+        put(Material.MUD_BRICK_SLAB, 1);
+        put(Material.MUD_BRICK_STAIRS, 2);
+        put(Material.MUD_BRICK_WALL, 2);
         put(Material.CHISELED_NETHER_BRICKS, 4);
         put(Material.NETHER_BRICKS, 4);
         put(Material.NETHER_BRICK_FENCE, 4);
@@ -50,6 +54,26 @@ public class MaterialHelper {
         put(Material.POLISHED_BLACKSTONE_SLAB, 1);
         put(Material.POLISHED_BLACKSTONE_STAIRS, 2);
         put(Material.POLISHED_BLACKSTONE_WALL, 2);
+        put(Material.DEEPSLATE_BRICKS, 2);
+        put(Material.DEEPSLATE_BRICK_SLAB, 1);
+        put(Material.DEEPSLATE_BRICK_STAIRS, 2);
+        put(Material.DEEPSLATE_BRICK_WALL, 2);
+        put(Material.DEEPSLATE_TILES, 2);
+        put(Material.DEEPSLATE_TILE_SLAB, 1);
+        put(Material.DEEPSLATE_TILE_STAIRS, 2);
+        put(Material.DEEPSLATE_TILE_WALL, 2);
+        put(Material.DEEPSLATE, 2);
+        put(Material.CHISELED_DEEPSLATE, 2);
+        put(Material.COBBLED_DEEPSLATE, 2);
+        put(Material.COBBLED_DEEPSLATE_SLAB, 1);
+        put(Material.COBBLED_DEEPSLATE_STAIRS, 2);
+        put(Material.COBBLED_DEEPSLATE_WALL, 2);
+        put(Material.POLISHED_DEEPSLATE, 2);
+        put(Material.POLISHED_DEEPSLATE_SLAB, 1);
+        put(Material.POLISHED_DEEPSLATE_STAIRS, 2);
+        put(Material.POLISHED_DEEPSLATE_WALL, 2);
+        put(Material.CRACKED_DEEPSLATE_BRICKS, 2);
+        put(Material.CRACKED_DEEPSLATE_TILES, 2);
         put(Material.PRISMARINE, 3);
         put(Material.PRISMARINE_BRICK_SLAB, 2);
         put(Material.PRISMARINE_BRICK_STAIRS, 4);
@@ -83,6 +107,26 @@ public class MaterialHelper {
         put(Material.POLISHED_GRANITE, 2);
         put(Material.POLISHED_GRANITE_SLAB, 1);
         put(Material.POLISHED_GRANITE_STAIRS, 2);
+        put(Material.COPPER_BLOCK, 6);
+        put(Material.RAW_COPPER_BLOCK, 6);
+        put(Material.WAXED_COPPER_BLOCK, 6);
+        put(Material.CUT_COPPER_SLAB, 3);
+        put(Material.EXPOSED_CUT_COPPER_SLAB, 3);
+        put(Material.OXIDIZED_CUT_COPPER_SLAB, 3);
+        put(Material.WAXED_CUT_COPPER_SLAB, 3);
+        put(Material.WAXED_EXPOSED_CUT_COPPER_SLAB, 3);
+        put(Material.WAXED_OXIDIZED_CUT_COPPER_SLAB, 3);
+        put(Material.WAXED_WEATHERED_CUT_COPPER_SLAB, 3);
+        put(Material.WEATHERED_CUT_COPPER_SLAB, 3);
+        put(Material.CUT_COPPER_STAIRS, 6);
+        put(Material.EXPOSED_CUT_COPPER_STAIRS, 6);
+        put(Material.OXIDIZED_CUT_COPPER_STAIRS, 6);
+        put(Material.WAXED_CUT_COPPER_STAIRS, 6);
+        put(Material.WAXED_EXPOSED_CUT_COPPER_STAIRS, 6);
+        put(Material.WAXED_OXIDIZED_CUT_COPPER_STAIRS, 6);
+        put(Material.WAXED_WEATHERED_CUT_COPPER_STAIRS, 6);
+        put(Material.WEATHERED_CUT_COPPER_STAIRS, 6);
+        put(Material.AMETHYST_BLOCK, 4);
         put(Material.ACACIA_PLANKS, 2);
         put(Material.ACACIA_DOOR, 4);
         put(Material.ACACIA_FENCE, 2);
@@ -125,6 +169,13 @@ public class MaterialHelper {
         put(Material.OAK_SLAB, 1);
         put(Material.OAK_STAIRS, 2);
         put(Material.OAK_TRAPDOOR, 2);
+        put(Material.MANGROVE_PLANKS, 2);
+        put(Material.MANGROVE_DOOR, 4);
+        put(Material.MANGROVE_FENCE, 2);
+        put(Material.MANGROVE_FENCE_GATE, 2);
+        put(Material.MANGROVE_SLAB, 1);
+        put(Material.MANGROVE_STAIRS, 2);
+        put(Material.MANGROVE_TRAPDOOR, 2);
         put(Material.SPRUCE_PLANKS, 2);
         put(Material.SPRUCE_DOOR, 4);
         put(Material.SPRUCE_FENCE, 2);
@@ -145,6 +196,9 @@ public class MaterialHelper {
         put(Material.SOUL_LANTERN, 5);
         put(Material.SEA_LANTERN, 4);
         put(Material.SHROOMLIGHT, 3);
+        put(Material.OCHRE_FROGLIGHT, 8);
+        put(Material.PEARLESCENT_FROGLIGHT, 8);
+        put(Material.VERDANT_FROGLIGHT, 8);
         put(Material.REDSTONE_LAMP, 4);
         put(Material.GLOWSTONE, 3);
     }};

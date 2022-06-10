@@ -1,5 +1,6 @@
 package me.flamboyant.survivalrumble.views;
 
+import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassMetadata;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
@@ -8,6 +9,7 @@ import me.flamboyant.survivalrumble.playerclass.factory.PlayerClassFactory;
 import me.flamboyant.survivalrumble.utils.ItemHelper;
 import me.flamboyant.survivalrumble.utils.PlayerClassHelper;
 import me.flamboyant.survivalrumble.utils.PlayerClassMechanicsHelper;
+import me.flamboyant.survivalrumble.utils.ScoreType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -20,10 +22,13 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.UUID;
 
 public class PlayerClassSelectionView implements Listener {
     private static PlayerClassSelectionView instance;
     public PlayerClassType lastChosenClass;
+    public UUID lastPlayerClick;
     private ArrayList<Inventory> pages = new ArrayList<>();
     private int currentPage;
     private PlayerClassFactory factory;
@@ -52,9 +57,13 @@ public class PlayerClassSelectionView implements Listener {
         if (pages.size() > 0) return pages.get(0);
 
         int i = 0;
-        int size = PlayerClassHelper.playerClassMetadata.size();
+        int size = PlayerClassHelper.playerClassMetadata.size() - 1;
         Inventory currentInventory = null;
-        for (PlayerClassType classType : PlayerClassHelper.playerClassMetadata.keySet()) {
+        ArrayList<PlayerClassMetadata> classMetadataList = new ArrayList<>(PlayerClassHelper.playerClassMetadata.values());
+        Collections.sort(classMetadataList, (PlayerClassMetadata a, PlayerClassMetadata b) ->
+                a.getPlayerClassCategory() == b.getPlayerClassCategory() ? a.getDisplayName().compareTo(b.getDisplayName()) : a.getPlayerClassCategory().compareTo(b.getPlayerClassCategory()));
+        for (PlayerClassMetadata classMetadata : classMetadataList) {
+            if (classMetadata.getPlayerClassType() == PlayerClassType.FAKE_CLASS) continue;
             if (i % 36 == 0) {
                 if (currentInventory != null) {
                     if (i < size) currentInventory.setItem(53, getNextPageItem());
@@ -65,8 +74,7 @@ public class PlayerClassSelectionView implements Listener {
                 currentInventory = Bukkit.createInventory(null, 54, getViewID());
             }
 
-            PlayerClassMetadata metadata = PlayerClassHelper.playerClassMetadata.get(classType);
-            ItemStack item = getIntenvoryItem(classType.toString(), metadata.getPlayerClassRepresentation(), metadata.getDisplayName());
+            ItemStack item = getIntenvoryItem(classMetadata.getPlayerClassType().toString(), classMetadata.getPlayerClassRepresentation(), classMetadata.getDisplayName());
             currentInventory.setItem(i % 36, item);
             i++;
         }
@@ -114,8 +122,11 @@ public class PlayerClassSelectionView implements Listener {
             String className = clicked.getItemMeta().getLore().get(0);
             APlayerClass playerClass = factory.generatePlayerClass(PlayerClassType.valueOf(className), player);
             lastChosenClass = playerClass.getClassType();
+            lastPlayerClick = player.getUniqueId();
             PlayerClassMechanicsHelper.getSingleton().declarePlayerClass(player, playerClass);
             data().playersClass.put(player.getUniqueId(), playerClass.getClassType());
+            data().playerClassDataList.put(playerClass.getClassType(), playerClass.buildClassData());
+            applyMalus(player, playerClass);
 
             Inventory currentInv = pages.get(currentPage);
             int i;
@@ -134,6 +145,11 @@ public class PlayerClassSelectionView implements Listener {
             player.closeInventory();
         }
         // TODO : bug potentiel : le mec ferme l'inventaire sans avoir sélectionné de classe -> mettre une sélection aléatoire ?
+    }
+
+    private void applyMalus(Player player, APlayerClass playerClass) {
+        String teamName = SurvivalRumbleData.getSingleton().playersTeam.get(player.getUniqueId());
+        GameManager.getInstance().addScore(teamName, playerClass.getScoreMalus(), ScoreType.PERFECT);
     }
 
     public void unregisterEvents() {

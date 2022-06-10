@@ -91,11 +91,13 @@ public class TrapperClass extends APlayerClass {
         // Mob & co is not a valid death, we don't want trapper to earn free points
         if (deathCause == EntityDamageEvent.DamageCause.ENTITY_ATTACK) return;
         // the trapper is too far away
-        if (owner.getLocation().distance(killed.getLocation()) > 100) return;
+        if (owner.getWorld() != killed.getWorld()
+                || owner.getLocation().distance(killed.getLocation()) > 100) return;
         // If an ally comes to put lava bucket on ennemy for example
         String ownerTeam = data().playersTeam.get(owner.getUniqueId());
         for (UUID playerId : data().playersByTeam.get(ownerTeam)) {
-            if (playerId != owner.getUniqueId() && owner.getServer().getPlayer(playerId).getLocation().distance(killed.getLocation()) < 48)
+            Player player = owner.getServer().getPlayer(playerId);
+            if (playerId != owner.getUniqueId() && player.getWorld() == killed.getWorld() && player.getLocation().distance(killed.getLocation()) < 48)
                 return;
         }
         // the dead is in the trapper team

@@ -62,8 +62,7 @@ public class BunglerClass extends APlayerClass {
     public void onBlockBreakTrigger(Player playerWhoBreaks, Block block) {
         if (playerWhoBreaks != owner) return;
 
-        MaterialHelper mh = new MaterialHelper();
-        if (!mh.scoringMaterial.containsKey(block.getBlockData().getMaterial())) return;
+        if (!MaterialHelper.scoringMaterial.containsKey(block.getBlockData().getMaterial())) return;
         Location location = block.getLocation();
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
         if (concernedTeamName == null || data().playersTeam.get(owner.getUniqueId()).equals(concernedTeamName)) return;

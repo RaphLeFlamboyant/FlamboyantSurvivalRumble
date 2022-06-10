@@ -3,13 +3,13 @@ package me.flamboyant.survivalrumble.listeners;
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.playerclass.classobjects.APlayerClass;
+import me.flamboyant.survivalrumble.playerclass.managers.GameTimeManager;
 import me.flamboyant.survivalrumble.utils.*;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Server;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Slab;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -23,21 +23,15 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionType;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class MainGameListener implements Listener {
-    private JavaPlugin plugin;
-    private Server server;
-
-    private Map<UUID, Integer> playerCompassingTeamIndex = new HashMap<>();
-
-    public MainGameListener(JavaPlugin plugin, Server server) {
-        this.plugin = plugin;
-        this.server = server;
+    public MainGameListener() {
     }
 
     private SurvivalRumbleData data() {
@@ -45,6 +39,34 @@ public class MainGameListener implements Listener {
     }
 
     public void initListener() {
+        List<ItemStack> stuff = baseStuff(); // TODO : donner le stuff correspondant aux paramétres
+
+        for (UUID playerId : data().players.values()) {
+            Player player = Common.server.getPlayer(playerId);
+
+            Location teamSpawnLocation = data().teamHeadquarterLocation.get(data().playersTeam.get(playerId));
+            player.teleport(teamSpawnLocation);
+            resetPlayerState(player);
+            PlayerInventory inventory = player.getInventory();
+            inventory.clear();
+            for (ItemStack item : stuff)
+                inventory.addItem(item);
+            player.updateInventory();
+        }
+
+        GameTimeManager gameTimeManager = new GameTimeManager();
+        gameTimeManager.launchGameTimeManagement(Common.plugin);
+        Common.server.getPluginManager().registerEvents(this, Common.plugin);
+    }
+
+    private void resetPlayerState(Player player) {
+        player.setHealth(20);
+        player.setFoodLevel(20);
+        player.setSaturation(3);
+        player.setFireTicks(0);
+        for (PotionEffect effect : player.getActivePotionEffects()) {
+            player.removePotionEffect(effect.getType());
+        }
     }
 
     @EventHandler
@@ -74,7 +96,6 @@ public class MainGameListener implements Listener {
         Location blockLocation = event.getBlock().getLocation();
         BlockData blockData = event.getBlock().getBlockData();
         handleBlockDestruction(blockData, blockLocation);
-        data().saveData();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -86,7 +107,6 @@ public class MainGameListener implements Listener {
         Location blockLocation = event.getBlock().getLocation();
         BlockData blockData = event.getBlock().getBlockData();
         handleBlockDestruction(blockData, blockLocation);
-        data().saveData();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -100,8 +120,6 @@ public class MainGameListener implements Listener {
             BlockData blockData = block.getBlockData();
             handleBlockDestruction(blockData, blockLocation);
         }
-
-        data().saveData();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -111,8 +129,6 @@ public class MainGameListener implements Listener {
             BlockData blockData = block.getBlockData();
             handleBlockDestruction(blockData, blockLocation);
         }
-
-        data().saveData();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -127,10 +143,9 @@ public class MainGameListener implements Listener {
         if (concernedTeam == null)
             return;
 
-        MaterialHelper mh = new MaterialHelper();
         BlockData blockData = event.getBlock().getBlockData();
-        if (mh.scoringMaterial.containsKey(blockData.getMaterial())) {
-            int scoreChange = mh.scoringMaterial.get(blockData.getMaterial());
+        if (MaterialHelper.scoringMaterial.containsKey(blockData.getMaterial())) {
+            int scoreChange = MaterialHelper.scoringMaterial.get(blockData.getMaterial());
 
             for (APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.BLOCK_MODIFIER)) {
                 scoreChange = playerClass.onBlockModifierTrigger(scoreChange, blockData, location, concernedTeam);
@@ -141,37 +156,14 @@ public class MainGameListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        ItemStack item = event.getItem();
-
-        if (item != null && item.getType() == Material.COMPASS) {
-            int index = 0;
-            if (!playerCompassingTeamIndex.containsKey(player.getUniqueId()))
-                playerCompassingTeamIndex.put(player.getUniqueId(), 0);
-            else {
-                index = playerCompassingTeamIndex.get(player.getUniqueId());
-                index = (index + 1) % data().teams.size();
-                playerCompassingTeamIndex.put(player.getUniqueId(), index);
-            }
-
-            Location hq = data().teamHeadquarterLocation.get(data().playersTeam.get(player.getUniqueId()));
-            player.setCompassTarget(hq);
-            String teamName = data().teams.get(index);
-            player.sendMessage(ChatUtils.feedback("Ton compas pointe désormais la base de la team " + TeamHelper.getTeamColor(teamName) + teamName));
-        }
-    }
-
     private void handleBlockDestruction(BlockData blockData, Location blockLocation) {
         String concernedTeam = TeamHelper.getTeamHeadquarterName(blockLocation);
 
         if (concernedTeam == null)
             return;
 
-        MaterialHelper mh = new MaterialHelper();
-        if (mh.scoringMaterial.containsKey(blockData.getMaterial())) {
-            int scoreChange = mh.scoringMaterial.get(blockData.getMaterial());
+        if (MaterialHelper.scoringMaterial.containsKey(blockData.getMaterial())) {
+            int scoreChange = MaterialHelper.scoringMaterial.get(blockData.getMaterial());
 
             if (blockData instanceof Slab) {
                 Slab slab = (Slab) blockData;
@@ -188,39 +180,40 @@ public class MainGameListener implements Listener {
         }
     }
 
-    /*
-	public void scheduleRandomMeetup(JavaPlugin plugin, Server server)
-	{
-		if (data().pvpIntensity == 0)
-			return;
+    private List<ItemStack> baseStuff() {
+        if (data().selectedStuff == Material.BEEF)
+            return Arrays.asList(
+                    ItemHelper.generateItem(Material.STONE_AXE, 1, "Hache du schlag", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.ACACIA_BOAT, 1, "Bateau du schlag", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.WATER_BUCKET, 1, "Flotte pour schlag", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.SWEET_BERRIES, 64, "Bouffe de schlag", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.TORCH, 16, "Lumiére du schlag", Arrays.asList(), false, null, false, false)
+            );
 
-		int remaningTime = data().minutesBeforeEnd;
-		int timePart = remaningTime / data().pvpIntensity;
-		Random rng = new Random();
+        if (data().selectedStuff == Material.ENDER_PEARL)
+            return Arrays.asList(
+                    ItemHelper.generatePotion(PotionType.SPEED, false, false, true, "Pour courir plus vite ;)", Arrays.asList(), true),
+                    ItemHelper.generatePotion(PotionType.SPEED, false, false, true, "Pour courir plus vite ;)", Arrays.asList(), true),
+                    ItemHelper.generateItem(Material.ENDER_PEARL, 8, "Téléportation du pilote", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.ACACIA_BOAT, 1, "Bateau du pilote", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.GOLDEN_APPLE, 5, "Bouffe de pilote", Arrays.asList(), false, null, false, false)
+            );
 
-		for (int i = 0; i < data().pvpIntensity; i++)
-		{
-			int meetupTime = i * timePart + timePart * 1 / 20 + rng.nextInt(timePart * 9 / 10);
+        if (data().selectedStuff == Material.IRON_PICKAXE)
+            return Arrays.asList(
+                    ItemHelper.generateItem(Material.IRON_PICKAXE, 1, "Pioche du nain", Arrays.asList(), true, Enchantment.DIG_SPEED, 5, false, false),
+                    ItemHelper.generateItem(Material.IRON_SHOVEL, 1, "Pelle du nain", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.IRON_PICKAXE, 1, "L'autre pioche du nain", Arrays.asList(), true, Enchantment.DURABILITY, 5, false, false),
+                    ItemHelper.generateItem(Material.ACACIA_BOAT, 1, "Bateau du nain", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.WATER_BUCKET, 1, "Flotte pour nain", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.COOKIE, 32, "Bouffe de nain", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.TORCH, 64, "Lumiére du nain", Arrays.asList(), false, null, false, false)
+            );
 
-			Bukkit.getScheduler().runTaskLater(plugin, () -> {
-				Bukkit.broadcastMessage("é4Oh non ! Un Meetup sauvage est apparu ! ");
-				World world = server.getWorld("world");
-				Location zeroLocation = new Location(world, 0, world.getHighestBlockYAt(0, 0), 0);
-				OfflinePlayer[] players = server.getOfflinePlayers();
-
-				for (OfflinePlayer offPlayer : players)
-				{
-					Player player = offPlayer.getPlayer();
-					if (player == null)
-						continue;
-					player.teleport(zeroLocation);
-				}
-			}, meetupTime * 60 * 20L);
-
-			data().meetupTimer.add(meetupTime);
-		}
-
-		data().saveData();
-	}
-	     */
+        return Arrays.asList(
+                ItemHelper.generateItem(Material.ACACIA_BOAT, 1, "Bateau du schlag", Arrays.asList(), false, null, false, false),
+                ItemHelper.generateItem(Material.WATER_BUCKET, 1, "Flotte pour schlag", Arrays.asList(), false, null, false, false),
+                ItemHelper.generateItem(Material.SWEET_BERRIES, 64, "Bouffe de schlag", Arrays.asList(), false, null, false, false)
+        );
+    }
 }

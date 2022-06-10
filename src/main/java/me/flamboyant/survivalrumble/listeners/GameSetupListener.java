@@ -61,7 +61,7 @@ public class GameSetupListener implements Listener {
             player.openInventory(teamHQView);
         } else if (ItemHelper.isExactlySameItemKind(item, ItemHelper.getLaunchItem())) {
             if (data().playersClass.size() == 0)
-                lanchClassSelectionStep(player);
+                launchClassSelectionStep(player);
             else
                 launchGame(player);
         }
@@ -107,7 +107,7 @@ public class GameSetupListener implements Listener {
         return ItemHelper.isExactlySameItemKind(item, ItemHelper.getTeamSelectionItem());
     }
 
-    private void lanchClassSelectionStep(Player opPlayer) {
+    private void launchClassSelectionStep(Player opPlayer) {
         cleanEmptyTeams();
         if (isHeadquarterMissing()) {
             opPlayer.sendMessage(ChatUtils.debugMessage("Headquarter location are missing"));
@@ -198,10 +198,10 @@ public class GameSetupListener implements Listener {
         opPlayer.getInventory().clear();
         for (UUID playerId : data().playersTeam.keySet()) {
             Player player = server.getPlayer(playerId);
-            Location target = data().teamHeadquarterLocation.get(data().playersTeam.get(playerId));
-            String message = "Tu es dans l'équipe " + ChatColor.GOLD + data().playersTeam.get(playerId) + ChatUtils.generalCorpusColor
-                    + ", tu dois te rendre aux coordonnées " + ChatColor.GOLD + target.getBlockX() + " " + target.getBlockY() + " " + target.getBlockZ()
-                    + ChatUtils.generalCorpusColor + " avec tous les membres de ton équipe !\nTu ne peux pas poser ou détruire de bloc pendant cette phase";
+            String message = ChatUtils.generalAnnouncement("L'AVENTURE COMMENCE !",
+                    "Chaque joueur a atteint la base de son équipe ! Vous pouvez "
+                            + "de nouveau poser et casser des blocs. Marquez des points en complétant votre quéte principale ou en posant des blocs de "
+                            + "construction dans votre base (plus vous étes proches de la couche 64 plus éa marque de points). ");
             message = ChatUtils.generalAnnouncement("LA PARTIE VA COMMENCER", message);
             player.sendMessage(message);
         }
@@ -228,8 +228,7 @@ public class GameSetupListener implements Listener {
         this.unregisterEvents();
 
         GameManager.getInstance().setMorningTimeAtGameLaunch();
-        RunToBaseListener listener = new RunToBaseListener(plugin, server);
-        server.getPluginManager().registerEvents(listener, plugin);
+        MainGameListener listener = new MainGameListener();
         listener.initListener();
     }
 

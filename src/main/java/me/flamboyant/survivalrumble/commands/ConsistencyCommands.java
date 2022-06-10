@@ -1,6 +1,13 @@
 package me.flamboyant.survivalrumble.commands;
 
+import me.flamboyant.survivalrumble.GameManager;
+import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
+import me.flamboyant.survivalrumble.listeners.MainGameListener;
+import me.flamboyant.survivalrumble.listeners.RunToBaseListener;
+import me.flamboyant.survivalrumble.playerclass.classobjects.APlayerClass;
+import me.flamboyant.survivalrumble.playerclass.factory.PlayerClassFactory;
+import me.flamboyant.survivalrumble.utils.PlayerClassMechanicsHelper;
 import me.flamboyant.survivalrumble.utils.ScoreboardBricklayer;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
 import org.bukkit.*;
@@ -41,11 +48,11 @@ public class ConsistencyCommands implements CommandExecutor {
         Player senderPlayer = (Player) sender;
 
         switch (cmd.getName()) {
-            case "f_sr_maintenance_load_data":
+            case "c_sr_load_data":
                 return loadData(senderPlayer);
-            case "sr_reset_server":
+            case "c_sr_reset_server":
                 return resetServerConfig(senderPlayer);
-            case "f_sr_maintenance_make_server_config":
+            case "c_sr_build_game_from_data":
                 return makeServerConfig(senderPlayer);
             default:
                 break;
@@ -86,33 +93,34 @@ public class ConsistencyCommands implements CommandExecutor {
         }
 
         OfflinePlayer[] players = server.getOfflinePlayers();
-
-        for (OfflinePlayer player : players) {
-            senderPlayer.sendMessage("Prise en charge du joueur " + player.getName());
-            if (data().playersTeam.containsKey(player.getUniqueId())) {
-                String teamName = data().playersTeam.get(player.getUniqueId());
-                senderPlayer.sendMessage("Ajout du joueur " + player.getName() + " dans la team " + teamName);
+        PlayerClassFactory factory = new PlayerClassFactory();
+        for (OfflinePlayer offlinePlayer : players) {
+            Player player = offlinePlayer.getPlayer();
+            senderPlayer.sendMessage("Prise en charge du joueur " + offlinePlayer.getName());
+            if (data().playersTeam.containsKey(offlinePlayer.getUniqueId())) {
+                String teamName = data().playersTeam.get(offlinePlayer.getUniqueId());
+                senderPlayer.sendMessage("Ajout du joueur " + offlinePlayer.getName() + " dans la team " + teamName);
                 Team team = scoreboardBricklayer.getTeam(teamName);
-                team.addPlayer(player);
+                team.addPlayer(offlinePlayer);
+                APlayerClass playerClass = factory.generatePlayerClass(data().playersClass.get(offlinePlayer.getUniqueId()), player);
+                PlayerClassMechanicsHelper.getSingleton().declarePlayerClass(player, playerClass);
+                playerClass.enableClass();
             }
         }
 
-        World world = senderPlayer.getWorld();
-        Location zeroLocation = new Location(world, 0, world.getHighestBlockYAt(0, 0), 0);
         scheduleStopTask(plugin);
         scheduleUpdateGameTimeTask(plugin);
-		/*if (data().isPlayerInHQ.values().contains(false))
-			scheduleCheckPlayersPositionToHQTask(zeroLocation, plugin, server);
-		else
-			scheduleRandomMeetup(plugin, server);*/
+
+        launchGameListeners();
 
         return true;
     }
 
-    public void scheduleCheckPlayersPositionToHQTask(Location zeroLocation, JavaPlugin plugin, Server server) {
-        checkPlayersPositionToHQTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            checkPlayersPositionToHQ(zeroLocation, plugin, server);
-        }, 0, 5L);
+    private void launchGameListeners() {
+        GameManager.getInstance().setMorningTimeAtGameLaunch();
+        MainGameListener listener = new MainGameListener();
+        server.getPluginManager().registerEvents(listener, plugin);
+        listener.initListener();
     }
 
     public void scheduleStopTask(JavaPlugin plugin) {
@@ -153,107 +161,5 @@ public class ConsistencyCommands implements CommandExecutor {
             else
                 data().meetupTimer.remove(i--);
         }
-
-        data().saveData();
-    }
-
-    private void checkPlayersPositionToHQ(Location zeroLocation, JavaPlugin plugin, Server server) {
-        ArrayList<String> teamNames = data().teams;
-
-        Boolean allTeamReached = true;
-
-        for (String teamName : teamNames) {
-            Team team = ScoreboardBricklayer.getSingleton().getTeam(teamName);
-			/*if (!data().isRunToHeadquarterPhase.get(teamName))
-				continue;
-			*/
-            Location hqLocation = data().teamHeadquarterLocation.get(teamName);
-            double totalDistance = hqLocation.distance(zeroLocation);
-            double percentage = 0;
-            Set<OfflinePlayer> players = team.getPlayers();
-            int playersInBase = 0;
-			/*
-			for(OfflinePlayer offlinePlayer : players)
-			{
-				Player player = offlinePlayer.getPlayer();
-				if (player == null)
-					continue;
-				
-				double distance = hqLocation.distance(player.getLocation());
-
-				if (distance < 50 && !data().isPlayerInHQ.get(player.getUniqueId()))
-				{
-					data().isPlayerInHQ.put(player.getUniqueId(), true);
-					player.sendMessage("é5Tu es arrivé aux coordonnées de la base de ton équipe !");	
-					percentage += 0;
-				}
-				else if (distance >= 50)
-				{
-					if (!data().isPlayerInHQ.containsKey(player.getUniqueId()))
-					{
-						data().isPlayerInHQ.put(player.getUniqueId(), false);
-					}
-					else if (data().isPlayerInHQ.get(player.getUniqueId()))
-					{
-						player.sendMessage("é4Attention, tu t'éloignes des coordonnées de la base de ton équipe !");
-						data().isPlayerInHQ.put(player.getUniqueId(), false);
-					}
-					
-					percentage += distance / totalDistance;
-				}
-				
-				if (data().isPlayerInHQ.get(player.getUniqueId()))
-					playersInBase++;
-			}
-
-			if (playersInBase == players.size())
-			{
-				data().isRunToHeadquarterPhase.put(team.getName(), false);
-				Bukkit.broadcastMessage("é3" + team.getName() + " team reached the headquarter !");
-			}
-			else
-			{
-				allTeamReached = false;
-			}
-			*/
-
-            data().saveData();
-        }
-
-        if (allTeamReached) {
-            Bukkit.getScheduler().cancelTask(checkPlayersPositionToHQTask.getTaskId());
-            scheduleRandomMeetup(plugin, server);
-        }
-    }
-
-    public void scheduleRandomMeetup(JavaPlugin plugin, Server server) {
-        if (data().pvpIntensity == 0)
-            return;
-
-        int remaningTime = data().minutesBeforeEnd;
-        int timePart = remaningTime / data().pvpIntensity;
-        Random rng = new Random();
-
-        for (int i = 0; i < data().pvpIntensity; i++) {
-            int meetupTime = i * timePart + timePart * 1 / 20 + rng.nextInt(timePart * 9 / 10);
-
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                Bukkit.broadcastMessage("Oh non ! Un Meetup sauvage est apparu ! ");
-                World world = server.getWorld("world");
-                Location zeroLocation = new Location(world, 0, world.getHighestBlockYAt(0, 0), 0);
-                OfflinePlayer[] players = server.getOfflinePlayers();
-
-                for (OfflinePlayer offPlayer : players) {
-                    Player player = offPlayer.getPlayer();
-                    if (player == null)
-                        continue;
-                    player.teleport(zeroLocation);
-                }
-            }, meetupTime * 60 * 20L);
-
-            data().meetupTimer.add(meetupTime);
-        }
-
-        data().saveData();
     }
 }

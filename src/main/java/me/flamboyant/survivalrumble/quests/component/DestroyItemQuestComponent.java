@@ -40,7 +40,8 @@ public class DestroyItemQuestComponent extends AQuestComponent implements Listen
         if (event.getEntityType() != EntityType.DROPPED_ITEM) return;
         Item item = ((Item) event.getEntity());
         if (item.getItemStack().getType() != itemToBreak) return;
-        if (event.getEntity().getLocation().distance(player.getLocation()) > 16) return;
+        if (event.getEntity().getLocation().getWorld() != player.getWorld()
+                || event.getEntity().getLocation().distance(player.getLocation()) > 16) return;
 
         quantity -= item.getItemStack().getAmount();
 

@@ -99,8 +99,7 @@ public class ElbmurLavivrusClass extends APlayerClass {
     }
 
     private void handleBlockModification(Block block, boolean broken) {
-        MaterialHelper mh = new MaterialHelper();
-        if (mh.scoringMaterial.containsKey(block.getType()) || block.getType() == Material.WATER || block.getType() == Material.LAVA)
+        if (MaterialHelper.scoringMaterial.containsKey(block.getType()) || block.getType() == Material.WATER || block.getType() == Material.LAVA)
             return;
         Location location = block.getLocation();
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);

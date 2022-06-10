@@ -38,6 +38,6 @@ public class ChatUtils {
     }
 
     public static String feedback(String message) {
-        return ChatColor.GREEN + "é" + ChatColor.RESET + message;
+        return ChatColor.GREEN + "¤" + ChatColor.RESET + message;
     }
 }

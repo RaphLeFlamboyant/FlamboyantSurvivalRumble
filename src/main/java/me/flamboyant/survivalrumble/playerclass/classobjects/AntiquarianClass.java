@@ -2,6 +2,9 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
+import me.flamboyant.survivalrumble.data.classes.AntiquarianClassData;
+import me.flamboyant.survivalrumble.data.classes.ElectricianClassData;
+import me.flamboyant.survivalrumble.data.classes.PlayerClassData;
 import me.flamboyant.survivalrumble.quests.BaseBlocPlaceQuest;
 import me.flamboyant.survivalrumble.quests.Quest;
 import me.flamboyant.survivalrumble.quests.component.*;
@@ -22,8 +25,8 @@ import java.util.Map;
 
 public class AntiquarianClass extends APlayerClass implements Listener {
     private int pointsByRarity = 25;
+    private AntiquarianClassData classData;
 
-    private HashSet<Material> collectedItems = new HashSet<>();
     private Map<Material, Integer> scoreByMaterial = new HashMap<Material, Integer>() {{
         put(Material.HEART_OF_THE_SEA, pointsByRarity * 10);
         put(Material.WITHER_SKELETON_SKULL, pointsByRarity * 40);
@@ -106,8 +109,12 @@ public class AntiquarianClass extends APlayerClass implements Listener {
     }
 
     @Override
+    public PlayerClassData buildClassData() { return new AntiquarianClassData(); }
+
+    @Override
     public void enableClass() {
         super.enableClass();
+        classData = (AntiquarianClassData) data().playerClassDataList.get(getClassType());
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
@@ -116,11 +123,11 @@ public class AntiquarianClass extends APlayerClass implements Listener {
         if (!event.getEntity().getUniqueId().equals(owner.getUniqueId())) return;
         Material material = event.getItem().getItemStack().getType();
         if (!scoreByMaterial.containsKey(material)) return;
-        if (collectedItems.contains(material)) return;
+        if (classData.collectedItems.contains(material)) return;
 
         int score = scoreByMaterial.get(material);
         GameManager.getInstance().addScore(data().playersTeam.get(owner.getUniqueId()), score, ScoreType.FLAT);
 
-        collectedItems.add(material);
+        classData.collectedItems.add(material);
     }
 }
