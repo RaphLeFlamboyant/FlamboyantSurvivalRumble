@@ -66,6 +66,7 @@ public class HQProximityQuestComponent extends AQuestComponent {
     }
 
     private void checkPlayerProximityToFoesHQ() {
+        if (!player.getWorld().getName().equals("world")) return;
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
         String ownerTeam = data.playersTeam.get(player.getUniqueId());
 

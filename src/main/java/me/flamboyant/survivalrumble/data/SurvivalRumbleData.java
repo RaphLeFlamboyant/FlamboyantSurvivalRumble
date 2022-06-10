@@ -28,7 +28,6 @@ public class SurvivalRumbleData implements Serializable {
     public Material selectedStuff = Material.BEEF;
     // Registered in teams parameter view
     public HashMap<String, Location> teamHeadquarterLocation = new HashMap<String, Location>();
-    public HashMap<String, Location> teamSpawnLocation = new HashMap<String, Location>();
     // Registered in class selection view
     public Map<String, List<UUID>> playersByTeam = new HashMap<>();
     public HashMap<UUID, PlayerClassType> playersClass = new HashMap<UUID, PlayerClassType>();
@@ -83,6 +82,7 @@ public class SurvivalRumbleData implements Serializable {
 
     private boolean saveData() {
         try {
+            if (teams.size() <= 0) return false; // Data empty means OutOfMemory issue ongoing so we won't erase the last saved file
             BukkitObjectOutputStream out = new BukkitObjectOutputStream(new FileOutputStream(dataSaveFile));
             out.writeObject(this);
             out.close();

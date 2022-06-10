@@ -44,7 +44,8 @@ public class ProximityToPlayersQuestComponent extends AQuestComponent {
 
     private void checkPlayersProximity() {
         for (Player target : playerToCheckLocations) {
-            if (!checkDistance(target.getLocation().distance(player.getLocation()))) return;
+            if (target.getWorld() != player.getWorld()
+                    || !checkDistance(target.getLocation().distance(player.getLocation()))) return;
         }
 
         if (--durationInSeconds <= 0) stopQuest();

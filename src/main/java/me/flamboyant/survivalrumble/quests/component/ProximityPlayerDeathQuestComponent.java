@@ -69,7 +69,7 @@ public class ProximityPlayerDeathQuestComponent extends APlayerDeathQuestCompone
         if (deathCauses.size() > 0 && !deathCauses.contains(event.getEntity().getLastDamageCause().getCause())) return;
         if (validTarget != null && !validTarget.contains(event.getEntity())) return;
         Location deadLocation = event.getEntity().getLocation();
-        if (distance <= deadLocation.distance(player.getLocation())) return;
+        if (deadLocation.getWorld() != player.getWorld() || distance <= deadLocation.distance(player.getLocation())) return;
 
         if (--quantity <= 0) {
             stopQuest();
