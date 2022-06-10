@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BunglerClass extends APlayerClass {
+    private static final int scoreCoef = 5;
+    private static final int malusCoef = -4;
+
     public BunglerClass(Player owner) {
         super(owner);
         this.triggers.add(ScoringTriggerType.BLOCK_BREAK);
@@ -67,6 +70,18 @@ public class BunglerClass extends APlayerClass {
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
         if (concernedTeamName == null || data().playersTeam.get(owner.getUniqueId()).equals(concernedTeamName)) return;
 
-        GameManager.getInstance().addScore(data().playersTeam.get(owner.getUniqueId()), (int) (5 * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY())), ScoreType.FLAT);
+        GameManager.getInstance().addScore(data().playersTeam.get(owner.getUniqueId()), (int) (scoreCoef * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY())), ScoreType.FLAT);
+    }
+
+    @Override
+    public void onBlockPlaceTrigger(Player playerWhoBreaks, Block block) {
+        if (!MaterialHelper.scoringMaterial.containsKey(block.getBlockData().getMaterial())) return;
+        if (!data().playersTeam.get(playerWhoBreaks.getUniqueId()).equals(data().playersTeam.get(owner.getUniqueId()))) return;
+        Location location = block.getLocation();
+        String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
+        if (concernedTeamName == null || data().playersTeam.get(owner.getUniqueId()).equals(concernedTeamName)) return;
+
+        String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
+        GameManager.getInstance().addScore(ownerTeamName, (int) (malusCoef * ScoringHelper.scoreAltitudeCoefficient(block.getLocation().getBlockY())), ScoreType.FLAT);
     }
 }

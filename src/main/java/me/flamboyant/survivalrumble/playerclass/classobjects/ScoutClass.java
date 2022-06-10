@@ -15,6 +15,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ScoutClass extends APlayerClass {
+    private static final float scoreRatioInMalus = 0.05f;
+    private static final int minDistDefault = 101;
     private String ownerTeam;
     private int checkInterval = 1;
     private float leftovers = 0f;
@@ -92,18 +94,24 @@ public class ScoutClass extends APlayerClass {
     @Override
     public void enableClass() {
         super.enableClass();
-        Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> updateScoring(Common.server), 0l, checkInterval * 20l);
+        Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> updateScoring(), 0l, checkInterval * 20l);
     }
 
-    private void updateScoring(Server server) {
+    private void updateScoring() {
         if (!owner.getWorld().getName().equals("world")) return;
-        double distance = getCloserHeadQuarterDistance(owner.getLocation());
-        if (distance > 100) return;
+        String closestTeamHQ = getCloserValidHeadQuarter();
+        if (closestTeamHQ == null) return;
 
-        GameManager.getInstance().addScore(ownerTeam, getScoring((int) distance), ScoreType.FLAT);
+        Boolean isAnyFoeClose = false;
+        for (UUID playerId : data().playersByTeam.get(closestTeamHQ)) {
+            Player player = Common.server.getPlayer(playerId);
+            isAnyFoeClose |= ((player.getWorld() == owner.getWorld()) && player.getLocation().distance(owner.getLocation()) < minDistDefault);
+        }
+
+        GameManager.getInstance().addScore(ownerTeam, getScoring((int) owner.getLocation().distance(data().teamHeadquarterLocation.get(closestTeamHQ)), !isAnyFoeClose), ScoreType.FLAT);
     }
 
-    private int getScoring(int distToHqCenter) {
+    private int getScoring(int distToHqCenter, boolean isMalusApplied) {
         float score = 0f;
         for (Integer dist : scoreBySeconds.keySet()) {
             if (distToHqCenter <= dist) {
@@ -112,20 +120,25 @@ public class ScoutClass extends APlayerClass {
             }
         }
 
+        if (isMalusApplied) score *= scoreRatioInMalus;
         score += leftovers;
         leftovers = score % 1f;
 
         return (int) score;
     }
 
-    private double getCloserHeadQuarterDistance(Location location) {
-        double res = 9999999;
+    private String getCloserValidHeadQuarter() {
+        double minDist = minDistDefault;
+        String res = null;
         for (String teamName : data().teamHeadquarterLocation.keySet()) {
             if (ownerTeam.equals(teamName)) continue;
 
             Location hqLocation = data().teamHeadquarterLocation.get(teamName);
             double dist = hqLocation.distance(owner.getLocation());
-            if (dist < res) res = dist;
+            if (dist < minDist) {
+                minDist = dist;
+                res = teamName;
+            }
         }
 
         return res;
