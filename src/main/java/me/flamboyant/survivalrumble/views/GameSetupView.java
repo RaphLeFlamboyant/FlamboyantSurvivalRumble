@@ -20,7 +20,7 @@ import java.util.List;
 public class GameSetupView implements Listener {
     private static GameSetupView instance;
     private Inventory view;
-    private List<String> stuffList = Arrays.asList("Stuff basique", "Stuff déplacements rapides", "Stuff minage");
+    private List<String> stuffList = Arrays.asList("Stuff basique", "Stuff Economie de temps", "Stuff partie rapide", "Stuff wtf");
 
     protected GameSetupView() {
     }
@@ -48,8 +48,9 @@ public class GameSetupView implements Listener {
             myInventory.setItem(9 + 4, gameTimeItem());
             myInventory.setItem(9 + 5, pvpIntensityItem());
             myInventory.setItem(9 * 3 + 3, basicStuffItem());
-            myInventory.setItem(9 * 3 + 4, goFastStuffItem());
-            myInventory.setItem(9 * 3 + 5, fastStartStuffItem());
+            myInventory.setItem(9 * 3 + 4, fastStuffItem());
+            myInventory.setItem(9 * 3 + 5, advancedStartStuffItem());
+            myInventory.setItem(9 * 3 + 6, wtfStartStuffItem());
             view = myInventory;
         }
 
@@ -73,7 +74,7 @@ public class GameSetupView implements Listener {
             HandleGameTimeItemClicked(event, clicked);
         else if (ItemHelper.isSameItemKind(clicked, pvpIntensityItem()))
             HandlePvpIntensityItemClicked(event, clicked);
-        else if (Arrays.asList(Material.COOKED_BEEF, Material.ENDER_PEARL, Material.IRON_PICKAXE).contains(clicked.getType())) {
+        else if (Arrays.asList(Material.COOKED_BEEF, Material.COBBLESTONE, Material.IRON_PICKAXE, Material.BAKED_POTATO).contains(clicked.getType())) {
             for (int i = 9 * 3 + 3; i < 9 * 3 + 6; i++) {
                 ItemStack item = event.getInventory().getItem(i);
                 item.removeEnchantment(Enchantment.KNOCKBACK);
@@ -125,15 +126,19 @@ public class GameSetupView implements Listener {
     }
 
     private ItemStack basicStuffItem() {
-        return ItemHelper.generateItem(Material.COOKED_BEEF, 1, stuffList.get(0), new ArrayList<String>(), true, Enchantment.KNOCKBACK, true, false);
+        return ItemHelper.generateItem(Material.SWEET_BERRIES, 1, stuffList.get(0), new ArrayList<String>(), true, Enchantment.KNOCKBACK, true, false);
     }
 
-    private ItemStack goFastStuffItem() {
-        return ItemHelper.generateItem(Material.ENDER_PEARL, 1, stuffList.get(1), new ArrayList<String>(), false, null, true, false);
+    private ItemStack fastStuffItem() {
+        return ItemHelper.generateItem(Material.COBBLESTONE, 1, stuffList.get(1), new ArrayList<String>(), false, null, true, false);
     }
 
-    private ItemStack fastStartStuffItem() {
+    private ItemStack advancedStartStuffItem() {
         return ItemHelper.generateItem(Material.IRON_PICKAXE, 1, stuffList.get(2), new ArrayList<String>(), false, null, true, false);
+    }
+
+    private ItemStack wtfStartStuffItem() {
+        return ItemHelper.generateItem(Material.BAKED_POTATO, 1, stuffList.get(3), new ArrayList<String>(), false, null, true, false);
     }
 
     public void unregisterEvents() {

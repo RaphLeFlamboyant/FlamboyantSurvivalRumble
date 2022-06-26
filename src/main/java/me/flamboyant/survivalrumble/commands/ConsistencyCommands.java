@@ -4,7 +4,6 @@ import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.listeners.MainGameListener;
-import me.flamboyant.survivalrumble.listeners.RunToBaseListener;
 import me.flamboyant.survivalrumble.playerclass.classobjects.APlayerClass;
 import me.flamboyant.survivalrumble.playerclass.factory.PlayerClassFactory;
 import me.flamboyant.survivalrumble.utils.PlayerClassMechanicsHelper;
@@ -22,8 +21,6 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Team;
 
 import java.util.ArrayList;
-import java.util.Random;
-import java.util.Set;
 
 public class ConsistencyCommands implements CommandExecutor {
     private JavaPlugin plugin;

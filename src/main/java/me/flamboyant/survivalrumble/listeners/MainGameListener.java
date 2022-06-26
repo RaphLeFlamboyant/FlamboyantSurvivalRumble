@@ -181,38 +181,50 @@ public class MainGameListener implements Listener {
     }
 
     private List<ItemStack> baseStuff() {
-        if (data().selectedStuff == Material.BEEF)
+        if (data().selectedStuff == Material.SWEET_BERRIES)
             return Arrays.asList(
-                    ItemHelper.generateItem(Material.STONE_AXE, 1, "Hache du schlag", Arrays.asList(), false, null, false, false),
-                    ItemHelper.generateItem(Material.ACACIA_BOAT, 1, "Bateau du schlag", Arrays.asList(), false, null, false, false),
-                    ItemHelper.generateItem(Material.WATER_BUCKET, 1, "Flotte pour schlag", Arrays.asList(), false, null, false, false),
-                    ItemHelper.generateItem(Material.SWEET_BERRIES, 64, "Bouffe de schlag", Arrays.asList(), false, null, false, false),
-                    ItemHelper.generateItem(Material.TORCH, 16, "Lumiére du schlag", Arrays.asList(), false, null, false, false)
+                    ItemHelper.generateItem(Material.SWEET_BERRIES, 64, "Bouffe de schlag", Arrays.asList(), false, null, false, false)
             );
 
-        if (data().selectedStuff == Material.ENDER_PEARL)
+        if (data().selectedStuff == Material.COBBLESTONE)
             return Arrays.asList(
-                    ItemHelper.generatePotion(PotionType.SPEED, false, false, true, "Pour courir plus vite ;)", Arrays.asList(), true),
-                    ItemHelper.generatePotion(PotionType.SPEED, false, false, true, "Pour courir plus vite ;)", Arrays.asList(), true),
-                    ItemHelper.generateItem(Material.ENDER_PEARL, 8, "Téléportation du pilote", Arrays.asList(), false, null, false, false),
-                    ItemHelper.generateItem(Material.ACACIA_BOAT, 1, "Bateau du pilote", Arrays.asList(), false, null, false, false),
-                    ItemHelper.generateItem(Material.GOLDEN_APPLE, 5, "Bouffe de pilote", Arrays.asList(), false, null, false, false)
+                    ItemHelper.generateItem(Material.IRON_INGOT, 5, "Fer du pilote", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.REDSTONE, 64, "Poudre du pilote", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.OAK_LOG, 64, "Bois du pilote", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.COAL, 32, "Charbon du pilote", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.COBBLESTONE, 240, "Blocs du pilote", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.COOKED_BEEF, 32, "Bouffe de pilote", Arrays.asList(), false, null, false, false)
             );
 
         if (data().selectedStuff == Material.IRON_PICKAXE)
             return Arrays.asList(
-                    ItemHelper.generateItem(Material.IRON_PICKAXE, 1, "Pioche du nain", Arrays.asList(), true, Enchantment.DIG_SPEED, 5, false, false),
-                    ItemHelper.generateItem(Material.IRON_SHOVEL, 1, "Pelle du nain", Arrays.asList(), false, null, false, false),
-                    ItemHelper.generateItem(Material.IRON_PICKAXE, 1, "L'autre pioche du nain", Arrays.asList(), true, Enchantment.DURABILITY, 5, false, false),
-                    ItemHelper.generateItem(Material.ACACIA_BOAT, 1, "Bateau du nain", Arrays.asList(), false, null, false, false),
-                    ItemHelper.generateItem(Material.WATER_BUCKET, 1, "Flotte pour nain", Arrays.asList(), false, null, false, false),
-                    ItemHelper.generateItem(Material.COOKIE, 32, "Bouffe de nain", Arrays.asList(), false, null, false, false),
-                    ItemHelper.generateItem(Material.TORCH, 64, "Lumiére du nain", Arrays.asList(), false, null, false, false)
+                    ItemHelper.generateItem(Material.OBSIDIAN, 5, "Obsidienne du pro", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.IRON_INGOT, 64, "Fer du pro", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.REDSTONE_BLOCK, 64, "Poudre du pro", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.QUARTZ, 64, "Composant du pro", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.SLIME_BALL, 64, "Gelée du pro", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.OAK_LOG, 64, "Bois du pro", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.COAL_BLOCK, 32, "Charbon du pro", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.COBBLESTONE, 480, "Blocs du pro", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.GOLDEN_APPLE, 2, "Pommes du pro", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.COOKED_BEEF, 64, "Bouffe de pro", Arrays.asList(), false, null, false, false)
+            );
+
+        if (data().selectedStuff == Material.BAKED_POTATO)
+            return Arrays.asList(
+                    ItemHelper.generateItem(Material.BAKED_POTATO, 16, "wtf", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.ELYTRA, 1, "wtf", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.COBWEB, 32, "wtf", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.FISHING_ROD, 32, "wtf", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.BLAZE_ROD, 32, "wtf", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.MANGROVE_LOG, 32, "wtf", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.LIGHTNING_ROD, 32, "wtf", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.OCHRE_FROGLIGHT, 64, "wtf", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.GOLD_BLOCK, 64, "wtf", Arrays.asList(), false, null, false, false),
+                    ItemHelper.generateItem(Material.CREEPER_SPAWN_EGG, 32, "wtf", Arrays.asList(), false, null, false, false)
             );
 
         return Arrays.asList(
-                ItemHelper.generateItem(Material.ACACIA_BOAT, 1, "Bateau du schlag", Arrays.asList(), false, null, false, false),
-                ItemHelper.generateItem(Material.WATER_BUCKET, 1, "Flotte pour schlag", Arrays.asList(), false, null, false, false),
                 ItemHelper.generateItem(Material.SWEET_BERRIES, 64, "Bouffe de schlag", Arrays.asList(), false, null, false, false)
         );
     }
