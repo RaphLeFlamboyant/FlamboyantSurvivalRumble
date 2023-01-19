@@ -44,20 +44,14 @@ public class TeamHQParametersView implements Listener {
             Inventory myInventory = Bukkit.createInventory(null, 45, getViewID());
 
             for (String teamName : TeamHelper.teamNames) {
-                ItemStack spawn = getTeamSpawnItem(teamName);
-                myInventory.setItem(TeamHelper.teamNames.indexOf(teamName) * 2 + 10, spawn);
-                ItemStack flag = getTeamHQItem(teamName);
-                myInventory.setItem(TeamHelper.teamNames.indexOf(teamName) * 2 + 28, flag);
+                ItemStack hqLocationItem = getTeamHQItem(teamName);
+                myInventory.setItem(TeamHelper.teamNames.indexOf(teamName) * 2 + 28, hqLocationItem);
             }
 
             view = myInventory;
         }
 
         return view;
-    }
-
-    private ItemStack getTeamSpawnItem(String teamName) {
-        return ItemHelper.generateItem(TeamHelper.getTeamBedMaterial(teamName), 1, teamName + " team 0 spawn location", Arrays.asList(teamName), false, null, false, false);
     }
 
     private ItemStack getTeamHQItem(String teamName) {
@@ -82,10 +76,7 @@ public class TeamHQParametersView implements Listener {
         Location playerLocation = player.getLocation();
         Location location = new Location(playerLocation.getWorld(), playerLocation.getBlockX(), playerLocation.getBlockY(), playerLocation.getBlockZ());
 
-        if (clicked.getType().toString().contains("BED"))
-            data().teamSpawnLocation.put(teamName, location);
-        else
-            placeTeamHeadquarter(teamName, location);
+        placeTeamHeadquarter(teamName, location);
 
         ItemMeta meta = clicked.getItemMeta();
         String displayBase = meta.getDisplayName().split(" | ")[0];

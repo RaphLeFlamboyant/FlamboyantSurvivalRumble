@@ -2,10 +2,11 @@ package me.flamboyant.survivalrumble.playerclass.classobjects.nonvanilla;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.data.classes.AssassinClassData;
 import me.flamboyant.survivalrumble.data.classes.PlayerClassData;
 import me.flamboyant.survivalrumble.data.classes.ThiefClassData;
 import me.flamboyant.survivalrumble.utils.*;
+import me.flamboyant.survivalrumble.views.PlayerSelectionView;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -13,17 +14,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.Arrays;
 
 public class ThiefClass extends ANonVanillaClass implements Listener {
     private ThiefClassData classData;
+    private PlayerSelectionView currentOpenedView;
 
     public ThiefClass(Player owner) {
         super(owner);
@@ -54,16 +58,7 @@ public class ThiefClass extends ANonVanillaClass implements Listener {
     public void enableClass() {
         super.enableClass();
         classData = (ThiefClassData) data().playerClassDataList.get(getClassType());
-
-        String playerTeamName = data().playersTeam.get(owner.getUniqueId());
-        if (classData.targetPlayerId == null) {
-            List<UUID> pick = TeamHelper.getRandomPlayer(data().teams.stream().filter(t -> !t.equals(playerTeamName)).collect(Collectors.toList()), 1);
-            classData.targetPlayerId = pick.get(0);
-            owner.sendMessage(ChatUtils.feedback("Tu voles le joueur " + Common.server.getPlayer(classData.targetPlayerId).getDisplayName()));
-        }
-
-        System.out.println("Thief enabling with target id = " + classData.targetPlayerId + " and name " + Common.server.getPlayer(classData.targetPlayerId).getDisplayName());
-
+        owner.getInventory().addItem(getPlayerSelectionItem());
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
@@ -85,7 +80,40 @@ public class ThiefClass extends ANonVanillaClass implements Listener {
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getPlayer() != owner) return;
         if (event.getItem() == null) return;
-        lastInteractThief = event.getItem().getItemMeta().getDisplayName().equals("Bloc volé") && event.getItem().containsEnchantment(Enchantment.CHANNELING);
+
+        if (ItemHelper.isSameItemKind(event.getItem(), getPlayerSelectionItem())) {
+            currentOpenedView = new PlayerSelectionView(owner, data().playersByTeam.get(data().playersTeam.get(owner.getUniqueId())));
+            owner.openInventory(currentOpenedView.getViewInstance());
+        }
+        else {
+            lastInteractThief = event.getItem().getItemMeta().getDisplayName().equals("Bloc volé") && event.getItem().containsEnchantment(Enchantment.CHANNELING);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerSpawn(PlayerRespawnEvent event) {
+        if (event.getPlayer() != owner) return;
+
+        Bukkit.getScheduler().runTaskLater(Common.plugin, () -> owner.getInventory().addItem(getPlayerSelectionItem()), 5L);
+    }
+
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (event.getPlayer() != owner) return;
+        if (currentOpenedView == null) return;
+
+        Inventory inv = owner.getInventory();
+        ItemStack content[] = inv.getContents();
+        int i;
+        for (i = 0; i < content.length; i++) {
+            if (ItemHelper.isSameItemKind(content[i], getPlayerSelectionItem()))
+                break;
+        }
+
+        classData.targetPlayerId = currentOpenedView.getSelectedPlayer().getUniqueId();
+        content[i] = getPlayerSelectionItem();
+
+        currentOpenedView = null;
     }
 
     @EventHandler
@@ -124,5 +152,20 @@ public class ThiefClass extends ANonVanillaClass implements Listener {
         itemCopy.setItemMeta(meta);
 
         owner.getInventory().addItem(itemCopy);
+    }
+
+    private ItemStack getPlayerSelectionItem() {
+        ItemStack res = ItemHelper.generateItem(Material.ECHO_SHARD, 1, "Joueur volé", Arrays.asList(), true, Enchantment.ARROW_FIRE, true, true);
+        if (classData.targetPlayerId != null) {
+            Player p = Common.server.getPlayer(classData.targetPlayerId);
+            res.setType(Material.PLAYER_HEAD);
+            ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
+            SkullMeta skull = (SkullMeta) playerHead.getItemMeta();
+            skull.setLore(Arrays.asList(p.getDisplayName()));
+            skull.setOwningPlayer(p);
+            playerHead.setItemMeta(skull);
+        }
+
+        return res;
     }
 }

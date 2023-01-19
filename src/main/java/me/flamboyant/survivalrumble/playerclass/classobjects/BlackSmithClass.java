@@ -2,20 +2,15 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.quests.Quest;
-import me.flamboyant.survivalrumble.quests.component.*;
 import me.flamboyant.survivalrumble.utils.Common;
 import me.flamboyant.survivalrumble.utils.ScoreType;
-import me.flamboyant.survivalrumble.utils.ScoringHelper;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.CraftItemEvent;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,53 +59,6 @@ public class BlackSmithClass extends APlayerClass implements Listener {
         super(owner);
 
         scoringDescription = "Fabriquer des piéces d'équipement";
-    }
-
-    @Override
-    protected void buildQuestList() {
-        questList.add(new Quest(this, owner, "Faire le gros dur", null, 25, 0, Arrays.asList(
-                new CraftQuestComponent(owner, Material.STONE_SWORD, 4))));
-        questList.add(new Quest(this, owner, "établir la forge", null, 100, 0, Arrays.asList(
-                new CraftQuestComponent(owner, Material.COBBLESTONE_WALL, 64),
-                new PlaceBlocQuestComponent(owner, Material.COBBLESTONE_WALL, 64, true),
-                new CraftQuestComponent(owner, Material.COBBLESTONE_SLAB, 64),
-                new PlaceBlocQuestComponent(owner, Material.COBBLESTONE_SLAB, 64, true),
-                new CraftQuestComponent(owner, Material.FURNACE, 8),
-                new PlaceBlocQuestComponent(owner, Material.FURNACE, 8, true),
-                new CraftQuestComponent(owner, Material.CRAFTING_TABLE, 1),
-                new PlaceBlocQuestComponent(owner, Material.CRAFTING_TABLE, 1, true))));
-        questList.add(new Quest(this, owner, "Collection secréte", null, 50, 0, Arrays.asList(
-                new GetItemQuestComponent(owner, Material.POPPY, 1),
-                new GetItemQuestComponent(owner, Material.DANDELION, 1),
-                new GetItemQuestComponent(owner, Material.ROSE_BUSH, 1),
-                new GetItemQuestComponent(owner, Material.CORNFLOWER, 1))));
-        questList.add(new Quest(this, owner, "Fondre le métal", null, 300, 0, Arrays.asList(
-                new FurnaceExtractQuestComponent(owner, Material.IRON_INGOT, 100))));
-        questList.add(new Quest(this, owner, "Améliorer la forge", null, 200, 0, Arrays.asList(
-                new CraftQuestComponent(owner, Material.BLAST_FURNACE, 8),
-                new PlaceBlocQuestComponent(owner, Material.BLAST_FURNACE, 8, true),
-                new CraftQuestComponent(owner, Material.ANVIL, 1),
-                new PlaceBlocQuestComponent(owner, Material.ANVIL, 1, true),
-                new CraftQuestComponent(owner, Material.SMITHING_TABLE, 1),
-                new PlaceBlocQuestComponent(owner, Material.SMITHING_TABLE, 1, true))));
-        questList.add(new Quest(this, owner, "Se sentir chez soi", null, 75, 0, Arrays.asList(
-                new PlacePotQuestComponent(owner, Material.POPPY, 1, true),
-                new PlacePotQuestComponent(owner, Material.DANDELION, 1, true),
-                new PlacePotQuestComponent(owner, Material.CORNFLOWER, 1, true))));
-        questList.add(new Quest(this, owner, "Embellir les lieux", null, 40, 0, Arrays.asList(
-                new FertilizeQuestComponent(owner, 16, true))));
-        questList.add(new Quest(this, owner, "Assumer ses fétiches", null, 75, 0, Arrays.asList(
-                new CraftQuestComponent(owner, Material.IRON_BARS, 64),
-                new PlaceBlocQuestComponent(owner, Material.IRON_BARS, 64, true),
-                new CraftQuestComponent(owner, Material.CHAIN, 16),
-                new PlaceBlocQuestComponent(owner, Material.CHAIN, 16, true))));
-        questList.add(new Quest(this, owner, "Changer de style", null, 250, 0, Arrays.asList(
-                new CraftColoredLeatherQuestComponent(owner, Material.LEATHER_LEGGINGS, DyeColor.PINK, "PINK", 1),
-                new CraftColoredLeatherQuestComponent(owner, Material.LEATHER_BOOTS, DyeColor.PINK, "PINK", 1),
-                new CraftColoredLeatherQuestComponent(owner, Material.LEATHER_CHESTPLATE, DyeColor.PINK, "PINK", 1),
-                new CraftColoredLeatherQuestComponent(owner, Material.LEATHER_HELMET, DyeColor.PINK, "PINK", 1))));
-        questList.add(new Quest(this, owner, "Féter nos différences", null, 500, 0, Arrays.asList(
-                new CraftQuestComponent(owner, Material.FIREWORK_ROCKET, 64))));
     }
 
     @Override

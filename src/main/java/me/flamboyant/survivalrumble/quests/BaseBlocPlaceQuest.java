@@ -1,7 +1,6 @@
 package me.flamboyant.survivalrumble.quests;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
-import me.flamboyant.survivalrumble.playerclass.classobjects.APlayerClass;
 import me.flamboyant.survivalrumble.utils.ChatUtils;
 import me.flamboyant.survivalrumble.utils.Common;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
@@ -16,8 +15,8 @@ import java.util.HashMap;
 public class BaseBlocPlaceQuest extends Quest implements Listener {
     HashMap<Material, Integer> blocsToPlace;
 
-    public BaseBlocPlaceQuest(APlayerClass playerClass, Player owner, String questTitle, String questMessage, HashMap<Material, Integer> blocsToPlace, int flatPoints, int perfectPoints) {
-        super(playerClass, owner, questTitle, questMessage, flatPoints, perfectPoints);
+    public BaseBlocPlaceQuest(String questTitle, HashMap<Material, Integer> blocsToPlace, int flatPoints, int perfectPoints) {
+        super(questTitle, flatPoints, perfectPoints);
 
         this.blocsToPlace = blocsToPlace;
     }
@@ -30,27 +29,27 @@ public class BaseBlocPlaceQuest extends Quest implements Listener {
         }
 
         String message = ChatUtils.questAnnouncement(questTitle, "" + (flatPoints == 0 ? perfectPoints : flatPoints), corpus);
-        owner.sendMessage(message);
+        ownerPlayer.sendMessage(message);
     }
 
     @Override
-    public void startQuest() {
-        super.startQuest();
-        owner.getServer().getPluginManager().registerEvents(this, Common.plugin);
+    public void startQuest(Player owner) {
+        super.startQuest(owner);
+        ownerPlayer.getServer().getPluginManager().registerEvents(this, Common.plugin);
     }
 
     @Override
-    protected void stopQuest() {
+    protected void stopQuest(boolean success) {
         BlockPlaceEvent.getHandlerList().unregister(this);
-        super.stopQuest();
+        super.stopQuest(success);
     }
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        if (event.getPlayer() != owner) return;
+        if (event.getPlayer() != ownerPlayer) return;
         Material blocType = event.getBlock().getType();
         if (!blocsToPlace.keySet().contains(blocType)) return;
-        if (!TeamHelper.isLocationInHeadQuarter(event.getBlock().getLocation(), SurvivalRumbleData.getSingleton().playersTeam.get(owner.getUniqueId())))
+        if (!TeamHelper.isLocationInHeadQuarter(event.getBlock().getLocation(), SurvivalRumbleData.getSingleton().playersTeam.get(ownerPlayer.getUniqueId())))
             return;
 
         blocsToPlace.put(blocType, blocsToPlace.get(blocType) - 1);
@@ -59,7 +58,7 @@ public class BaseBlocPlaceQuest extends Quest implements Listener {
             blocsToPlace.remove(blocType);
 
         if (blocsToPlace.size() <= 0) {
-            stopQuest();
+            stopQuest(true);
         }
     }
 }

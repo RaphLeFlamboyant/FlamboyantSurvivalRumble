@@ -50,6 +50,10 @@ public class PlayerClassMechanicsHelper {
         playerClasses.get(playerId).enableClass();
     }
 
+    public QuestPoolType getQuestPoolType(UUID playerId) {
+        return playerClasses.get(playerId).getQuestPoolTpye();
+    }
+
     public void enablePlayerClasses() {
         for (UUID playerId : playerClasses.keySet()) {
             playerClasses.get(playerId).enableClass();

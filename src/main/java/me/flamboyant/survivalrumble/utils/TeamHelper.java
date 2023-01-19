@@ -55,21 +55,6 @@ public class TeamHelper {
         }
     }
 
-    public static Material getTeamBedMaterial(String teamName) {
-        switch (teamName) {
-            case "RED":
-                return Material.RED_BED;
-            case "BLUE":
-                return Material.BLUE_BED;
-            case "GREEN":
-                return Material.GREEN_BED;
-            case "GOLD":
-                return Material.YELLOW_BED;
-            default:
-                return Material.BLACK_BED;
-        }
-    }
-
     public static Material getTeamBannerMaterial(String teamName) {
         switch (teamName) {
             case "RED":
