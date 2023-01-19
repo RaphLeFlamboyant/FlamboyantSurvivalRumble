@@ -1,6 +1,7 @@
 package me.flamboyant.survivalrumble.listeners;
 
 import me.flamboyant.survivalrumble.GameManager;
+import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.playerclass.classobjects.APlayerClass;
 import me.flamboyant.survivalrumble.playerclass.managers.GameTimeManager;
@@ -9,7 +10,6 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Slab;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -20,17 +20,18 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionType;
+import org.bukkit.scheduler.BukkitTask;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.*;
 
 public class MainGameListener implements Listener {
+    private BukkitTask questTask;
+
     public MainGameListener() {
     }
 
@@ -56,7 +57,9 @@ public class MainGameListener implements Listener {
 
         GameTimeManager gameTimeManager = new GameTimeManager();
         gameTimeManager.launchGameTimeManagement(Common.plugin);
+        PlayerClassMechanicsHelper.getSingleton().enablePlayerClasses();
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
+        // questTask = Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> handleQuests(), 15 * 60 * 20L, 5 * 60 * 20L);
     }
 
     private void resetPlayerState(Player player) {
@@ -177,6 +180,13 @@ public class MainGameListener implements Listener {
 
             int changes = -(int) (scoreChange * ScoringHelper.scoreAltitudeCoefficient(blockLocation.getBlockY()));
             GameManager.getInstance().addScore(concernedTeam, changes, ScoreType.REVERSIBLE);
+        }
+    }
+
+    private void handleQuests() {
+        for(UUID playerId : data().players.values()) {
+            QuestPoolType poolType = PlayerClassMechanicsHelper.getSingleton().getQuestPoolType(playerId);
+            QuestHelper.getQuestPool(poolType).startRandomQuest(Common.server.getPlayer(playerId));
         }
     }
 

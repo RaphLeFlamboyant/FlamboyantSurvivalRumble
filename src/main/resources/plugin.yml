@@ -11,6 +11,9 @@ commands:
   f_sr_gameinfo:
     description: Get the game information.
     permission: f_sr_gameinfo.use
+  f_sr_questinfo:
+    description: Get the game information.
+    permission: f_sr_gameinfo.use
   d_snapshot:
     description: Log a snapshot of server data
     permission: d_snapshot.use
@@ -36,4 +39,6 @@ permissions:
   f_sr_gametime.use:
     default: true
   f_sr_gameinfo.use:
+    default: true
+  f_sr_questinfo.use:
     default: true
