@@ -59,7 +59,7 @@ public class MainGameListener implements Listener {
         gameTimeManager.launchGameTimeManagement(Common.plugin);
         PlayerClassMechanicsHelper.getSingleton().enablePlayerClasses();
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
-        questTask = Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> handleQuests(), 15 * 60 * 20L, 5 * 60 * 20L);
+        // questTask = Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> handleQuests(), 15 * 60 * 20L, 5 * 60 * 20L);
     }
 
     private void resetPlayerState(Player player) {
