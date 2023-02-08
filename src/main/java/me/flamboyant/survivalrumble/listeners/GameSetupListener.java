@@ -199,10 +199,8 @@ public class GameSetupListener implements Listener {
         for (UUID playerId : data().playersTeam.keySet()) {
             Player player = server.getPlayer(playerId);
             String message = ChatUtils.generalAnnouncement("L'AVENTURE COMMENCE !",
-                    "Chaque joueur a atteint la base de son équipe ! Vous pouvez "
-                            + "de nouveau poser et casser des blocs. Marquez des points en complétant votre quéte principale ou en posant des blocs de "
+                    "Marquez des points en complétant votre quéte principale ou en posant des blocs de "
                             + "construction dans votre base (plus vous étes proches de la couche 64 plus éa marque de points). ");
-            message = ChatUtils.generalAnnouncement("LA PARTIE VA COMMENCER", message);
             player.sendMessage(message);
         }
 

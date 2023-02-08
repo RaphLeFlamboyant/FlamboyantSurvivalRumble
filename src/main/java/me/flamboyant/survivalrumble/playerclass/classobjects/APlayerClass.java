@@ -3,9 +3,9 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.data.classes.PlayerClassData;
-import me.flamboyant.survivalrumble.quests.Quest;
 import me.flamboyant.survivalrumble.utils.ChatUtils;
 import me.flamboyant.survivalrumble.utils.PlayerClassHelper;
+import me.flamboyant.survivalrumble.utils.QuestPoolType;
 import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -13,13 +13,10 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class APlayerClass {
     public ArrayList<ScoringTriggerType> triggers = new ArrayList<ScoringTriggerType>();
     protected Player owner;
-    protected ArrayList<Quest> questList = new ArrayList<>();
     protected String scoringDescription;
 
     public APlayerClass(Player owner) {
@@ -34,14 +31,13 @@ public abstract class APlayerClass {
 
     public PlayerClassData buildClassData() { return new PlayerClassData(); }
 
-    public void enableClass() {
-        buildQuestList();
+    public QuestPoolType getQuestPoolTpye() {
+        return QuestPoolType.CLASSIC ;
+    }
 
+    public void enableClass() {
         String message = getClassDescription();
         owner.sendMessage(message);
-
-        if (questList.size() > 0)
-            questList.get(data().playerClassDataList.get(getClassType()).currentQuestIndex).startQuest();
     }
 
     protected String getClassDescription() {
@@ -51,9 +47,6 @@ public abstract class APlayerClass {
     }
 
     public int getScoreMalus() { return 0; }
-
-    protected void buildQuestList() {
-    }
 
     // TODO : ajouter un game ended pour disable les listeners
 
@@ -83,15 +76,5 @@ public abstract class APlayerClass {
     }
 
     public void onBlockBreakTrigger(Player playerWhoBreaks, Block block) {
-    }
-
-    public void onQuestOver() {
-        if (++data().playerClassDataList.get(getClassType()).currentQuestIndex >= questList.size()) {
-            String message = ChatUtils.personalAnnouncement("QUéTES TERMINéES", "Bravo ! Tu as terminé toutes tes quétes secondaires !");
-            owner.sendMessage(message);
-            return;
-        }
-
-        questList.get(data().playerClassDataList.get(getClassType()).currentQuestIndex).startQuest();
     }
 }

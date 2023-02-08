@@ -4,6 +4,7 @@ import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.utils.ChatUtils;
 import me.flamboyant.survivalrumble.utils.Common;
 import me.flamboyant.survivalrumble.utils.PlayerClassHelper;
+import me.flamboyant.survivalrumble.utils.QuestHelper;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -32,6 +33,12 @@ public class PublicCommands implements CommandExecutor {
         if (cmd.getName().equalsIgnoreCase("f_sr_gameinfo")) {
             String message = gameInfo();
             sender.sendMessage(ChatUtils.personalAnnouncement("Informations de la partie", message));
+
+            return true;
+        }
+        if (cmd.getName().equalsIgnoreCase("f_sr_questinfo")) {
+            Player player = (Player) sender;
+            QuestHelper.showQuestMessage(player);
 
             return true;
         }

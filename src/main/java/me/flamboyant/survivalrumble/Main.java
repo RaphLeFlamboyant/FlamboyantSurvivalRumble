@@ -22,6 +22,7 @@ public final class Main extends JavaPlugin {
 
         getCommand("f_sr_gametime").setExecutor(publicCommands);
         getCommand("f_sr_gameinfo").setExecutor(publicCommands);
+        getCommand("f_sr_questinfo").setExecutor(publicCommands);
 
         getCommand("c_sr_reset_server").setExecutor(consistencyCommands);
         getCommand("c_sr_load_data").setExecutor(consistencyCommands);
