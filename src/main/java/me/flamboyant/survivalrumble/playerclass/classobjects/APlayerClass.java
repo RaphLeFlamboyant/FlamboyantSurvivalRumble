@@ -3,7 +3,7 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.data.classes.PlayerClassData;
-import me.flamboyant.survivalrumble.utils.ChatUtils;
+import me.flamboyant.survivalrumble.utils.ChatColors;
 import me.flamboyant.survivalrumble.utils.PlayerClassHelper;
 import me.flamboyant.survivalrumble.utils.QuestPoolType;
 import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
@@ -40,8 +40,12 @@ public abstract class APlayerClass {
         owner.sendMessage(message);
     }
 
+    public void disableClass() {
+
+    }
+
     protected String getClassDescription() {
-        return ChatUtils.personalAnnouncement("Ta classe : " + PlayerClassHelper.playerClassMetadata.get(getClassType()).getDisplayName(),
+        return ChatColors.personalAnnouncement("Ta classe : " + PlayerClassHelper.playerClassMetadata.get(getClassType()).getDisplayName(),
                 "Ta façon principale de marquer des points est la suivante : " + scoringDescription
                         + ". Tu peux également marquer des points gréce é ta suite de quétes secondaires.");
     }

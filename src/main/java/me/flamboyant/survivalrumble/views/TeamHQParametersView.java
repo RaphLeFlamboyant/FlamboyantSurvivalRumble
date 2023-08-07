@@ -1,9 +1,11 @@
 package me.flamboyant.survivalrumble.views;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
-import me.flamboyant.survivalrumble.utils.ItemHelper;
+import me.flamboyant.survivalrumble.utils.ChatColors;
 import me.flamboyant.survivalrumble.utils.StructureHelper;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
+import me.flamboyant.utils.Common;
+import me.flamboyant.utils.ItemHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -15,28 +17,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class TeamHQParametersView implements Listener {
-    private static TeamHQParametersView instance;
     private Inventory view;
-
-    protected TeamHQParametersView() {
-    }
-
-    public static TeamHQParametersView getInstance() {
-        if (instance == null) {
-            instance = new TeamHQParametersView();
-        }
-
-        return instance;
-    }
+    private HashMap<String, Location> teamHeadquarterLocation = new HashMap<>();
 
     public static String getViewID() {
         return "Team parameters view";
-    }
-
-    private SurvivalRumbleData data() {
-        return SurvivalRumbleData.getSingleton();
     }
 
     public Inventory getViewInstance() {
@@ -45,17 +33,25 @@ public class TeamHQParametersView implements Listener {
 
             for (String teamName : TeamHelper.teamNames) {
                 ItemStack hqLocationItem = getTeamHQItem(teamName);
-                myInventory.setItem(TeamHelper.teamNames.indexOf(teamName) * 2 + 28, hqLocationItem);
+                myInventory.setItem(TeamHelper.teamNames.indexOf(teamName) * 2 + 19, hqLocationItem);
             }
 
             view = myInventory;
+
+            Common.server.getPluginManager().registerEvents(this, Common.plugin);
         }
 
         return view;
     }
 
-    private ItemStack getTeamHQItem(String teamName) {
-        return ItemHelper.generateItem(TeamHelper.getTeamConcreteMaterial(teamName), 1, "Generate " + teamName + " team HQ", Arrays.asList(teamName), false, null, false, false);
+    public void close() {
+        view = null;
+        teamHeadquarterLocation.clear();
+        InventoryClickEvent.getHandlerList().unregister(this);
+    }
+
+    public HashMap<String, Location> getTeamHeadquarterLocation() {
+        return teamHeadquarterLocation;
     }
 
     @EventHandler
@@ -73,6 +69,12 @@ public class TeamHQParametersView implements Listener {
 
         String teamName = clicked.getItemMeta().getLore().get(0);
 
+        if (teamHeadquarterLocation.containsKey(teamName)) {
+            Location l = teamHeadquarterLocation.get(teamName);
+            Bukkit.broadcastMessage(ChatColors.debugMessage("Cette équipe déjà une base en " + l.getBlockX() + " " + l.getBlockY() + " " + l.getBlockZ()));
+            return;
+        }
+
         Location playerLocation = player.getLocation();
         Location location = new Location(playerLocation.getWorld(), playerLocation.getBlockX(), playerLocation.getBlockY(), playerLocation.getBlockZ());
 
@@ -85,12 +87,12 @@ public class TeamHQParametersView implements Listener {
     }
 
     private void placeTeamHeadquarter(String teamName, Location location) {
-        data().teamHeadquarterLocation.put(teamName, location);
+        teamHeadquarterLocation.put(teamName, location);
         Location loc = new Location(location.getWorld(), location.getX() - 4, location.getY() - 2, location.getZ() - 5);
         StructureHelper.spawnStructure(TeamHelper.getTeamStructureName(teamName), loc);
     }
 
-    public void unregisterEvents() {
-        InventoryClickEvent.getHandlerList().unregister(this);
+    private ItemStack getTeamHQItem(String teamName) {
+        return ItemHelper.generateItem(TeamHelper.getTeamConcreteMaterial(teamName), 1, "Generate " + teamName + " team HQ", Arrays.asList(teamName), false, null, false, false);
     }
 }

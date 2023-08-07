@@ -5,6 +5,7 @@ import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.survivalrumble.data.classes.ElectricianClassData;
 import me.flamboyant.survivalrumble.data.classes.PlayerClassData;
 import me.flamboyant.survivalrumble.utils.*;
+import me.flamboyant.utils.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -62,7 +63,7 @@ public class ElectricianClass extends APlayerClass {
     @Override
     public void enableClass() {
         super.enableClass();
-        classData = (ElectricianClassData) data().playerClassDataList.get(getClassType());
+        classData = (ElectricianClassData) data().getPlayerClassData(owner);
         Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> updateScoring(), 0l, checkInterval * 20l);
     }
 
@@ -84,8 +85,8 @@ public class ElectricianClass extends APlayerClass {
     private void handleBlockModification(Block block, boolean broken) {
         Location location = block.getLocation();
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
-        String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
-        if (concernedTeamName == null || !ownerTeamName.equals(concernedTeamName)) return;
+        String ownerTeam = data().getPlayerTeam(owner);
+        if (concernedTeamName == null || !ownerTeam.equals(concernedTeamName)) return;
         if (location.getWorld().getHighestBlockYAt(location.getBlockX(), location.getBlockZ()) != location.getBlockY())
             return;
 
@@ -105,7 +106,7 @@ public class ElectricianClass extends APlayerClass {
                 blockLocationAndScore.remove(loc);
                 int lastTotal = (int) total;
                 total -= score * scoreLossByBrokenBlockType.get(block.getType());
-                GameManager.getInstance().addScore(data().playersTeam.get(owner.getUniqueId()), -(lastTotal - (int) total), ScoreType.FLAT);
+                GameManager.getInstance().addAddMoney(data().getPlayerTeam(owner), -(lastTotal - (int) total));
                 return;
             }
         }
@@ -124,6 +125,6 @@ public class ElectricianClass extends APlayerClass {
             }
         }
 
-        GameManager.getInstance().addScore(data().playersTeam.get(owner.getUniqueId()), ((int) total - lastTotal), ScoreType.FLAT);
+        GameManager.getInstance().addAddMoney(data().getPlayerTeam(owner), ((int) total - lastTotal));
     }
 }

@@ -6,6 +6,8 @@ import me.flamboyant.survivalrumble.data.classes.PlayerClassData;
 import me.flamboyant.survivalrumble.data.classes.ThiefClassData;
 import me.flamboyant.survivalrumble.utils.*;
 import me.flamboyant.survivalrumble.views.PlayerSelectionView;
+import me.flamboyant.utils.Common;
+import me.flamboyant.utils.ItemHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -57,7 +59,6 @@ public class ThiefClass extends ANonVanillaClass implements Listener {
     @Override
     public void enableClass() {
         super.enableClass();
-        classData = (ThiefClassData) data().playerClassDataList.get(getClassType());
         owner.getInventory().addItem(getPlayerSelectionItem());
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
@@ -67,11 +68,11 @@ public class ThiefClass extends ANonVanillaClass implements Listener {
         if (playerWhoBreaks != owner) return;
         // TODO : j'ai pas accès au player sur l'event modifier mais le check de location y est déjà fait donc ici ça fait doublon
         String concernedTeam = TeamHelper.getTeamHeadquarterName(block.getLocation());
-        String ownerTeam = data().playersTeam.get(owner.getUniqueId());
+        String ownerTeam = data().getPlayerTeam(owner);
         if (concernedTeam == null || !concernedTeam.equals(ownerTeam)) return;
 
         if (lastInteractThief) {
-            GameManager.getInstance().addScore(ownerTeam, 2, ScoreType.FLAT);
+            GameManager.getInstance().addAddMoney(ownerTeam, 2);
         }
     }
 
@@ -82,7 +83,7 @@ public class ThiefClass extends ANonVanillaClass implements Listener {
         if (event.getItem() == null) return;
 
         if (ItemHelper.isSameItemKind(event.getItem(), getPlayerSelectionItem())) {
-            currentOpenedView = new PlayerSelectionView(owner, data().playersByTeam.get(data().playersTeam.get(owner.getUniqueId())));
+            currentOpenedView = new PlayerSelectionView(owner, data().getPlayers(data().getPlayerTeam(owner)));
             owner.openInventory(currentOpenedView.getViewInstance());
         }
         else {
@@ -138,7 +139,6 @@ public class ThiefClass extends ANonVanillaClass implements Listener {
         }
 
         // TODO ; gérer le cas inventaire full
-
         ItemStack itemCopy = new ItemStack(event.getInventory().getResult().getType(), realQuantity);
 
         ItemMeta meta = itemCopy.getItemMeta();

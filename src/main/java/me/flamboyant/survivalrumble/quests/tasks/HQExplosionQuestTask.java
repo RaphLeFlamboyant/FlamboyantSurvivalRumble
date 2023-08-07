@@ -1,8 +1,8 @@
 package me.flamboyant.survivalrumble.quests.tasks;
 
 import me.flamboyant.survivalrumble.quests.Quest;
-import me.flamboyant.survivalrumble.utils.Common;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
+import me.flamboyant.utils.Common;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

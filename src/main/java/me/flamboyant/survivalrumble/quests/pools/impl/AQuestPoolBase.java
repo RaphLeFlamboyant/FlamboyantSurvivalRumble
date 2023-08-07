@@ -2,8 +2,8 @@ package me.flamboyant.survivalrumble.quests.pools.impl;
 
 import me.flamboyant.survivalrumble.quests.IQuest;
 import me.flamboyant.survivalrumble.quests.pools.IQuestPool;
-import me.flamboyant.survivalrumble.utils.ChatUtils;
-import me.flamboyant.survivalrumble.utils.Common;
+import me.flamboyant.utils.ChatHelper;
+import me.flamboyant.utils.Common;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public abstract class AQuestPoolBase implements IQuestPool {
     @Override
     public void showQuestMessage(Player p) {
         if (!pendingQuests.containsKey(p))
-            p.sendMessage(ChatUtils.feedback("Vous n'avez pas de quête en cours"));
+            p.sendMessage(ChatHelper.feedback("Vous n'avez pas de quête en cours"));
         else
             pendingQuests.get(p).showQuestMessage();
     }

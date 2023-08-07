@@ -2,8 +2,7 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.ScoreType;
-import me.flamboyant.survivalrumble.utils.ScoringHelper;
+import me.flamboyant.survivalrumble.utils.ScoreHelper;
 import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
 import org.bukkit.Location;
@@ -32,7 +31,7 @@ public class BoorishClass extends APlayerClass {
         super(owner);
         this.triggers.add(ScoringTriggerType.BLOCK_MODIFIER);
 
-        scoringDescription = "Placer des blocs de minerais entre la couche 70 et la couche " + ScoringHelper.fullScoreMaxY;
+        scoringDescription = "Placer des blocs de minerais entre la couche 70 et la couche " + ScoreHelper.fullScoreMaxY;
     }
 
     @Override
@@ -68,11 +67,11 @@ public class BoorishClass extends APlayerClass {
         int coef = broken ? -1 : 1;
         if (!pointsByOre.containsKey(block.getType())) return;
         Location location = block.getLocation();
-        if (location.getBlockY() <= 70 || location.getBlockY() > ScoringHelper.fullScoreMaxY) return;
+        if (location.getBlockY() <= 70 || location.getBlockY() > ScoreHelper.fullScoreMaxY) return;
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
-        String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
+        String ownerTeamName = data().getPlayerTeam(owner);
         if (concernedTeamName == null || !ownerTeamName.equals(concernedTeamName)) return;
 
-        GameManager.getInstance().addScore(ownerTeamName, (coef * (int) (pointsByOre.get(block.getType()) * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY()))), ScoreType.REVERSIBLE);
+        GameManager.getInstance().addAddMoney(ownerTeamName, (coef * (int) (pointsByOre.get(block.getType()) * ScoreHelper.scoreAltitudeCoefficient(location.getBlockY()))));
     }
 }

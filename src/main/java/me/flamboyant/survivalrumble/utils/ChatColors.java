@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class ChatUtils {
+public class ChatColors {
     public static final List<ChatColor> chatColorValues = Collections.unmodifiableList(Arrays.asList(ChatColor.values()));
     public static final int chatColorValuesSize = chatColorValues.size();
     public static final ChatColor personalTitleColor = ChatColor.BLUE;
@@ -15,7 +15,7 @@ public class ChatUtils {
     public static final ChatColor personalCorpusColor = ChatColor.GRAY;
     public static final ChatColor questCorpusColor = ChatColor.GRAY;
     public static final ChatColor generalCorpusColor = ChatColor.WHITE;
-    public static final ChatColor feedbackColor = ChatColor.WHITE;
+    public static final ChatColor  feedbackColor = ChatColor.WHITE;
     public static final ChatColor debugColor = ChatColor.WHITE;
 
     public static String debugMessage(String message) {

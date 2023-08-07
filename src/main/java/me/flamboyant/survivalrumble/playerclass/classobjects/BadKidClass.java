@@ -2,8 +2,7 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.Common;
-import me.flamboyant.survivalrumble.utils.ScoreType;
+import me.flamboyant.utils.Common;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -32,6 +31,11 @@ public class BadKidClass extends APlayerClass implements Listener {
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
+    @Override
+    public void disableClass() {
+        ProjectileHitEvent.getHandlerList().unregister(this);
+    }
+
     @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent event) {
         if (event.getEntityType() != EntityType.SNOWBALL && event.getEntity().getType() != EntityType.EGG) return;
@@ -54,9 +58,9 @@ public class BadKidClass extends APlayerClass implements Listener {
         Entity ety = event.getHitEntity();
         if (!(ety instanceof Player)) return;
         Player player = (Player) ety;
-        if (data().playersTeam.get(owner.getUniqueId()).equals(data().playersTeam.get(player.getUniqueId()))) return;
+        String ownerTeam = data().getPlayerTeam(owner);
+        if (ownerTeam.equals(data().getPlayerTeam(player))) return;
 
-        String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
-        GameManager.getInstance().addScore(ownerTeamName, 30, ScoreType.FLAT);
+        GameManager.getInstance().addAddMoney(ownerTeam, 30);
     }
 }

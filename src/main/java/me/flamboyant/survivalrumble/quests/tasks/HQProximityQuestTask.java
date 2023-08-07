@@ -2,7 +2,7 @@ package me.flamboyant.survivalrumble.quests.tasks;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.quests.Quest;
-import me.flamboyant.survivalrumble.utils.Common;
+import me.flamboyant.utils.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -68,13 +68,13 @@ public class HQProximityQuestTask extends AQuestTask {
     private void checkPlayerProximityToFoesHQ() {
         if (!player.getWorld().getName().equals("world")) return;
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
-        String ownerTeam = data.playersTeam.get(player.getUniqueId());
+        String ownerTeam = data.getPlayerTeam(player);
 
-        for (String team : data.teams) {
+        for (String team : data.getTeams()) {
             if (!targetTeam.equals("") && !targetTeam.equals(team)) continue;
             if (targetTeam.equals("") && team.equals(ownerTeam)) continue;
 
-            Location hqLocation = data.teamHeadquarterLocation.get(team);
+            Location hqLocation = data.getHeadquarterLocation(team);
             int currentDistance = getDistanceFrom(hqLocation);
             if (currentDistance <= distance) {
                 if (--durationInSeconds <= 0) stopQuest(true);

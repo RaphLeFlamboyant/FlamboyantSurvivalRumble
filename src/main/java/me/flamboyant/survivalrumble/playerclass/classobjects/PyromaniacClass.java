@@ -2,8 +2,7 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.ScoreType;
-import me.flamboyant.survivalrumble.utils.ScoringHelper;
+import me.flamboyant.survivalrumble.utils.ScoreHelper;
 import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
 import org.bukkit.Location;
@@ -154,19 +153,19 @@ public class PyromaniacClass extends APlayerClass {
         if (!validBurnableBlocks.contains(block.getType())) return;
         Location location = block.getLocation();
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
-        String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
+        String ownerTeamName = data().getPlayerTeam(owner);
         if (concernedTeamName == null || ownerTeamName.equals(concernedTeamName)) return;
 
-        GameManager.getInstance().addScore(ownerTeamName, (int) (scoringCoef * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY())), ScoreType.FLAT);
+        GameManager.getInstance().addAddMoney(ownerTeamName, (int) (scoringCoef * ScoreHelper.scoreAltitudeCoefficient(location.getBlockY())));
     }
 
     @Override
     public void onBlockPlaceTrigger(Player playerWhoBreaks, Block block) {
         if (!validBurnableBlocks.contains(block.getType())) return;
-        if (!data().playersTeam.get(playerWhoBreaks.getUniqueId()).equals(data().playersTeam.get(owner.getUniqueId()))) return;
+        if (!data().getPlayerTeam(playerWhoBreaks).equals(data().getPlayerTeam(owner))) return;
 
-        String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
-        GameManager.getInstance().addScore(ownerTeamName, (int) (malusCoef * ScoringHelper.scoreAltitudeCoefficient(block.getLocation().getBlockY())), ScoreType.FLAT);
+        String ownerTeamName = data().getPlayerTeam(owner);
+        GameManager.getInstance().addAddMoney(ownerTeamName, (int) (malusCoef * ScoreHelper.scoreAltitudeCoefficient(block.getLocation().getBlockY())));
     }
 
     @Override
@@ -178,8 +177,8 @@ public class PyromaniacClass extends APlayerClass {
         if (owner.getWorld() != killed.getWorld()
                 || owner.getLocation().distance(killed.getLocation()) > 100) return;
         // the dead is in the trapper team
-        if (data().playersTeam.get(killed.getUniqueId()).equals(data().playersTeam.get(owner.getUniqueId()))) return;
+        if (data().getPlayerTeam(killed).equals(data().getPlayerTeam(owner))) return;
 
-        GameManager.getInstance().addScore(data().playersTeam.get(owner.getUniqueId()), 50, ScoreType.FLAT);
+        GameManager.getInstance().addAddMoney(data().getPlayerTeam(owner), 50);
     }
 }

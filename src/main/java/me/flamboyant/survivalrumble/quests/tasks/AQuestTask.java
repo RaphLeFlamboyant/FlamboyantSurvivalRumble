@@ -1,7 +1,8 @@
 package me.flamboyant.survivalrumble.quests.tasks;
 
 import me.flamboyant.survivalrumble.quests.Quest;
-import me.flamboyant.survivalrumble.utils.ChatUtils;
+import me.flamboyant.survivalrumble.utils.ChatColors;
+import me.flamboyant.utils.ChatHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -24,7 +25,7 @@ public class AQuestTask {
 
     protected void stopQuest(boolean success) {
         if (success) {
-            player.sendMessage(ChatUtils.feedback(ChatColor.BLUE + "[Validé]" + ChatUtils.feedbackColor + getSubQuestMessage()));
+            player.sendMessage(ChatHelper.feedback(ChatColor.BLUE + "[Validé]" + ChatColors.feedbackColor + getSubQuestMessage()));
             ownerQuest.questComponentValidated();
         }
         player = null;

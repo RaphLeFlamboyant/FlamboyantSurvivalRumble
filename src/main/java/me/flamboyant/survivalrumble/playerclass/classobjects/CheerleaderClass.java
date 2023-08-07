@@ -2,7 +2,6 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.ScoreType;
 import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
 import org.bukkit.entity.Player;
 
@@ -21,12 +20,12 @@ public class CheerleaderClass extends APlayerClass {
 
     @Override
     public void onPlayerDeathTrigger(Player killed, Player killer) {
-        String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
-        if (!data().playersTeam.get(killer.getUniqueId()).equals(ownerTeamName)) return;
-        if (data().playersTeam.get(killed.getUniqueId()).equals(ownerTeamName)) return;
+        String ownerTeam = data().getPlayerTeam(owner);
+        if (!data().getPlayerTeam(killer).equals(ownerTeam)) return;
+        if (data().getPlayerTeam(killed).equals(ownerTeam)) return;
         if (owner.getLocation().getWorld() != killed.getWorld()
                 || owner.getLocation().distance(killed.getLocation()) > 50) return;
 
-        GameManager.getInstance().addScore(ownerTeamName, 125, ScoreType.FLAT);
+        GameManager.getInstance().addAddMoney(ownerTeam, 125);
     }
 }

@@ -2,10 +2,7 @@ package me.flamboyant.survivalrumble.playerclass.classobjects.nonvanilla;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.playerclass.classobjects.APlayerClass;
-import me.flamboyant.survivalrumble.utils.Common;
-import me.flamboyant.survivalrumble.utils.ScoreType;
-import me.flamboyant.survivalrumble.utils.ScoringHelper;
+import me.flamboyant.utils.Common;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -40,8 +37,7 @@ public class BomberClass extends ANonVanillaClass implements Listener {
 
         event.getPlayer().getWorld().createExplosion(event.getPlayer().getLocation(), 3.5f, true);
         event.getPlayer().setHealth(0);
-        GameManager.getInstance().addScore(data().playersTeam.get(owner.getUniqueId()), -200, ScoreType.PERFECT);
-        String playerTeam = data().playersTeam.get(owner.getUniqueId());
-        data().teamMalus.put(playerTeam, data().teamMalus.get(playerTeam) - 200);
+        String playerTeam = data().getPlayerTeam(owner);
+        GameManager.getInstance().addAddMoney(playerTeam, -200);
     }
 }

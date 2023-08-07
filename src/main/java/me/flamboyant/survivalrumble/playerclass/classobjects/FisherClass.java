@@ -2,14 +2,14 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.Common;
-import me.flamboyant.survivalrumble.utils.ScoreType;
-import me.flamboyant.survivalrumble.utils.ScoringHelper;
+import me.flamboyant.survivalrumble.utils.ScoreHelper;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
+import me.flamboyant.utils.Common;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 
 public class FisherClass extends APlayerClass implements Listener {
@@ -30,6 +30,11 @@ public class FisherClass extends APlayerClass implements Listener {
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
+    @Override
+    public void disableClass() {
+        PlayerFishEvent.getHandlerList().unregister(this);
+    }
+
     @EventHandler
     public void onPlayerFish(PlayerFishEvent event) {
         if (event.getPlayer() != owner) return;
@@ -37,8 +42,8 @@ public class FisherClass extends APlayerClass implements Listener {
             return;
         Location location = event.getPlayer().getLocation();
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
-        if (concernedTeamName == null || !data().playersTeam.get(owner.getUniqueId()).equals(concernedTeamName)) return;
+        if (concernedTeamName == null || !data().getPlayerTeam(owner).equals(concernedTeamName)) return;
 
-        GameManager.getInstance().addScore(concernedTeamName, (int) (5 * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY())), ScoreType.PERFECT);
+        GameManager.getInstance().addAddMoney(concernedTeamName, (int) (5 * ScoreHelper.scoreAltitudeCoefficient(location.getBlockY())));
     }
 }

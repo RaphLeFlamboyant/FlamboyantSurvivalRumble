@@ -23,8 +23,8 @@ public class AimOnEntityQuestTask extends AAimQuestTask {
         if (event.getHitEntity().getType() == EntityType.PLAYER) {
             Player target = (Player) event.getHitEntity();
             SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
-            String playerTeam = data.playersTeam.get(player.getUniqueId());
-            if (!friendlyFire && data.playersTeam.get(target.getUniqueId()).equals(playerTeam)) return false;
+            String playerTeam = data.getPlayerTeam(player);
+            if (!friendlyFire && data.getPlayerTeam(target).equals(playerTeam)) return false;
         }
 
         return true;

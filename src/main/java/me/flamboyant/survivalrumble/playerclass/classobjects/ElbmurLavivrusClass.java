@@ -28,7 +28,7 @@ public class ElbmurLavivrusClass extends APlayerClass {
 
     @Override
     public Integer onBlockModifierTrigger(Integer score, BlockData blockData, Location blockLocation, String teamConcerned) {
-        if (!teamConcerned.equals(data().playersTeam.get(owner.getUniqueId()))) return score;
+        if (!teamConcerned.equals(data().getPlayerTeam(owner))) return score;
 
         return score * -1;
     }
@@ -58,11 +58,11 @@ public class ElbmurLavivrusClass extends APlayerClass {
             return;
         Location location = block.getLocation();
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
-        String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
-        if (concernedTeamName == null || !ownerTeamName.equals(concernedTeamName)) return;
+        String ownerTeam = data().getPlayerTeam(owner);
+        if (concernedTeamName == null || !ownerTeam.equals(concernedTeamName)) return;
         if (block.getWorld().getHighestBlockYAt(location) > location.getBlockY()) return;
 
         int coef = broken ? 1 : -1;
-        GameManager.getInstance().addScore(ownerTeamName, (coef * 1), ScoreType.REVERSIBLE);
+        GameManager.getInstance().addAddMoney(ownerTeam, (coef * 1));
     }
 }

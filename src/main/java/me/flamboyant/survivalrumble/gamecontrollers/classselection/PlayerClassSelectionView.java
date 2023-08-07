@@ -1,15 +1,11 @@
-package me.flamboyant.survivalrumble.views;
+package me.flamboyant.survivalrumble.gamecontrollers.classselection;
 
-import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassMetadata;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
-import me.flamboyant.survivalrumble.playerclass.classobjects.APlayerClass;
-import me.flamboyant.survivalrumble.playerclass.factory.PlayerClassFactory;
-import me.flamboyant.survivalrumble.utils.ItemHelper;
+import me.flamboyant.survivalrumble.utils.ITriggerVisitor;
 import me.flamboyant.survivalrumble.utils.PlayerClassHelper;
-import me.flamboyant.survivalrumble.utils.PlayerClassMechanicsHelper;
-import me.flamboyant.survivalrumble.utils.ScoreType;
+import me.flamboyant.utils.Common;
+import me.flamboyant.utils.ItemHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -20,21 +16,17 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerClassSelectionView implements Listener {
     private static PlayerClassSelectionView instance;
-    public PlayerClassType lastChosenClass;
-    public UUID lastPlayerClick;
     private ArrayList<Inventory> pages = new ArrayList<>();
     private int currentPage;
-    private PlayerClassFactory factory;
+    private HashMap<String, String> playerClassSelection = new HashMap<>();
+    private ITriggerVisitor visitor;
 
     protected PlayerClassSelectionView() {
-        factory = new PlayerClassFactory();
+
     }
 
     public static PlayerClassSelectionView getInstance() {
@@ -45,12 +37,24 @@ public class PlayerClassSelectionView implements Listener {
         return instance;
     }
 
-    public static String getViewID() {
-        return "Class selection view";
+    public HashMap<String, String> getPlayerClassSelection() {
+        return playerClassSelection;
     }
 
-    private SurvivalRumbleData data() {
-        return SurvivalRumbleData.getSingleton();
+    public void start(ITriggerVisitor visitor) {
+        this.visitor = visitor;
+        Common.server.getPluginManager().registerEvents(this, Common.plugin);
+    }
+
+    public void stop() {
+        InventoryClickEvent.getHandlerList().unregister(this);
+        playerClassSelection.clear();
+        currentPage = 0;
+        visitor = null;
+    }
+
+    public static String getViewID() {
+        return "Class selection view";
     }
 
     public Inventory getViewInstance() {
@@ -74,7 +78,7 @@ public class PlayerClassSelectionView implements Listener {
                 currentInventory = Bukkit.createInventory(null, 54, getViewID());
             }
 
-            ItemStack item = getIntenvoryItem(classMetadata.getPlayerClassType().toString(), classMetadata.getPlayerClassRepresentation(), classMetadata.getDisplayName());
+            ItemStack item = getInventoryItem(classMetadata.getPlayerClassType().toString(), classMetadata.getPlayerClassRepresentation(), classMetadata.getDisplayName());
             currentInventory.setItem(i % 36, item);
             i++;
         }
@@ -91,7 +95,7 @@ public class PlayerClassSelectionView implements Listener {
         return ItemHelper.generateItem(Material.PAPER, 1, "Page précédente", Arrays.asList(), false, null, true, false);
     }
 
-    private ItemStack getIntenvoryItem(String className, Material material, String displayName) {
+    private ItemStack getInventoryItem(String className, Material material, String displayName) {
         return ItemHelper.generateItem(material, 1, displayName, Arrays.asList(className), false, null, true, false);
     }
 
@@ -120,13 +124,8 @@ public class PlayerClassSelectionView implements Listener {
             player.openInventory(pages.get(currentPage));
         } else {
             String className = clicked.getItemMeta().getLore().get(0);
-            APlayerClass playerClass = factory.generatePlayerClass(PlayerClassType.valueOf(className), player);
-            lastChosenClass = playerClass.getClassType();
-            lastPlayerClick = player.getUniqueId();
-            PlayerClassMechanicsHelper.getSingleton().declarePlayerClass(player, playerClass);
-            data().playersClass.put(player.getUniqueId(), playerClass.getClassType());
-            data().playerClassDataList.put(playerClass.getClassType(), playerClass.buildClassData());
-            applyMalus(player, playerClass);
+            playerClassSelection.put(player.getDisplayName(), className);
+            visitor.onAction();
 
             Inventory currentInv = pages.get(currentPage);
             int i;
@@ -145,14 +144,5 @@ public class PlayerClassSelectionView implements Listener {
             player.closeInventory();
         }
         // TODO : bug potentiel : le mec ferme l'inventaire sans avoir sélectionné de classe -> mettre une sélection aléatoire ?
-    }
-
-    private void applyMalus(Player player, APlayerClass playerClass) {
-        String teamName = SurvivalRumbleData.getSingleton().playersTeam.get(player.getUniqueId());
-        GameManager.getInstance().addScore(teamName, playerClass.getScoreMalus(), ScoreType.PERFECT);
-    }
-
-    public void unregisterEvents() {
-        InventoryClickEvent.getHandlerList().unregister(this);
     }
 }

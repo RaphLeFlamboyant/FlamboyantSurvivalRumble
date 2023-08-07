@@ -2,8 +2,8 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.Common;
-import me.flamboyant.survivalrumble.utils.ScoreType;
+import me.flamboyant.utils.Common;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.ThrownPotion;
@@ -38,6 +38,11 @@ public class WitchClass extends APlayerClass implements Listener {
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
+    @Override
+    public void disableClass() {
+        PotionSplashEvent.getHandlerList().unregister(this);
+    }
+
     @EventHandler
     public void onPotionSplash(PotionSplashEvent event) {
         if (event.getAffectedEntities().isEmpty()) return;
@@ -49,19 +54,20 @@ public class WitchClass extends APlayerClass implements Listener {
         if (positivity == 0) return;
 
 
-        String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
+        String ownerTeamName = data().getPlayerTeam(owner);
         int scoreDelta = 0;
         for (LivingEntity ety : event.getAffectedEntities()) {
-            if (!data().playersTeam.containsKey(ety.getUniqueId())) continue;
+            if (ety.getType() != EntityType.PLAYER) continue;
+            Player player = (Player) ety;
 
-            boolean isSameTeam = data().playersTeam.get(ety.getUniqueId()).equals(ownerTeamName);
+            boolean isSameTeam = data().getPlayerTeam(player).equals(ownerTeamName);
             if (positivity > 0 && isSameTeam)
                 scoreDelta += 10;
             else if (positivity < 0 && !isSameTeam)
                 scoreDelta += 100;
         }
 
-        GameManager.getInstance().addScore(ownerTeamName, scoreDelta, ScoreType.FLAT);
+        GameManager.getInstance().addAddMoney(ownerTeamName, scoreDelta);
     }
 
     private int potionPositivity(ThrownPotion potion) {

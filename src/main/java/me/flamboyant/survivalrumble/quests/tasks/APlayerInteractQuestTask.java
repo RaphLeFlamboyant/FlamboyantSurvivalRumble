@@ -1,7 +1,7 @@
 package me.flamboyant.survivalrumble.quests.tasks;
 
 import me.flamboyant.survivalrumble.quests.Quest;
-import me.flamboyant.survivalrumble.utils.Common;
+import me.flamboyant.utils.Common;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

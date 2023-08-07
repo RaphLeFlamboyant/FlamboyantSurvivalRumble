@@ -2,13 +2,14 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.Common;
-import me.flamboyant.survivalrumble.utils.ScoreType;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
+import me.flamboyant.utils.Common;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 
 import java.util.HashMap;
@@ -72,14 +73,19 @@ public class BlackSmithClass extends APlayerClass implements Listener {
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
+    @Override
+    public void disableClass() {
+        CraftItemEvent.getHandlerList().unregister(this);
+    }
+
     @EventHandler
     public void onCraftItem(CraftItemEvent event) {
         if (!event.getWhoClicked().getUniqueId().equals(owner.getUniqueId())) return;
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(event.getWhoClicked().getLocation());
-        if (!concernedTeamName.equals(data().playersTeam.get(owner.getUniqueId()))) return;
+        if (!concernedTeamName.equals(data().getPlayerTeam(owner))) return;
         if (!scoreByMaterial.containsKey(event.getInventory().getResult().getType())) return;
 
         int score = scoreByMaterial.get(event.getInventory().getResult().getType());
-        GameManager.getInstance().addScore(concernedTeamName, score, ScoreType.FLAT);
+        GameManager.getInstance().addAddMoney(concernedTeamName, score);
     }
 }

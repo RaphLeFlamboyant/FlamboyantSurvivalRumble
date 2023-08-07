@@ -24,7 +24,7 @@ public class TargetPlayerDeathByFoesQuestTask extends TargetPlayerDeathQuestTask
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
         boolean conditionCheck = event.getEntity().equals(playerToDie);
         conditionCheck &= event.getEntity().getKiller() != null;
-        conditionCheck &= !data.playersTeam.get(playerToDie.getUniqueId()).equals(data.playersTeam.get(event.getEntity().getKiller().getUniqueId()));
+        conditionCheck &= !data.getPlayerTeam(playerToDie).equals(data.getPlayerTeam(event.getEntity().getKiller()));
 
         return conditionCheck;
     }

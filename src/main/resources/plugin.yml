@@ -8,37 +8,20 @@ commands:
   f_sr_gametime:
     description: Get the game timer.
     permission: f_sr_gametime.use
-  f_sr_gameinfo:
-    description: Get the game information.
-    permission: f_sr_gameinfo.use
   f_sr_questinfo:
     description: Get the game information.
     permission: f_sr_gameinfo.use
-  d_snapshot:
-    description: Log a snapshot of server data
-    permission: d_snapshot.use
   c_sr_reset_server:
     description: Reset the server config
     permission: sr_reset_server.use
-  c_sr_load_data:
-    description: Loads data from save
-    permission: c_sr_load_data.use
-  c_sr_build_game_from_data:
-    description: Builds the game from data
-    permission: c_sr_build_game_from_data.use
   sr_setup_start:
     description: Start the Survival Rumble plugin setup
     permission: sr_setup_start.use
-  sr_add_player_on_fly:
-    description: Add player on the fly
-    permission: sr_add_player_on_fly.use
   d_add_score:
     description: Cheat to add score to a team (for debug purpose only)
     permission: d_add_score.use
 permissions:
   f_sr_gametime.use:
-    default: true
-  f_sr_gameinfo.use:
     default: true
   f_sr_questinfo.use:
     default: true

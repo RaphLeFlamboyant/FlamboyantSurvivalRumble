@@ -1,6 +1,6 @@
 package me.flamboyant.survivalrumble.views;
 
-import me.flamboyant.survivalrumble.utils.Common;
+import me.flamboyant.utils.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -18,9 +18,9 @@ public class PlayerSelectionView implements Listener {
     private Inventory view;
     private Player selectedPlayer;
     private Player owner;
-    private List<UUID> exclusion;
+    private List<Player> exclusion;
 
-    public PlayerSelectionView(Player owner, List<UUID> exclusion) {
+    public PlayerSelectionView(Player owner, List<Player> exclusion) {
         this.owner = owner;
         this.exclusion = exclusion;
     }
@@ -37,7 +37,7 @@ public class PlayerSelectionView implements Listener {
 
             int pos = 9 * 3 / 2 - (Common.server.getOnlinePlayers().size() - 1) / 2;
             for (Player p : Common.server.getOnlinePlayers()) {
-                if (p == owner || exclusion.contains(p.getUniqueId())) continue;
+                if (p == owner || exclusion.contains(p)) continue;
                 ItemStack playerHead = new ItemStack(Material.PLAYER_HEAD);
                 SkullMeta skull = (SkullMeta) playerHead.getItemMeta();
                 skull.setDisplayName(p.getDisplayName());

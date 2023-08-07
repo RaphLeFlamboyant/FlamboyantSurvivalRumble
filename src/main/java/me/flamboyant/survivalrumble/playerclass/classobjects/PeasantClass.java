@@ -2,8 +2,7 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.ScoreType;
-import me.flamboyant.survivalrumble.utils.ScoringHelper;
+import me.flamboyant.survivalrumble.utils.ScoreHelper;
 import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
 import org.bukkit.Location;
@@ -55,9 +54,9 @@ public class PeasantClass extends APlayerClass {
         if (block.getType() != Material.HAY_BLOCK) return;
         Location location = block.getLocation();
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
-        String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
+        String ownerTeamName = data().getPlayerTeam(owner);
         if (concernedTeamName == null || !ownerTeamName.equals(concernedTeamName)) return;
 
-        GameManager.getInstance().addScore(ownerTeamName, (coef * (int) (10 * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY()))), ScoreType.REVERSIBLE);
+        GameManager.getInstance().addAddMoney(ownerTeamName, (coef * (int) (10 * ScoreHelper.scoreAltitudeCoefficient(location.getBlockY()))));
     }
 }
