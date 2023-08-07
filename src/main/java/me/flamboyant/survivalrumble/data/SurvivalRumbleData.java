@@ -1,96 +1,178 @@
 package me.flamboyant.survivalrumble.data;
 
 import me.flamboyant.survivalrumble.data.classes.PlayerClassData;
-import me.flamboyant.survivalrumble.utils.Common;
+import me.flamboyant.survivalrumble.playerclass.classobjects.APlayerClass;
+import me.flamboyant.survivalrumble.utils.ChatColors;
+import me.flamboyant.utils.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
-
-import java.io.*;
+import org.bukkit.entity.Player;
 import java.util.*;
+import java.util.stream.Collectors;
 
-public class SurvivalRumbleData implements Serializable {
-    private static final long serialVersionUID = -4333287600817371123L;
-    private static String dataSaveFile = "survival_rumble_save.json";
-    private static SurvivalRumbleData instance;
-    // Registered on command
-    public ArrayList<String> teams = new ArrayList<String>();
-    public UUID opPlayer;
-    // Registered in team selection view
-    public HashMap<UUID, String> playersTeam = new HashMap<UUID, String>();
-    public HashMap<String, UUID> players = new HashMap<String, UUID>();
-    public HashMap<String, Integer> teamMalus = new HashMap<String, Integer>();
-    // Registered in game setup view
+public class SurvivalRumbleData {
     public int minutesBeforeEnd = 240;
-    public int pvpIntensity = 2;
-    public Material selectedStuff = Material.BEEF;
-    // Registered in teams parameter view
-    public HashMap<String, Location> teamHeadquarterLocation = new HashMap<String, Location>();
-    // Registered in class selection view
-    public Map<String, List<UUID>> playersByTeam = new HashMap<>();
-    public HashMap<UUID, PlayerClassType> playersClass = new HashMap<UUID, PlayerClassType>();
-    public HashMap<PlayerClassType, PlayerClassData> playerClassDataList = new HashMap<PlayerClassType, PlayerClassData>();
-    // Registered in game setup listener when launching game start (game starts with the class selection)
-    public HashMap<String, Integer> teamReversibleScores = new HashMap<String, Integer>();
-    public HashMap<String, Integer> teamFlatScores = new HashMap<String, Integer>();
-    public HashMap<String, Integer> teamPerfectScores = new HashMap<String, Integer>();
-    public List<Integer> meetupTimer = new ArrayList<Integer>();
+    protected List<String> teams = new ArrayList<>();
+    protected HashMap<UUID, String> playersTeam = new HashMap<>();
+    protected Map<String, List<UUID>> playersByTeam = new HashMap<>();
+    protected HashMap<String, Integer> teamMoney = new HashMap<>();
+    protected HashMap<String, Location> teamHeadquarterLocation = new HashMap<>();
+    
+    protected HashMap<UUID, PlayerClassType> playersClass = new HashMap<>();
+    protected HashMap<PlayerClassType, PlayerClassData> playerClassDataList = new HashMap<>();
+    
+    protected HashMap<String, UUID> teamChampion = new HashMap<>();
 
+    private static SurvivalRumbleData instance;
     protected SurvivalRumbleData() {
     }
 
     public static SurvivalRumbleData getSingleton() {
         if (instance == null) {
             instance = new SurvivalRumbleData();
-            instance.scheduleDataSave();
         }
 
         return instance;
     }
 
-    public static Boolean loadData() {
-        try {
-            File f = new File(dataSaveFile);
-            if (!f.exists()) {
-                return false;
+    public void setPlayerClass(Player player, APlayerClass playerClass) {
+        playersClass.put(player.getUniqueId(), playerClass.getClassType());
+        playerClassDataList.put(playerClass.getClassType(), playerClass.buildClassData());
+    }
+
+    public PlayerClassData getPlayerClassData(Player player) {
+        return playerClassDataList.get(playersClass.get(player.getUniqueId()));
+    }
+
+    public boolean addTeam(String teamName) {
+        if (!teams.contains(teamName)) {
+            teams.add(teamName);
+            playersByTeam.put(teamName, new ArrayList<>());
+            teamMoney.put(teamName, 0);
+            teamHeadquarterLocation.put(teamName, null);
+            return true;
+        }
+
+        return false;
+    }
+
+    public List<String> getTeams() {
+        return teams;
+    }
+
+    public void setTeamChampion(String teamName, Player player) {
+        teamChampion.put(teamName, player.getUniqueId());
+    }
+
+    public Player getTeamChampion(String teamName) {
+        return Common.server.getPlayer(teamChampion.get(teamName));
+    }
+    
+    public String getTeamTargetTeam(String attackingTeamName) {
+        for (int i = 0; i < teams.size(); i++) {
+            if (teams.get(i).equals(attackingTeamName)) {
+                return teams.get((i + 1) % teams.size());
             }
+        }
 
-            BukkitObjectInputStream inStream = new BukkitObjectInputStream(new FileInputStream(dataSaveFile));
-            instance = (SurvivalRumbleData) inStream.readObject();
-            inStream.close();
-            instance.scheduleDataSave();
-            return true;
-        } catch (ClassNotFoundException | IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return false;
+        return null;
+    }
+
+    public String getTeamAssaultTeam(String defendingTeamName) {
+        for (int i = teams.size() - 1; i >= 0; i--) {
+            if (teams.get(i).equals(defendingTeamName)) {
+                return teams.get((i == 0 ? teams.size() - 1 : i - 1) % teams.size());
+            }
+        }
+
+        return null;
+    }
+
+    public void removeTeam(String teamName) {
+        teams.remove(teamName);
+        playersByTeam.remove(teamName);
+        teamMoney.remove(teamName);
+        teamHeadquarterLocation.remove(teamName);
+        teamChampion.remove(teamName);
+
+        for (UUID playerId : playersTeam.keySet()) {
+            if (playersTeam.get(playerId).equals(teamName)) {
+                playersTeam.remove(playerId);
+                PlayerClassType classType = playersClass.get(playerId);
+                playersClass.remove(playerId);
+                playerClassDataList.remove(classType);
+            }
         }
     }
 
-    public int getTotalScore(String teamName) {
-        if (teamReversibleScores.containsKey(teamName) && teamFlatScores.containsKey(teamName) && teamPerfectScores.containsKey(teamName))
-            return teamReversibleScores.get(teamName) + teamFlatScores.get(teamName) + teamPerfectScores.get(teamName);
-
-        return 0; // TODO : guard
-    }
-
-    private void scheduleDataSave() {
-        Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> saveData(), 60 * 20L, 60 * 20L);
-    }
-
-    private boolean saveData() {
-        try {
-            if (teams.size() <= 0) return false; // Data empty means OutOfMemory issue ongoing so we won't erase the last saved file
-            BukkitObjectOutputStream out = new BukkitObjectOutputStream(new FileOutputStream(dataSaveFile));
-            out.writeObject(this);
-            out.close();
-            return true;
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return false;
+    public void addPlayerTeam(Player player, String teamName) {
+        if (playersTeam.containsKey(player.getUniqueId())) {
+            Bukkit.broadcastMessage(ChatColors.debugMessage("Le joueur " + player.getDisplayName() + " est déjà dans l'équipe " + playersTeam.get(player.getUniqueId())));
+            Bukkit.getLogger().warning("Tempted to add player " + player.getDisplayName() + " to the team " + teamName + " but is already in the team " + playersTeam.get(player.getUniqueId()));
+            return;
         }
+
+        playersTeam.put(player.getUniqueId(), teamName);
+        playersByTeam.get(teamName).add(player.getUniqueId());
+    }
+
+    public String getPlayerTeam(Player player) {
+        if (!playersTeam.containsKey(player.getUniqueId())) {
+            Bukkit.broadcastMessage(ChatColors.debugMessage("Le joueur " + player.getDisplayName() + " n'est dans aucune team"));
+            Bukkit.getLogger().warning("Tempted to get player " + player.getDisplayName() + " name but he has none");
+            return null;
+        }
+
+        return playersTeam.get(player.getUniqueId());
+    }
+
+    public List<Player> getPlayers(String teamName) {
+        if (!teams.contains(teamName)) {
+            Bukkit.broadcastMessage(ChatColors.debugMessage("La team " + teamName + " n'existe pas"));
+            Bukkit.getLogger().warning("Tempted to get team " + teamName + " but it doesn't exist");
+            return null;
+        }
+
+        return playersByTeam.get(teamName).stream().map(i -> Common.server.getPlayer(i)).collect(Collectors.toList());
+    }
+
+    public int getMoney(String teamName) {
+        if (!teams.contains(teamName)) {
+            Bukkit.broadcastMessage(ChatColors.debugMessage("Le compte de la team " + teamName + " n'existe pas"));
+            Bukkit.getLogger().warning("Tempted to get the money of the team " + teamName + " but it doesn't exist");
+            return -1;
+        }
+
+        return teamMoney.get(teamName);
+    }
+
+    public void addMoney(String teamName, int amount) {
+        if (!teams.contains(teamName)) {
+            Bukkit.broadcastMessage(ChatColors.debugMessage("Le compte de la team " + teamName + " n'existe pas"));
+            Bukkit.getLogger().warning("Tempted to add to the money of the team " + teamName + " but it doesn't exist");
+            return;
+        }
+
+        teamMoney.put(teamName, amount + teamMoney.get(teamName));
+    }
+
+    public Location getHeadquarterLocation(String teamName) {
+        if (!teams.contains(teamName)) {
+            Bukkit.broadcastMessage(ChatColors.debugMessage("Le HQ de la team " + teamName + " n'existe pas"));
+            Bukkit.getLogger().warning("Tempted to get team " + teamName + " headquarter but it doesn't exist");
+            return null;
+        }
+
+        return teamHeadquarterLocation.get(teamName);
+    }
+
+    public void setHeadquarterLocation(String teamName, Location location) {
+        if (!teams.contains(teamName)) {
+            Bukkit.broadcastMessage(ChatColors.debugMessage("Le HQ de la team " + teamName + " n'existe pas"));
+            Bukkit.getLogger().warning("Tempted to set team " + teamName + " headquarter location, but it doesn't exist");
+            return;
+        }
+
+        teamHeadquarterLocation.put(teamName, location);
     }
 }

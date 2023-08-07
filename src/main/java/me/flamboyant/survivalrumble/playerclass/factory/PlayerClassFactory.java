@@ -9,7 +9,7 @@ import me.flamboyant.survivalrumble.playerclass.classobjects.nonvanilla.Werewolf
 import org.bukkit.entity.Player;
 
 public class PlayerClassFactory {
-    public APlayerClass generatePlayerClass(PlayerClassType playerClass, Player owner) {
+    public static APlayerClass generatePlayerClass(PlayerClassType playerClass, Player owner) {
         switch (playerClass) {
             case MASON:
                 return new MasonClass(owner);

@@ -1,7 +1,8 @@
-package me.flamboyant.survivalrumble.utils;
+package me.flamboyant.survivalrumble.gamecontrollers.main;
 
-import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.playerclass.classobjects.APlayerClass;
+import me.flamboyant.survivalrumble.utils.QuestPoolType;
+import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -54,9 +55,19 @@ public class PlayerClassMechanicsHelper {
         return playerClasses.get(playerId).getQuestPoolTpye();
     }
 
-    public void enablePlayerClasses() {
+    public void disablePlayerClass(UUID playerId) {
+        playerClasses.get(playerId).disableClass();
+    }
+
+    public void enablePlayersClasses() {
         for (UUID playerId : playerClasses.keySet()) {
             playerClasses.get(playerId).enableClass();
+        }
+    }
+
+    public void disablePlayersClasses() {
+        for (UUID playerId : playerClasses.keySet()) {
+            playerClasses.get(playerId).disableClass();
         }
     }
 }

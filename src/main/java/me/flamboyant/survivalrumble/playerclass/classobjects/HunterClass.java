@@ -2,13 +2,14 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.Common;
-import me.flamboyant.survivalrumble.utils.ScoreType;
+import me.flamboyant.utils.Common;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerFishEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,6 +35,11 @@ public class HunterClass extends APlayerClass implements Listener {
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
+    @Override
+    public void disableClass() {
+        EntityDeathEvent.getHandlerList().unregister(this);
+    }
+
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
         if (event.getEntity().getKiller() == null) return;
@@ -41,7 +47,7 @@ public class HunterClass extends APlayerClass implements Listener {
         boolean isTier1 = tier1EntityTypes.contains(event.getEntity().getType());
         if (!isTier1 && !tier2EntityTypes.contains(event.getEntity().getType())) return;
 
-        String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
-        GameManager.getInstance().addScore(ownerTeamName, isTier1 ? 1 : 2, ScoreType.FLAT);
+        String ownerTeam = data().getPlayerTeam(owner);
+        GameManager.getInstance().addAddMoney(ownerTeam, isTier1 ? 1 : 2);
     }
 }

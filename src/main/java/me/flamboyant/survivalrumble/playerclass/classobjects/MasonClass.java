@@ -25,7 +25,7 @@ public class MasonClass extends APlayerClass {
     @Override
     public Integer onBlockModifierTrigger(Integer score, BlockData blockData, Location blockLocation, String teamConcerned) {
         if (Arrays.asList(Material.BRICKS, Material.BRICK_STAIRS, Material.BRICK_SLAB, Material.BRICK_WALL).contains(blockData.getMaterial())
-                && teamConcerned.equals(data().playersTeam.get(owner.getUniqueId()))) {
+                && teamConcerned.equals(data().getPlayerTeam(owner))) {
             score *= 2;
         }
 

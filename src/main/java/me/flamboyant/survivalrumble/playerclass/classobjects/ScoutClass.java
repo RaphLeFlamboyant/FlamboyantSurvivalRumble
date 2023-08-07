@@ -2,8 +2,7 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.Common;
-import me.flamboyant.survivalrumble.utils.ScoreType;
+import me.flamboyant.utils.Common;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
@@ -29,7 +28,7 @@ public class ScoutClass extends APlayerClass {
     public ScoutClass(Player owner) {
         super(owner);
 
-        ownerTeam = data().playersTeam.get(owner.getUniqueId());
+        ownerTeam = data().getPlayerTeam(owner);
         scoringDescription = "Approche toi autant que possible du centre de la base adverse";
     }
 
@@ -50,12 +49,11 @@ public class ScoutClass extends APlayerClass {
         if (closestTeamHQ == null) return;
 
         Boolean isAnyFoeClose = false;
-        for (UUID playerId : data().playersByTeam.get(closestTeamHQ)) {
-            Player player = Common.server.getPlayer(playerId);
+        for (Player player : data().getPlayers(closestTeamHQ)) {
             isAnyFoeClose |= ((player.getWorld() == owner.getWorld()) && player.getLocation().distance(owner.getLocation()) < minDistDefault);
         }
 
-        GameManager.getInstance().addScore(ownerTeam, getScoring((int) owner.getLocation().distance(data().teamHeadquarterLocation.get(closestTeamHQ)), !isAnyFoeClose), ScoreType.FLAT);
+        GameManager.getInstance().addAddMoney(ownerTeam, getScoring((int) owner.getLocation().distance(data().getHeadquarterLocation(closestTeamHQ)), !isAnyFoeClose));
     }
 
     private int getScoring(int distToHqCenter, boolean isMalusApplied) {
@@ -77,10 +75,10 @@ public class ScoutClass extends APlayerClass {
     private String getCloserValidHeadQuarter() {
         double minDist = minDistDefault;
         String res = null;
-        for (String teamName : data().teamHeadquarterLocation.keySet()) {
+        for (String teamName : data().getTeams()) {
             if (ownerTeam.equals(teamName)) continue;
 
-            Location hqLocation = data().teamHeadquarterLocation.get(teamName);
+            Location hqLocation = data().getHeadquarterLocation(teamName);
             double dist = hqLocation.distance(owner.getLocation());
             if (dist < minDist) {
                 minDist = dist;

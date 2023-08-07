@@ -2,8 +2,8 @@ package me.flamboyant.survivalrumble.quests.tasks;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.quests.Quest;
-import me.flamboyant.survivalrumble.utils.Common;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
+import me.flamboyant.utils.Common;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -42,7 +42,7 @@ public class PlaceBlocQuestTask extends AQuestTask implements Listener {
         if (event.getPlayer() != player) return;
         System.out.println("Placed : " + event.getBlock().getType());
         if (event.getBlock().getType() != material) return;
-        String teamName = SurvivalRumbleData.getSingleton().playersTeam.get(player.getUniqueId());
+        String teamName = SurvivalRumbleData.getSingleton().getPlayerTeam(player);
         System.out.println("HQ mode : " + inHQ + "; Test : " + TeamHelper.isLocationInHeadQuarter(event.getBlock().getLocation(), teamName));
         if (inHQ && !TeamHelper.isLocationInHeadQuarter(event.getBlock().getLocation(), teamName)) return;
 

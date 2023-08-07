@@ -2,8 +2,7 @@ package me.flamboyant.survivalrumble.playerclass.classobjects.nonvanilla;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.Common;
-import me.flamboyant.survivalrumble.utils.ScoreType;
+import me.flamboyant.utils.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
@@ -144,8 +143,9 @@ public class WerewolfClass extends ANonVanillaClass implements Listener {
         Player killed = event.getEntity();
         if (killed.getKiller() != owner) return;
         if (owner.getWorld().getTime() < 12000) return;
-        if (data().playersTeam.get(killed.getUniqueId()) == data().playersTeam.get(owner.getUniqueId())) return;
+        String ownerTeam = data().getPlayerTeam(owner);
+        if (data().getPlayerTeam(killed).equals(ownerTeam)) return;
 
-        GameManager.getInstance().addScore(data().playersTeam.get(owner.getUniqueId()), 250, ScoreType.FLAT);
+        GameManager.getInstance().addAddMoney(ownerTeam, 250);
     }
 }

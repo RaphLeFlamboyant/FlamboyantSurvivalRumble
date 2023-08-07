@@ -1,9 +1,9 @@
-package me.flamboyant.survivalrumble.commands;
+package me.flamboyant.survivalrumble.gamecontrollers.commands;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
-import me.flamboyant.survivalrumble.utils.ChatUtils;
-import me.flamboyant.survivalrumble.utils.Common;
+import me.flamboyant.survivalrumble.utils.ChatColors;
 import me.flamboyant.survivalrumble.utils.PlayerClassHelper;
+import me.flamboyant.utils.Common;
 import me.flamboyant.survivalrumble.utils.QuestHelper;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -25,18 +25,12 @@ public class PublicCommands implements CommandExecutor {
         data = SurvivalRumbleData.getSingleton();
 
         if (cmd.getName().equalsIgnoreCase("f_sr_gametime")) {
-            String message = ChatUtils.feedback("" + (data.minutesBeforeEnd / 60) + "h" + (data.minutesBeforeEnd % 60) + "m");
+            String message = ChatColors.feedback("" + (data.minutesBeforeEnd / 60) + "h" + (data.minutesBeforeEnd % 60) + "m");
             sender.sendMessage(message);
 
             return true;
         }
-        if (cmd.getName().equalsIgnoreCase("f_sr_gameinfo")) {
-            String message = gameInfo();
-            sender.sendMessage(ChatUtils.personalAnnouncement("Informations de la partie", message));
-
-            return true;
-        }
-        if (cmd.getName().equalsIgnoreCase("f_sr_questinfo")) {
+        else if (cmd.getName().equalsIgnoreCase("f_sr_questinfo")) {
             Player player = (Player) sender;
             QuestHelper.showQuestMessage(player);
 
@@ -47,10 +41,11 @@ public class PublicCommands implements CommandExecutor {
     }
 
     private String gameInfo() {
+        /*
         String res = "";
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
 
-        if (data.playersClass.size() == 0) return "La partie n'a pas encore commencé";
+        if (data.getTeams().size() == 0) return "La partie n'a pas encore commencé";
 
         res += "Temps restant : " + (data.minutesBeforeEnd / 60) + "h" + (data.minutesBeforeEnd % 60) + "m";
         res += "\n \n ";
@@ -74,5 +69,8 @@ public class PublicCommands implements CommandExecutor {
         }
 
         return res;
+
+         */
+        return "";
     }
 }

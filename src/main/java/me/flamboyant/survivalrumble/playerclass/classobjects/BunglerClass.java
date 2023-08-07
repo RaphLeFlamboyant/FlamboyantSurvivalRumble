@@ -29,20 +29,21 @@ public class BunglerClass extends APlayerClass {
         if (!MaterialHelper.scoringMaterial.containsKey(block.getBlockData().getMaterial())) return;
         Location location = block.getLocation();
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
-        if (concernedTeamName == null || data().playersTeam.get(owner.getUniqueId()).equals(concernedTeamName)) return;
+        String ownerTeam = data().getPlayerTeam(owner);
+        if (concernedTeamName == null || ownerTeam.equals(concernedTeamName)) return;
 
-        GameManager.getInstance().addScore(data().playersTeam.get(owner.getUniqueId()), (int) (scoreCoef * ScoringHelper.scoreAltitudeCoefficient(location.getBlockY())), ScoreType.FLAT);
+        GameManager.getInstance().addAddMoney(ownerTeam, (int) (scoreCoef * ScoreHelper.scoreAltitudeCoefficient(location.getBlockY())));
     }
 
     @Override
     public void onBlockPlaceTrigger(Player playerWhoBreaks, Block block) {
         if (!MaterialHelper.scoringMaterial.containsKey(block.getBlockData().getMaterial())) return;
-        if (!data().playersTeam.get(playerWhoBreaks.getUniqueId()).equals(data().playersTeam.get(owner.getUniqueId()))) return;
+        String ownerTeam = data().getPlayerTeam(owner);
+        if (!data().getPlayerTeam(playerWhoBreaks).equals(ownerTeam)) return;
         Location location = block.getLocation();
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
-        if (concernedTeamName == null || data().playersTeam.get(owner.getUniqueId()).equals(concernedTeamName)) return;
+        if (concernedTeamName == null || ownerTeam.equals(concernedTeamName)) return;
 
-        String ownerTeamName = data().playersTeam.get(owner.getUniqueId());
-        GameManager.getInstance().addScore(ownerTeamName, (int) (malusCoef * ScoringHelper.scoreAltitudeCoefficient(block.getLocation().getBlockY())), ScoreType.FLAT);
+        GameManager.getInstance().addAddMoney(ownerTeam, (int) (malusCoef * ScoreHelper.scoreAltitudeCoefficient(block.getLocation().getBlockY())));
     }
 }

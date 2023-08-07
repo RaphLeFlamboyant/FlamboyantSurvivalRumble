@@ -4,13 +4,13 @@ import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.survivalrumble.data.classes.AntiquarianClassData;
 import me.flamboyant.survivalrumble.data.classes.PlayerClassData;
-import me.flamboyant.survivalrumble.utils.Common;
-import me.flamboyant.survivalrumble.utils.ScoreType;
+import me.flamboyant.utils.Common;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.PotionSplashEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -74,8 +74,13 @@ public class AntiquarianClass extends APlayerClass implements Listener {
     @Override
     public void enableClass() {
         super.enableClass();
-        classData = (AntiquarianClassData) data().playerClassDataList.get(getClassType());
+        classData = (AntiquarianClassData) data().getPlayerClassData(owner);
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
+    }
+
+    @Override
+    public void disableClass() {
+        EntityPickupItemEvent.getHandlerList().unregister(this);
     }
 
     @EventHandler
@@ -86,7 +91,7 @@ public class AntiquarianClass extends APlayerClass implements Listener {
         if (classData.collectedItems.contains(material)) return;
 
         int score = scoreByMaterial.get(material);
-        GameManager.getInstance().addScore(data().playersTeam.get(owner.getUniqueId()), score, ScoreType.FLAT);
+        GameManager.getInstance().addAddMoney(data().getPlayerTeam(owner), score);
 
         classData.collectedItems.add(material);
     }

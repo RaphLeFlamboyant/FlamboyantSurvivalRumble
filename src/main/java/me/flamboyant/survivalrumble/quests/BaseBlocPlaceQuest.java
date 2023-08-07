@@ -1,9 +1,9 @@
 package me.flamboyant.survivalrumble.quests;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
-import me.flamboyant.survivalrumble.utils.ChatUtils;
-import me.flamboyant.survivalrumble.utils.Common;
+import me.flamboyant.survivalrumble.utils.ChatColors;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
+import me.flamboyant.utils.Common;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,8 +15,8 @@ import java.util.HashMap;
 public class BaseBlocPlaceQuest extends Quest implements Listener {
     HashMap<Material, Integer> blocsToPlace;
 
-    public BaseBlocPlaceQuest(String questTitle, HashMap<Material, Integer> blocsToPlace, int flatPoints, int perfectPoints) {
-        super(questTitle, flatPoints, perfectPoints);
+    public BaseBlocPlaceQuest(String questTitle, HashMap<Material, Integer> blocsToPlace, int questPrice) {
+        super(questTitle, questPrice);
 
         this.blocsToPlace = blocsToPlace;
     }
@@ -28,7 +28,7 @@ public class BaseBlocPlaceQuest extends Quest implements Listener {
             corpus += blocsToPlace.get(item) + " x " + item;
         }
 
-        String message = ChatUtils.questAnnouncement(questTitle, "" + (flatPoints == 0 ? perfectPoints : flatPoints), corpus);
+        String message = ChatColors.questAnnouncement(questTitle, "" + (questPrice), corpus);
         ownerPlayer.sendMessage(message);
     }
 
@@ -49,7 +49,7 @@ public class BaseBlocPlaceQuest extends Quest implements Listener {
         if (event.getPlayer() != ownerPlayer) return;
         Material blocType = event.getBlock().getType();
         if (!blocsToPlace.keySet().contains(blocType)) return;
-        if (!TeamHelper.isLocationInHeadQuarter(event.getBlock().getLocation(), SurvivalRumbleData.getSingleton().playersTeam.get(ownerPlayer.getUniqueId())))
+        if (!TeamHelper.isLocationInHeadQuarter(event.getBlock().getLocation(), SurvivalRumbleData.getSingleton().getPlayerTeam(ownerPlayer)))
             return;
 
         blocsToPlace.put(blocType, blocsToPlace.get(blocType) - 1);

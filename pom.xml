@@ -52,6 +52,7 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+        <sourceDirectory>./</sourceDirectory>
     </build>
 
     <repositories>

@@ -27,14 +27,14 @@ public class HookPlayersFromTeamQuestTask extends HookPlayerQuestTask {
         super(ownerQuest, quantity);
 
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
-        String ownerTeam = data.playersTeam.get(player.getUniqueId());
-        this.targetTeam = data.teams.stream().filter(t -> targetFoes ? !ownerTeam.equals(t) : ownerTeam.equals(t)).collect(Collectors.toList());
+        String ownerTeam = data.getPlayerTeam(player);
+        this.targetTeam = data.getTeams().stream().filter(t -> targetFoes ? !ownerTeam.equals(t) : ownerTeam.equals(t)).collect(Collectors.toList());
         subQuestMessage = "Attrape " + quantity + " fois un joueur " + (targetFoes ? "ennemi" : "allié") + " avec une canne é péche";
     }
 
     @Override
     protected boolean checkFishCondition(PlayerFishEvent event) {
         Player hookedPlayer = (Player) event.getCaught();
-        return targetTeam.contains(SurvivalRumbleData.getSingleton().playersTeam.get(hookedPlayer.getUniqueId()));
+        return targetTeam.contains(SurvivalRumbleData.getSingleton().getPlayerTeam(hookedPlayer));
     }
 }

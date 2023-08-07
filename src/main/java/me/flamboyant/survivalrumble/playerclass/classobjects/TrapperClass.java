@@ -2,7 +2,6 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.ScoreType;
 import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -33,15 +32,14 @@ public class TrapperClass extends APlayerClass {
         if (owner.getWorld() != killed.getWorld()
                 || owner.getLocation().distance(killed.getLocation()) > 100) return;
         // If an ally comes to put lava bucket on ennemy for example
-        String ownerTeam = data().playersTeam.get(owner.getUniqueId());
-        for (UUID playerId : data().playersByTeam.get(ownerTeam)) {
-            Player player = owner.getServer().getPlayer(playerId);
-            if (playerId != owner.getUniqueId() && player.getWorld() == killed.getWorld() && player.getLocation().distance(killed.getLocation()) < 48)
+        String ownerTeam = data().getPlayerTeam(owner);
+        for (Player player : data().getPlayers(ownerTeam)) {
+            if (player != owner && player.getWorld() == killed.getWorld() && player.getLocation().distance(killed.getLocation()) < 48)
                 return;
         }
         // the dead is in the trapper team
-        if (data().playersTeam.get(killed.getUniqueId()).equals(ownerTeam)) return;
+        if (data().getPlayerTeam(killed).equals(ownerTeam)) return;
 
-        GameManager.getInstance().addScore(data().playersTeam.get(owner.getUniqueId()), 400, ScoreType.FLAT);
+        GameManager.getInstance().addAddMoney(data().getPlayerTeam(owner), 400);
     }
 }

@@ -1,11 +1,10 @@
 package me.flamboyant.survivalrumble.quests;
 
-import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.quests.tasks.AQuestTask;
-import me.flamboyant.survivalrumble.utils.ChatUtils;
+import me.flamboyant.survivalrumble.utils.ChatColors;
 import me.flamboyant.survivalrumble.utils.QuestHelper;
-import me.flamboyant.survivalrumble.utils.ScoreType;
+import me.flamboyant.utils.ChatHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -19,12 +18,10 @@ public class Quest implements IQuest {
     private int tasksValidated = 0;
     protected Player ownerPlayer;
     protected String questTitle;
-    protected int flatPoints;
-    protected int perfectPoints;
+    protected int questPrice;
 
-    public Quest(String questTitle, int flatPoints, int perfectPoints) {
-        this.flatPoints = flatPoints;
-        this.perfectPoints = perfectPoints;
+    public Quest(String questTitle, int questPrice) {
+        this.questPrice = questPrice;
         this.questTitle = questTitle;
     }
 
@@ -52,13 +49,13 @@ public class Quest implements IQuest {
 
     protected void stopQuest(boolean success) {
         if (success) {
-            String concernedTeam = SurvivalRumbleData.getSingleton().playersTeam.get(ownerPlayer.getUniqueId());
-            GameManager.getInstance().addScore(concernedTeam, flatPoints, ScoreType.FLAT);
-            GameManager.getInstance().addScore(concernedTeam, perfectPoints, ScoreType.PERFECT);
+            SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
+            String concernedTeam = data.getPlayerTeam(ownerPlayer);
+            data.addMoney(concernedTeam, questPrice);
         }
 
         QuestHelper.submitQuestOver(ownerPlayer);
-        ownerPlayer.sendMessage(ChatUtils.feedback("La quête [" + questTitle + "] est terminée et vous a apporté " + (flatPoints + perfectPoints) + " points !"));
+        ownerPlayer.sendMessage(ChatHelper.feedback("La quête [" + questTitle + "] est terminée et vous a apporté " + (questPrice) + " points !"));
 
         this.ownerPlayer = null;
     }
@@ -74,7 +71,7 @@ public class Quest implements IQuest {
             corpus += component.getSubQuestMessage() + "\n";
         }
 
-        String message = ChatUtils.questAnnouncement(questTitle, "" + (flatPoints == 0 ? perfectPoints : flatPoints), corpus);
+        String message = ChatHelper.titledMessage(questTitle, "" + (questPrice) + "\n" + corpus);
         ownerPlayer.playSound(ownerPlayer.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundCategory.MASTER, 1, 1);
         ownerPlayer.sendMessage(message);
     }

@@ -2,7 +2,6 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.ScoreType;
 import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
 import org.bukkit.entity.Player;
 
@@ -22,9 +21,9 @@ public class DefeatistClass extends APlayerClass {
     @Override
     public void onPlayerDeathTrigger(Player killed, Player killer) {
         if (killed == owner && killer != null) {
-            String teamName = data().playersTeam.get(owner.getUniqueId());
-            if (!data().playersTeam.get(killer.getUniqueId()).equals(teamName)) {
-                GameManager.getInstance().addScore(teamName, 50, ScoreType.PERFECT);
+            String teamName = data().getPlayerTeam(owner);
+            if (!data().getPlayerTeam(killer).equals(teamName)) {
+                GameManager.getInstance().addAddMoney(teamName, 50);
             }
         }
     }

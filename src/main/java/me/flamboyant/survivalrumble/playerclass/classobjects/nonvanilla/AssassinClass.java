@@ -3,12 +3,10 @@ package me.flamboyant.survivalrumble.playerclass.classobjects.nonvanilla;
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.survivalrumble.data.classes.AssassinClassData;
-import me.flamboyant.survivalrumble.data.classes.ElectricianClassData;
 import me.flamboyant.survivalrumble.data.classes.PlayerClassData;
-import me.flamboyant.survivalrumble.utils.ChatUtils;
-import me.flamboyant.survivalrumble.utils.Common;
-import me.flamboyant.survivalrumble.utils.ScoreType;
+import me.flamboyant.survivalrumble.utils.ChatColors;
 import me.flamboyant.survivalrumble.utils.UsefulConstants;
+import me.flamboyant.utils.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -75,7 +73,7 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
     @Override
     public void enableClass() {
         super.enableClass();
-        classData = (AssassinClassData) data().playerClassDataList.get(getClassType());
+        classData = (AssassinClassData) data().getPlayerClassData(owner);
         System.out.println("Assassin enabling with target id = " + classData.targetPlayerId);
         if (classData.targetPlayerId != null) {
             launchContract();
@@ -113,7 +111,7 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
         if (event.getEntity() != targetPlayer) return;
         if (event.getEntity().getKiller() != owner) return;
 
-        owner.sendMessage(ChatUtils.feedback("Le contrat a été honnoré"));
+        owner.sendMessage(ChatColors.feedback("Le contrat a été honnoré"));
         targetPlayer = null;
         nextAvailableContrat = LocalTime.now().plusMinutes(1);
         owner.getInventory().remove(currentContractItem);
@@ -121,7 +119,7 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
         if (warnPlayersTask != null) Bukkit.getScheduler().cancelTask(warnPlayersTask.getTaskId());
         if (cancelContractTask != null) Bukkit.getScheduler().cancelTask(cancelContractTask.getTaskId());
 
-        GameManager.getInstance().addScore(data().playersTeam.get(owner.getUniqueId()), 500, ScoreType.FLAT);
+        GameManager.getInstance().addAddMoney(data().getPlayerTeam(owner), 500);
     }
 
     @EventHandler
@@ -139,7 +137,7 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
         if (targetPlayer != null && !isContract) return;
 
         if (isContract) {
-            owner.sendMessage(ChatUtils.personalAnnouncement("Le contrat est annulé", "Le contrat sur " + targetPlayer.getDisplayName() + " est annulé. Tu ne peux pas relancer de contrat pendant 30 minutes."));
+            owner.sendMessage(ChatColors.personalAnnouncement("Le contrat est annulé", "Le contrat sur " + targetPlayer.getDisplayName() + " est annulé. Tu ne peux pas relancer de contrat pendant 30 minutes."));
             targetPlayer = null;
             classData.targetPlayerId = null;
             nextAvailableContrat = LocalTime.now().plusMinutes(30);
@@ -151,12 +149,12 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
         else {
             if (nextAvailableContrat != null && LocalTime.now().compareTo(nextAvailableContrat) < 0) {
                 Long diff = ChronoUnit.MINUTES.between(LocalTime.now(), nextAvailableContrat) + 1;
-                owner.sendMessage(ChatUtils.feedback("Tu dois encore attendre " + diff + " minutes avant de pouvoir relancer un contrat"));
+                owner.sendMessage(ChatColors.feedback("Tu dois encore attendre " + diff + " minutes avant de pouvoir relancer un contrat"));
                 return;
             }
-            String selectedTeam = data().teams.stream().filter(t -> !t.equals(data().playersTeam.get(owner.getUniqueId()))).collect(Collectors.toList()).get(Common.rng.nextInt(data().teams.size() - 1));
-            List<UUID> playersInTeam = data().playersByTeam.get(selectedTeam);
-            classData.targetPlayerId = playersInTeam.get(Common.rng.nextInt(playersInTeam.size()));
+            String selectedTeam = data().getTeams().stream().filter(t -> !t.equals(data().getPlayerTeam(owner))).collect(Collectors.toList()).get(Common.rng.nextInt(data().getTeams().size() - 1));
+            List<Player> playersInTeam = data().getPlayers(selectedTeam);
+            classData.targetPlayerId = playersInTeam.get(Common.rng.nextInt(playersInTeam.size())).getUniqueId();
             owner.getInventory().remove(paper);
             launchContract();
         }
@@ -172,7 +170,7 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
         owner.getInventory().addItem(contract);
         this.currentContractItem = contract;
 
-        owner.sendMessage(ChatUtils.personalAnnouncement("Nouveau contrat",
+        owner.sendMessage(ChatColors.personalAnnouncement("Nouveau contrat",
                 "Un nouveau contrat est établi sur la tête de " + targetPlayer.getDisplayName()));
 
         warnPlayersTask = Bukkit.getScheduler().runTaskLater(Common.plugin, () -> warnPlayers(), 20L * 60 * 15);
@@ -180,13 +178,13 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
     }
 
     private void warnPlayers() {
-        Bukkit.broadcastMessage(ChatUtils.generalAnnouncement("La tête de " + targetPlayer.getDisplayName() + " est mise à prix !",
+        Bukkit.broadcastMessage(ChatColors.generalAnnouncement("La tête de " + targetPlayer.getDisplayName() + " est mise à prix !",
                 "Le contrat actuel de l'Assassin cible actuellement " + targetPlayer.getDisplayName() + ", il gagnera 500 points si il parvient à le tuer dans les prochaines 45 minutes !"));
         warnPlayersTask = null;
     }
 
     private void cancelContract() {
-        owner.sendMessage(ChatUtils.personalAnnouncement("Le contrat est annulé", "Le contrat sur " + targetPlayer.getDisplayName() + " est annulé."));
+        owner.sendMessage(ChatColors.personalAnnouncement("Le contrat est annulé", "Le contrat sur " + targetPlayer.getDisplayName() + " est annulé."));
         targetPlayer = null;
         classData.targetPlayerId = null;
         cancelContractTask = null;

@@ -2,8 +2,8 @@ package me.flamboyant.survivalrumble.quests.tasks;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.quests.Quest;
-import me.flamboyant.survivalrumble.utils.Common;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
+import me.flamboyant.utils.Common;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -37,7 +37,7 @@ public class FertilizeQuestTask extends AQuestTask implements Listener {
     @EventHandler
     public void onBlockFertilize(BlockFertilizeEvent event) {
         if (event.getPlayer() != player) return;
-        String ownerTeam = SurvivalRumbleData.getSingleton().playersTeam.get(player.getUniqueId());
+        String ownerTeam = SurvivalRumbleData.getSingleton().getPlayerTeam(player);
         if (inHQ && !TeamHelper.isLocationInHeadQuarter(player.getLocation(), ownerTeam)) return;
 
         if (--quantity <= 0) {
