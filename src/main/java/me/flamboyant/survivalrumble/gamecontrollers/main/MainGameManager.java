@@ -3,6 +3,7 @@ package me.flamboyant.survivalrumble.gamecontrollers.main;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.gamecontrollers.assault.AssaultManager;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.*;
+import me.flamboyant.survivalrumble.gamecontrollers.main.components.PlayerDeathManager;
 import me.flamboyant.survivalrumble.utils.ITriggerVisitor;
 import me.flamboyant.utils.ChatHelper;
 import org.bukkit.Bukkit;
@@ -46,7 +47,7 @@ public class MainGameManager implements Listener, ITriggerVisitor {
 
         blockScoreListener.start();
         PlayerClassMechanicsHelper.getSingleton().enablePlayersClasses();
-        PlayerDeathListener.getInstance().start();
+        PlayerDeathManager.getInstance().start();
         timeManager.launchGameTimeManagement(this);
         //guardianMerchantListener;
         //questListener;
@@ -63,7 +64,7 @@ public class MainGameManager implements Listener, ITriggerVisitor {
 
         blockScoreListener.stop();
         PlayerClassMechanicsHelper.getSingleton().disablePlayersClasses();
-        PlayerDeathListener.getInstance().stop();
+        PlayerDeathManager.getInstance().stop();
         //guardianMerchantListener;
         //questListener;
 
