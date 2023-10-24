@@ -5,6 +5,7 @@ import me.flamboyant.survivalrumble.gamecontrollers.main.PlayerClassMechanicsHel
 import me.flamboyant.survivalrumble.playerclass.classobjects.APlayerClass;
 import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
 import me.flamboyant.survivalrumble.utils.UsefulConstants;
+import me.flamboyant.survivalrumble.views.respawnmodeselection.RespawnModeSelectionView;
 import me.flamboyant.utils.Common;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -19,13 +20,12 @@ import java.util.HashMap;
 import java.util.List;
 
 public class PlayerDeathManager implements Listener {
+    private RespawnModeSelectionView respawnModeSelectionView;
     private HashMap<Player, RegisteredDeath> registeredDeath = new HashMap<>();
     private Location zeroWaitingSpawn;
 
     private static PlayerDeathManager instance;
-    protected PlayerDeathManager() {
-
-    }
+    protected PlayerDeathManager() {}
 
     public static PlayerDeathManager getInstance() {
         if (instance == null) {
@@ -43,12 +43,15 @@ public class PlayerDeathManager implements Listener {
         zeroWaitingSpawn = new Location(waitingWorld, 0, waitingWorld.getHighestBlockYAt(0, 0), 0);
 
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
+
+        respawnModeSelectionView = new RespawnModeSelectionView();
     }
 
     public void stop() {
         Bukkit.getWorld(UsefulConstants.overworldName).setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, false);
         PlayerRespawnEvent.getHandlerList().unregister(this);
         PlayerDeathEvent.getHandlerList().unregister(this);
+        respawnModeSelectionView = null;
     }
 
     @EventHandler
@@ -61,6 +64,8 @@ public class PlayerDeathManager implements Listener {
         if (registeredDeath.containsKey(event.getPlayer())) {
             event.setRespawnLocation(zeroWaitingSpawn);
             event.getPlayer().setGameMode(GameMode.CREATIVE);
+
+            Bukkit.getScheduler().runTaskLater(Common.plugin, () -> )
         }
     }
 
@@ -92,12 +97,5 @@ public class PlayerDeathManager implements Listener {
 
     private SurvivalRumbleData data() {
         return SurvivalRumbleData.getSingleton();
-    }
-
-    private class RegisteredDeath {
-        public Player deadPlayer;
-        public Location deathLocation;
-        public Location respawnLocation;
-        public List<ItemStack> keptItems;
     }
 }

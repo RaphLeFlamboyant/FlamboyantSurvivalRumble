@@ -1,18 +1,23 @@
 package me.flamboyant.survivalrumble.views;
 
 import me.flamboyant.gui.view.icons.IIconItem;
+import me.flamboyant.survivalrumble.utils.IGuiItemCallback;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class CallbackIconItem implements IIconItem {
-    private Runnable callback;
+    private IGuiItemCallback callback;
     private String category;
     private ItemStack item;
+    private boolean closeOnClick;
 
-    public CallbackIconItem(Runnable callback, String category, ItemStack item) {
+    public CallbackIconItem(IGuiItemCallback callback, String category, ItemStack item, boolean closeOnClick) {
         this.callback = callback;
         this.category = category;
         this.item = item;
+        this.closeOnClick = closeOnClick;
     }
 
     @Override
@@ -26,7 +31,14 @@ public class CallbackIconItem implements IIconItem {
     }
 
     @Override
+    public boolean closeViewOnClick() {
+        return closeOnClick;
+    }
+
+    @Override
     public void onClick(InventoryClickEvent event) {
-        callback.run();
+        if (event.getWhoClicked().getType() != EntityType.PLAYER) return;
+
+        callback.runOnClick((Player)event.getWhoClicked());
     }
 }

@@ -1,43 +1,36 @@
 package me.flamboyant.survivalrumble.views.respawnmodeselection;
 
+import me.flamboyant.gui.view.builder.InventoryGuiBuilder;
 import me.flamboyant.gui.view.common.IInventoryGuiVisitor;
 import me.flamboyant.gui.view.common.InventoryGui;
 import me.flamboyant.gui.view.icons.IIconItem;
 import me.flamboyant.survivalrumble.views.CallbackIconItem;
 import me.flamboyant.utils.ItemHelper;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
-import org.bukkit.inventory.Inventory;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class RespawnModeSelectionView {
     private static String viewName = "Respawn mode";
     private InventoryGui inventoryGui;
 
     public RespawnModeSelectionView() {
-        IIconItem classicSpawnItem = new CallbackIconItem(() -> ClassicSpawnSelection(),
+        IIconItem classicSpawnItem = new CallbackIconItem((p) -> ClassicSpawnSelection(p),
                 "-",
-                ItemHelper.generateItem(Material.WHITE_BED, 1, "Respawn classique", Arrays.asList("Spawn classique Minecraft"), false, Enchantment.ARROW_FIRE, false, false));
-        IIconItem specialSpawnItem = new CallbackIconItem(() -> ClassicSpawnSelection(),
+                ItemHelper.generateItem(Material.WHITE_BED, 1, "Respawn classique", Arrays.asList("Spawn classique Minecraft"), false, Enchantment.ARROW_FIRE, false, false),
+                false);
+        IIconItem specialSpawnItem = new CallbackIconItem((p) -> SpecialSpawnSelection(p),
                 "-",
                 ItemHelper.generateItem(Material.WHITE_BED,
                         1,
                         "Respawn spécial",
                         Arrays.asList("Spawn à la base", "Shop de rachat de stuff", "Mode fantome pendant 10 secondes"),
-                        false, Enchantment.ARROW_FIRE, false, false));
+                        false, Enchantment.ARROW_FIRE, false, false),
+                false);
 
-
-        Inventory inventory = Bukkit.createInventory(null, 9*3, viewName);
-        inventory.setItem(13, classicSpawnItem.getItem());
-        inventory.setItem(14, classicSpawnItem.getItem());
-
-        inventoryGui = new InventoryGui(viewName, Arrays.asList(inventory), Arrays.asList(classicSpawnItem, specialSpawnItem), true);
+        inventoryGui = InventoryGuiBuilder.getInstance().buildView(Arrays.asList(classicSpawnItem, specialSpawnItem), viewName, 9*3, true);
     }
 
     public void open(Player player) {
@@ -53,11 +46,11 @@ public class RespawnModeSelectionView {
     }
 
 
-    private void ClassicSpawnSelection () {
+    private void ClassicSpawnSelection(Player whoClicked) {
 
     }
 
-    private void SpecialSpawnSelection() {
+    private void SpecialSpawnSelection(Player whoClicked) {
 
     }
 }
