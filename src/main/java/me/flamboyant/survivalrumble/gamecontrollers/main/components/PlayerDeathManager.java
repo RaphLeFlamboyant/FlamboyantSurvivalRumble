@@ -2,11 +2,17 @@ package me.flamboyant.survivalrumble.gamecontrollers.main.components;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.gamecontrollers.main.PlayerClassMechanicsHelper;
+import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.DeathWorkflowData;
+import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.views.RespawnModeSelectionHandler;
+import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowEventType;
+import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowOrchestrator;
+import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowStepType;
 import me.flamboyant.survivalrumble.playerclass.classobjects.APlayerClass;
 import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
 import me.flamboyant.survivalrumble.utils.UsefulConstants;
 import me.flamboyant.survivalrumble.views.respawnmodeselection.RespawnModeSelectionView;
 import me.flamboyant.utils.Common;
+import me.flamboyant.workflow.WorkflowVisitor;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,13 +25,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class PlayerDeathManager implements Listener {
-    private RespawnModeSelectionView respawnModeSelectionView;
-    private HashMap<Player, RegisteredDeath> registeredDeath = new HashMap<>();
+public class PlayerDeathManager implements Listener, WorkflowVisitor<DeathWorkflowStepType, DeathWorkflowData> {
     private Location zeroWaitingSpawn;
+    private HashMap<Player, DeathWorkflowData> playerToPendingDeathWorkflowData = new HashMap<>();
+
+    private RespawnModeSelectionHandler respawnModeSelectionHandler;
 
     private static PlayerDeathManager instance;
-    protected PlayerDeathManager() {}
+    protected PlayerDeathManager()
+    {
+        respawnModeSelectionHandler = new RespawnModeSelectionHandler();
+    }
 
     public static PlayerDeathManager getInstance() {
         if (instance == null) {
@@ -44,14 +54,17 @@ public class PlayerDeathManager implements Listener {
 
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
 
-        respawnModeSelectionView = new RespawnModeSelectionView();
+        DeathWorkflowOrchestrator.getInstance().addVisitor(this);
+        DeathWorkflowOrchestrator.getInstance().addVisitor(respawnModeSelectionHandler);
     }
 
     public void stop() {
         Bukkit.getWorld(UsefulConstants.overworldName).setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, false);
         PlayerRespawnEvent.getHandlerList().unregister(this);
         PlayerDeathEvent.getHandlerList().unregister(this);
-        respawnModeSelectionView = null;
+
+        DeathWorkflowOrchestrator.getInstance().removeVisitor(this);
+        DeathWorkflowOrchestrator.getInstance().removeVisitor(respawnModeSelectionHandler);
     }
 
     @EventHandler
@@ -61,11 +74,13 @@ public class PlayerDeathManager implements Listener {
             event.setRespawnLocation(loc);
         }
 
-        if (registeredDeath.containsKey(event.getPlayer())) {
+        if (playerToPendingDeathWorkflowData.containsKey(event.getPlayer())) {
             event.setRespawnLocation(zeroWaitingSpawn);
             event.getPlayer().setGameMode(GameMode.CREATIVE);
 
-            Bukkit.getScheduler().runTaskLater(Common.plugin, () -> )
+            Bukkit.getScheduler().runTaskLater(Common.plugin, () -> {
+                DeathWorkflowOrchestrator.getInstance().onEventTriggered(DeathWorkflowEventType.RESPAWN, playerToPendingDeathWorkflowData.get(event.getPlayer()));
+            }, 1);
         }
     }
 
@@ -77,9 +92,9 @@ public class PlayerDeathManager implements Listener {
             }
         }
 
-        RegisteredDeath playerDeath = new RegisteredDeath();
-        playerDeath.deadPlayer = event.getEntity();
-        playerDeath.deathLocation = event.getEntity().getLocation();
+        DeathWorkflowData playerDeathData = new DeathWorkflowData();
+        playerDeathData.deadPlayer = event.getEntity();
+        playerDeathData.deathLocation = event.getEntity().getLocation();
 
         List<ItemStack> eventItemDrops = event.getDrops();
         List<ItemStack> keptItems = new ArrayList<>();
@@ -89,13 +104,44 @@ public class PlayerDeathManager implements Listener {
         }
 
         eventItemDrops.clear();
-        playerDeath.keptItems = keptItems;
+        playerDeathData.keptItems = keptItems;
 
-        registeredDeath.put(playerDeath.deadPlayer, playerDeath);
+        DeathWorkflowOrchestrator.getInstance().startWorkflow(playerDeathData);
     }
 
 
     private SurvivalRumbleData data() {
         return SurvivalRumbleData.getSingleton();
+    }
+
+    @Override
+    public void onWorkflowStart(DeathWorkflowData deathWorkflowData) {
+        playerToPendingDeathWorkflowData.put(deathWorkflowData.deadPlayer, deathWorkflowData);
+    }
+
+    @Override
+    public void onNextStep(DeathWorkflowStepType deathWorkflowStepType, DeathWorkflowData deathWorkflowData) {
+        if (deathWorkflowStepType == DeathWorkflowStepType.NORMAL_RESPAWN) {
+            handleNormalRespawnStep(deathWorkflowData);
+        }
+    }
+
+    @Override
+    public void onWorkflowEnd(DeathWorkflowData deathWorkflowData) {
+        playerToPendingDeathWorkflowData.remove(deathWorkflowData.deadPlayer);
+    }
+
+    private void handleNormalRespawnStep(DeathWorkflowData deathWorkflowData) {
+        Player player = deathWorkflowData.deadPlayer;
+
+        player.teleport(deathWorkflowData.deathLocation);
+        player.setGameMode(GameMode.SURVIVAL);
+
+        World deathWorld = deathWorkflowData.deathLocation.getWorld();
+        for (ItemStack item : deathWorkflowData.keptItems) {
+            deathWorld.dropItem(deathWorkflowData.deathLocation, item);
+        }
+
+        DeathWorkflowOrchestrator.getInstance().onEventTriggered(DeathWorkflowEventType.RESPAWN, deathWorkflowData);
     }
 }
