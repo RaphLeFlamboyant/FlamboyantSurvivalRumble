@@ -45,12 +45,20 @@ public class ShopIconItem implements IIconItem {
     @Override
     public void onClick(InventoryClickEvent event) {
         if (event.getWhoClicked().getType() != EntityType.PLAYER) return;
+        if (item.getType() == Material.BARRIER) return;
 
         Player player = (Player)event.getWhoClicked();
 
-        int quantity = event.isShiftClick() ? item.getAmount() : 1;
-        item.setAmount(item.getAmount() - quantity);
+        int quantityRequested = event.isShiftClick() ? item.getAmount() : 1;
+        int quantityRemaining = item.getAmount() - quantityRequested;
 
-        buyItemCallback.onShopAction(player, itemId, quantity);
+        if (quantityRemaining > 0)
+            item.setAmount(item.getAmount() - quantityRequested);
+        else {
+            item.setType(Material.BARRIER);
+            item.setAmount(1);
+        }
+
+        buyItemCallback.onShopAction(player, itemId, quantityRequested);
     }
 }

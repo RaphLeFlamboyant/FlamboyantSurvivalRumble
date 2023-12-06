@@ -1,11 +1,8 @@
 package me.flamboyant.survivalrumble.views.respawnmodeselection;
 
-import me.flamboyant.gui.view.builder.InventoryGuiBuilder;
-import me.flamboyant.gui.view.common.IInventoryGuiVisitor;
-import me.flamboyant.gui.view.common.InventoryGui;
-import me.flamboyant.gui.view.icons.IIconItem;
+import me.flamboyant.gui.view.IconController;
+import me.flamboyant.gui.view.InventoryView;
 import me.flamboyant.survivalrumble.utils.PlayerCallback;
-import me.flamboyant.survivalrumble.views.CallbackIconItem;
 import me.flamboyant.utils.ItemHelper;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -15,26 +12,30 @@ import java.util.Arrays;
 
 public class RespawnModeSelectionView {
     private static String viewName = "Respawn mode";
-    private InventoryGui inventoryGui;
+    private InventoryView inventoryView;
 
     public RespawnModeSelectionView(PlayerCallback onClassicSpawnSelection, PlayerCallback onSpecialSpawnSelection) {
-        IIconItem classicSpawnItem = new CallbackIconItem(onClassicSpawnSelection,
-                "-",
-                ItemHelper.generateItem(Material.WHITE_BED, 1, "Respawn classique", Arrays.asList("Spawn classique Minecraft"), false, Enchantment.ARROW_FIRE, false, false),
-                true);
-        IIconItem specialSpawnItem = new CallbackIconItem(onSpecialSpawnSelection,
-                "-",
+        IconController classicIconController = new IconController(1);
+        classicIconController.setItemIcon(ItemHelper.generateItem(Material.WHITE_BED, 1, "Respawn classique", Arrays.asList("Spawn classique Minecraft"), false, Enchantment.ARROW_FIRE, false, false));
+        classicIconController.setLeftClickCallback((p) -> onClassicSpawnSelection.runOnPlayer(p));
+
+        IconController specialIconController = new IconController(2);
+        specialIconController.setItemIcon(
                 ItemHelper.generateItem(Material.WHITE_BED,
                         1,
                         "Respawn spécial",
                         Arrays.asList("Spawn à la base", "Shop de rachat de stuff", "Mode fantome pendant 10 secondes"),
-                        false, Enchantment.ARROW_FIRE, false, false),
-                true);
+                        false, Enchantment.ARROW_FIRE, false, false));
+        specialIconController.setLeftClickCallback((p) -> onSpecialSpawnSelection.runOnPlayer(p));
 
-        inventoryGui = InventoryGuiBuilder.getInstance().buildView(Arrays.asList(classicSpawnItem, specialSpawnItem), viewName, 9*3, true);
+        inventoryView = new InventoryView(viewName, Arrays.asList(classicIconController, specialIconController));
     }
 
     public void open(Player player) {
-        inventoryGui.open(player);
+        inventoryView.openPlayerView(player);
+    }
+
+    public void close(Player player) {
+        inventoryView.closePlayerView(player);
     }
 }

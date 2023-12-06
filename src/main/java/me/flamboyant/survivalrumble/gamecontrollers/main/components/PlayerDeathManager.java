@@ -10,7 +10,6 @@ import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagem
 import me.flamboyant.survivalrumble.playerclass.classobjects.APlayerClass;
 import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
 import me.flamboyant.survivalrumble.utils.UsefulConstants;
-import me.flamboyant.survivalrumble.views.respawnmodeselection.RespawnModeSelectionView;
 import me.flamboyant.utils.Common;
 import me.flamboyant.workflow.WorkflowVisitor;
 import org.bukkit.*;
@@ -28,7 +27,6 @@ import java.util.List;
 public class PlayerDeathManager implements Listener, WorkflowVisitor<DeathWorkflowStepType, DeathWorkflowData> {
     private Location zeroWaitingSpawn;
     private HashMap<Player, DeathWorkflowData> playerToPendingDeathWorkflowData = new HashMap<>();
-
     private RespawnModeSelectionHandler respawnModeSelectionHandler;
 
     private static PlayerDeathManager instance;
@@ -69,17 +67,20 @@ public class PlayerDeathManager implements Listener, WorkflowVisitor<DeathWorkfl
 
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
+        Location loc = event.getRespawnLocation();
         if (!event.isBedSpawn()) {
-            Location loc = data().getHeadquarterLocation(data().getPlayerTeam(event.getPlayer()));
+            loc = data().getHeadquarterLocation(data().getPlayerTeam(event.getPlayer()));
             event.setRespawnLocation(loc);
         }
 
         if (playerToPendingDeathWorkflowData.containsKey(event.getPlayer())) {
+            DeathWorkflowData deathWorkflowData = playerToPendingDeathWorkflowData.get(event.getPlayer());
+            deathWorkflowData.respawnLocation = loc;
             event.setRespawnLocation(zeroWaitingSpawn);
             event.getPlayer().setGameMode(GameMode.CREATIVE);
 
             Bukkit.getScheduler().runTaskLater(Common.plugin, () -> {
-                DeathWorkflowOrchestrator.getInstance().onEventTriggered(DeathWorkflowEventType.RESPAWN, playerToPendingDeathWorkflowData.get(event.getPlayer()));
+                DeathWorkflowOrchestrator.getInstance().onEventTriggered(DeathWorkflowEventType.RESPAWN, deathWorkflowData);
             }, 1);
         }
     }
@@ -134,7 +135,7 @@ public class PlayerDeathManager implements Listener, WorkflowVisitor<DeathWorkfl
     private void handleNormalRespawnStep(DeathWorkflowData deathWorkflowData) {
         Player player = deathWorkflowData.deadPlayer;
 
-        player.teleport(deathWorkflowData.deathLocation);
+        player.teleport(deathWorkflowData.respawnLocation);
         player.setGameMode(GameMode.SURVIVAL);
 
         World deathWorld = deathWorkflowData.deathLocation.getWorld();
