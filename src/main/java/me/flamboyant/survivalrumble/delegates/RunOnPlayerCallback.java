@@ -1,8 +1,8 @@
-package me.flamboyant.survivalrumble.utils;
+package me.flamboyant.survivalrumble.delegates;
 
 import org.bukkit.entity.Player;
 
 @FunctionalInterface
-public interface PlayerCallback {
+public interface RunOnPlayerCallback {
     void runOnPlayer(Player player);
 }

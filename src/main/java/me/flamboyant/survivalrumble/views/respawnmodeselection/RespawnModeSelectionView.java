@@ -2,7 +2,7 @@ package me.flamboyant.survivalrumble.views.respawnmodeselection;
 
 import me.flamboyant.gui.view.IconController;
 import me.flamboyant.gui.view.InventoryView;
-import me.flamboyant.survivalrumble.utils.PlayerCallback;
+import me.flamboyant.survivalrumble.delegates.RunOnPlayerCallback;
 import me.flamboyant.utils.ItemHelper;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -14,7 +14,7 @@ public class RespawnModeSelectionView {
     private static String viewName = "Respawn mode";
     private InventoryView inventoryView;
 
-    public RespawnModeSelectionView(PlayerCallback onClassicSpawnSelection, PlayerCallback onSpecialSpawnSelection) {
+    public RespawnModeSelectionView(RunOnPlayerCallback onClassicSpawnSelection, RunOnPlayerCallback onSpecialSpawnSelection) {
         IconController classicIconController = new IconController(1);
         classicIconController.setItemIcon(ItemHelper.generateItem(Material.WHITE_BED, 1, "Respawn classique", Arrays.asList("Spawn classique Minecraft"), false, Enchantment.ARROW_FIRE, false, false));
         classicIconController.setLeftClickCallback((p) -> onClassicSpawnSelection.runOnPlayer(p));
