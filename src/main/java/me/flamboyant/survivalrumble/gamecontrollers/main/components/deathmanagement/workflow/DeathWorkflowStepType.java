@@ -4,7 +4,7 @@ public enum DeathWorkflowStepType {
     WAIT_FOR_RESPAWN,
     RESPAWN_MODE_SELECTION,
     NORMAL_RESPAWN,
-    PERSONAL_SHOP,
+    TEAM_SHOP,
     COMMON_SHOP,
     GHOST_MODE,
     END

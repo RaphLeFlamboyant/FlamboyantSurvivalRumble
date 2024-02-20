@@ -32,8 +32,8 @@ public class ItemStackShop {
         }
     }
 
-    public HashMap<ShopItem, ShopItemController> getAllShopItemController() {
-        HashMap<ShopItem, ShopItemController> res = new HashMap<>();
+    public List<ShopItemController> getAllShopItemControllers() {
+        List<ShopItemController> res = new ArrayList<>();
 
         for (ShopItem shopItem : shopItemToItemStack.keySet()) {
             ShopItemController controller = new ShopItemController();
@@ -41,7 +41,7 @@ public class ItemStackShop {
             controller.setTryBuyAll((Player p) -> TryBuyItem(shopItem, p, shopItem.getQuantity()));
             controller.setTryBuyOne((Player p) -> TryBuyItem(shopItem, p, 1));
 
-            res.put(shopItem, controller);
+            res.add(controller);
         }
 
         return res;
@@ -70,7 +70,7 @@ public class ItemStackShop {
         else {
             shopItemToItemStack.remove(shopItem);
             for(IShopChangesListener shopChangesListener : shopChangesListeners) {
-                shopChangesListener.ItemRemoved(shopItem);
+                    shopChangesListener.ItemRemoved(shopItem);
             }
         }
 

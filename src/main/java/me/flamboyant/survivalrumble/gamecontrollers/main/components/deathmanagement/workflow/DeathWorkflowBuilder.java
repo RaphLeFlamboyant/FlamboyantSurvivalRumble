@@ -20,7 +20,7 @@ public class DeathWorkflowBuilder {
         // RESPAWN_MODE_SELECTION
         stepTriggers = new HashMap<DeathWorkflowEventType, DeathWorkflowStepType>() {{
             put(DeathWorkflowEventType.SELECT_NORMAL_RESPAWN, DeathWorkflowStepType.NORMAL_RESPAWN);
-            put(DeathWorkflowEventType.SELECT_SPECIAL_RESPAWN, DeathWorkflowStepType.PERSONAL_SHOP);
+            put(DeathWorkflowEventType.SELECT_SPECIAL_RESPAWN, DeathWorkflowStepType.TEAM_SHOP);
         }};
         step = new WorkflowStep<>(DeathWorkflowStepType.RESPAWN_MODE_SELECTION, stepTriggers);
         result.add(step);
@@ -36,7 +36,7 @@ public class DeathWorkflowBuilder {
         stepTriggers = new HashMap<DeathWorkflowEventType, DeathWorkflowStepType>() {{
             put(DeathWorkflowEventType.END_OF_PERSONAL_SHOP, DeathWorkflowStepType.COMMON_SHOP);
         }};
-        step = new WorkflowStep<>(DeathWorkflowStepType.PERSONAL_SHOP, stepTriggers);
+        step = new WorkflowStep<>(DeathWorkflowStepType.TEAM_SHOP, stepTriggers);
         result.add(step);
 
         // COMMON_SHOP
