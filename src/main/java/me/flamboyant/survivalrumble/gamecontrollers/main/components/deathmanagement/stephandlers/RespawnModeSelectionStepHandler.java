@@ -1,4 +1,4 @@
-package me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.views;
+package me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.stephandlers;
 
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.DeathWorkflowData;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowEventType;
@@ -10,22 +10,20 @@ import me.flamboyant.workflow.WorkflowVisitor;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 
-public class RespawnModeSelectionHandler implements Listener, WorkflowVisitor<DeathWorkflowStepType, DeathWorkflowData> {
+public class RespawnModeSelectionStepHandler implements Listener, WorkflowVisitor<DeathWorkflowStepType, DeathWorkflowData> {
     private static final int timerSeconds = 10;
     private BukkitTask tickSoundTask;
     private HashMap<Player, DeathWorkflowData> playerToPendingDeathWorkflowData = new HashMap<>();
     private HashMap<Player, Integer> playerToCountdown = new HashMap<>();
     private RespawnModeSelectionView respawnModeSelectionView;
 
-    public RespawnModeSelectionHandler() {
-        // Todo : dependency injection
+    public RespawnModeSelectionStepHandler() {
         respawnModeSelectionView = new RespawnModeSelectionView(this::onClassicRespawnSelection, this::onSpecialRespawnSelection);
     }
 
@@ -58,32 +56,43 @@ public class RespawnModeSelectionHandler implements Listener, WorkflowVisitor<De
             int currentRemainingSeconds = playerToCountdown.get(player) - 1;
 
             if (currentRemainingSeconds == 0) {
-                playerToCountdown.remove(player);
-                onClassicRespawnSelection(player);
                 respawnModeSelectionView.close(player);
+                onClassicRespawnSelection(player);
 
-                if (playerToCountdown.isEmpty()) {
-                    Bukkit.getScheduler().cancelTask(tickSoundTask.getTaskId());
-                }
                 return;
             }
 
             playerToCountdown.put(player, currentRemainingSeconds);
             player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, currentRemainingSeconds > 3 ? 0.5f : 1f, 1);
+
+            if (currentRemainingSeconds <= 5) {
+                player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1f, 1);
+            }
+            else {
+                player.playSound(player, Sound.BLOCK_WOOD_PLACE, SoundCategory.MASTER, 0.5f, 0.7f);
+            }
         }
     }
 
     private void onClassicRespawnSelection(Player player) {
-        DeathWorkflowData deathWorkflowData = playerToPendingDeathWorkflowData.get(player);
-        playerToPendingDeathWorkflowData.remove(player);
-
-        DeathWorkflowOrchestrator.getInstance().onEventTriggered(DeathWorkflowEventType.SELECT_NORMAL_RESPAWN, deathWorkflowData);
+        triggerWorkflowEvent(player, DeathWorkflowEventType.SELECT_NORMAL_RESPAWN);
     }
 
     private void onSpecialRespawnSelection(Player player) {
+        player.setBedSpawnLocation(null);
+        triggerWorkflowEvent(player, DeathWorkflowEventType.SELECT_SPECIAL_RESPAWN);
+    }
+
+    private void triggerWorkflowEvent(Player player, DeathWorkflowEventType eventType) {
+        playerToCountdown.remove(player);
+
+        if (playerToCountdown.isEmpty()) {
+            Bukkit.getScheduler().cancelTask(tickSoundTask.getTaskId());
+        }
+
         DeathWorkflowData deathWorkflowData = playerToPendingDeathWorkflowData.get(player);
         playerToPendingDeathWorkflowData.remove(player);
 
-        DeathWorkflowOrchestrator.getInstance().onEventTriggered(DeathWorkflowEventType.SELECT_SPECIAL_RESPAWN, deathWorkflowData);
+        DeathWorkflowOrchestrator.getInstance().onEventTriggered(eventType, deathWorkflowData);
     }
 }

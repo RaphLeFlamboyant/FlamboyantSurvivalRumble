@@ -34,7 +34,7 @@ public class DeathWorkflowBuilder {
 
         // PERSONAL_SHOP
         stepTriggers = new HashMap<DeathWorkflowEventType, DeathWorkflowStepType>() {{
-            put(DeathWorkflowEventType.END_OF_PERSONAL_SHOP, DeathWorkflowStepType.COMMON_SHOP);
+            put(DeathWorkflowEventType.END_OF_TEAM_SHOP, DeathWorkflowStepType.COMMON_SHOP);
         }};
         step = new WorkflowStep<>(DeathWorkflowStepType.TEAM_SHOP, stepTriggers);
         result.add(step);

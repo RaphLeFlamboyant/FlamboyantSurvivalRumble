@@ -3,7 +3,10 @@ package me.flamboyant.survivalrumble.gamecontrollers.main.components;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.gamecontrollers.main.PlayerClassMechanicsHelper;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.DeathWorkflowData;
-import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.views.RespawnModeSelectionHandler;
+import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.stephandlers.CommonShopStepHandler;
+import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.stephandlers.GhostModeStepHandler;
+import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.stephandlers.RespawnModeSelectionStepHandler;
+import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.stephandlers.TeamShopStepHandler;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowEventType;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowOrchestrator;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowStepType;
@@ -27,12 +30,22 @@ import java.util.List;
 public class PlayerDeathManager implements Listener, WorkflowVisitor<DeathWorkflowStepType, DeathWorkflowData> {
     private Location zeroWaitingSpawn;
     private HashMap<Player, DeathWorkflowData> playerToPendingDeathWorkflowData = new HashMap<>();
-    private RespawnModeSelectionHandler respawnModeSelectionHandler;
+    private RespawnModeSelectionStepHandler respawnModeSelectionHandler;
+    private List<TeamShopStepHandler> teamShopStepHandlers = new ArrayList<>();
+    private CommonShopStepHandler commonShopStepHandler;
+    private GhostModeStepHandler ghostModeStepHandler;
 
     private static PlayerDeathManager instance;
     protected PlayerDeathManager()
     {
-        respawnModeSelectionHandler = new RespawnModeSelectionHandler();
+        respawnModeSelectionHandler = new RespawnModeSelectionStepHandler();
+        commonShopStepHandler = new CommonShopStepHandler();
+        ghostModeStepHandler = new GhostModeStepHandler();
+
+        for (String teamName : SurvivalRumbleData.getSingleton().getTeams()) {
+            TeamShopStepHandler teamShopStepHandler = new TeamShopStepHandler(teamName);
+            teamShopStepHandlers.add(teamShopStepHandler);
+        }
     }
 
     public static PlayerDeathManager getInstance() {
@@ -54,6 +67,11 @@ public class PlayerDeathManager implements Listener, WorkflowVisitor<DeathWorkfl
 
         DeathWorkflowOrchestrator.getInstance().addVisitor(this);
         DeathWorkflowOrchestrator.getInstance().addVisitor(respawnModeSelectionHandler);
+        DeathWorkflowOrchestrator.getInstance().addVisitor(commonShopStepHandler);
+        DeathWorkflowOrchestrator.getInstance().addVisitor(ghostModeStepHandler);
+        for (TeamShopStepHandler teamShopStepHandler : teamShopStepHandlers) {
+            DeathWorkflowOrchestrator.getInstance().addVisitor(teamShopStepHandler);
+        }
     }
 
     public void stop() {
@@ -63,6 +81,11 @@ public class PlayerDeathManager implements Listener, WorkflowVisitor<DeathWorkfl
 
         DeathWorkflowOrchestrator.getInstance().removeVisitor(this);
         DeathWorkflowOrchestrator.getInstance().removeVisitor(respawnModeSelectionHandler);
+        DeathWorkflowOrchestrator.getInstance().removeVisitor(commonShopStepHandler);
+        DeathWorkflowOrchestrator.getInstance().removeVisitor(ghostModeStepHandler);
+        for (TeamShopStepHandler teamShopStepHandler : teamShopStepHandlers) {
+            DeathWorkflowOrchestrator.getInstance().removeVisitor(teamShopStepHandler);
+        }
     }
 
     @EventHandler

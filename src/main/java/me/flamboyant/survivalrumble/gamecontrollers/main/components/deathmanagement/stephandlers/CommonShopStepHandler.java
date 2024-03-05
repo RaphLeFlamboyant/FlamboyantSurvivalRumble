@@ -1,14 +1,20 @@
-package me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.views;
+package me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.stephandlers;
 
+import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowEventType;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowStepType;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
-public class CommonShopHandler extends AShopHandler {
+public class CommonShopStepHandler extends AShopStepHandler {
     @Override
     protected DeathWorkflowStepType GetStepType() {
         return DeathWorkflowStepType.COMMON_SHOP;
+    }
+
+    @Override
+    protected DeathWorkflowEventType GetEventType() {
+        return DeathWorkflowEventType.END_OF_COMMON_SHOP;
     }
 
     @Override

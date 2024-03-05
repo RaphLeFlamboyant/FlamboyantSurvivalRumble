@@ -2,8 +2,10 @@ package me.flamboyant.survivalrumble.shop;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -37,7 +39,13 @@ public class ItemStackShop {
 
         for (ShopItem shopItem : shopItemToItemStack.keySet()) {
             ShopItemController controller = new ShopItemController();
-            controller.setRepresentation(shopItemToItemStack.get(shopItem));
+
+            ItemStack itemStack = shopItemToItemStack.get(shopItem).clone();
+            ItemMeta meta = itemStack.getItemMeta();
+            meta.setLore(Arrays.asList("Prix unitaire : " + shopItem.getUnitaryPrice()));
+            itemStack.setItemMeta(meta);
+
+            controller.setRepresentation(itemStack);
             controller.setTryBuyAll((Player p) -> TryBuyItem(shopItem, p, shopItem.getQuantity()));
             controller.setTryBuyOne((Player p) -> TryBuyItem(shopItem, p, 1));
 

@@ -1,6 +1,9 @@
-package me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.views;
+package me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.stephandlers;
 
+import me.flamboyant.survivalrumble.delegates.RunOnPlayerCallback;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.DeathWorkflowData;
+import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowEventType;
+import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowOrchestrator;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowStepType;
 import me.flamboyant.survivalrumble.shop.IShopChangesListener;
 import me.flamboyant.survivalrumble.shop.ItemStackShop;
@@ -20,19 +23,21 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.HashMap;
 import java.util.List;
 
-public abstract class AShopHandler implements Listener, WorkflowVisitor<DeathWorkflowStepType, DeathWorkflowData>, IShopChangesListener {
+public abstract class AShopStepHandler implements Listener, WorkflowVisitor<DeathWorkflowStepType, DeathWorkflowData>, IShopChangesListener {
     private static final int timerSeconds = 60;
     private BukkitTask tickSoundTask;
     private HashMap<Player, DeathWorkflowData> playerToPendingDeathWorkflowData = new HashMap<>();
     private HashMap<Player, Integer> playerToCountdown = new HashMap<>();
     private ItemStackShop itemShop;
     private ShopView shopView;
+    private RunOnPlayerCallback playerCloseShopCallback = (p) -> onShopStepEndind(p);
 
     protected abstract DeathWorkflowStepType GetStepType();
+    protected abstract DeathWorkflowEventType GetEventType();
     protected abstract List<ItemStack> FilterKeptItem(List<ItemStack> keptItems);
     protected abstract int getUnitaryPrice(ItemStack item);
 
-    public AShopHandler()
+    public AShopStepHandler()
     {
         this.itemShop = new ItemStackShop(TeamMoneyManager.getInstance());
     }
@@ -53,6 +58,7 @@ public abstract class AShopHandler implements Listener, WorkflowVisitor<DeathWor
             tickSoundTask = Bukkit.getScheduler().runTaskTimer(Common.plugin, this::tickSoundOnPendingPlayers, 20, 20);
 
             shopView = new ShopView();
+            shopView.addPlayerCloseShopCallback(playerCloseShopCallback);
         }
 
         shopView.setItemControllerList(itemShop.getAllShopItemControllers());
@@ -104,12 +110,10 @@ public abstract class AShopHandler implements Listener, WorkflowVisitor<DeathWor
             int currentRemainingSeconds = playerToCountdown.get(player) - 1;
 
             if (currentRemainingSeconds == 0) {
-                playerToCountdown.remove(player);
+                shopView.removePlayerCloseShopCallback(playerCloseShopCallback);
                 shopView.close(player);
+                onShopStepEndind(player);
 
-                if (playerToCountdown.isEmpty()) {
-                    Bukkit.getScheduler().cancelTask(tickSoundTask.getTaskId());
-                }
                 return;
             }
 
@@ -119,5 +123,22 @@ public abstract class AShopHandler implements Listener, WorkflowVisitor<DeathWor
                 player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1f, 1);
             }
         }
+    }
+
+    private void onShopStepEndind(Player player) {
+        triggerNextStep(player, GetEventType());
+    }
+
+    private void triggerNextStep(Player player, DeathWorkflowEventType eventType) {
+        playerToCountdown.remove(player);
+
+        if (playerToCountdown.isEmpty()) {
+            Bukkit.getScheduler().cancelTask(tickSoundTask.getTaskId());
+        }
+
+        DeathWorkflowData deathWorkflowData = playerToPendingDeathWorkflowData.get(player);
+        playerToPendingDeathWorkflowData.remove(player);
+
+        DeathWorkflowOrchestrator.getInstance().onEventTriggered(eventType, deathWorkflowData);
     }
 }
