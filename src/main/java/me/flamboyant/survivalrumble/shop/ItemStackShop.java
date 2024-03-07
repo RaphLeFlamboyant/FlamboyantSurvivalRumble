@@ -20,11 +20,11 @@ public class ItemStackShop {
 
     public List<IShopChangesListener> shopChangesListeners = new ArrayList<>();
 
-    public void AddShopContentChangeListener(IShopChangesListener shopChangesListener) {
+    public void addShopContentChangeListener(IShopChangesListener shopChangesListener) {
         shopChangesListeners.add(shopChangesListener);
     }
 
-    public void AddItemStackToShop(ItemStack itemStack, int unitPrice, int quantity) {
+    public void addItemStackToShop(ItemStack itemStack, int unitPrice, int quantity) {
         ShopItem shopItem = GenerateShopItem(itemStack, unitPrice, quantity);
 
         shopItemToItemStack.put(shopItem, itemStack);

@@ -20,6 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,11 +35,13 @@ public abstract class AShopStepHandler implements Listener, WorkflowVisitor<Deat
 
     protected abstract DeathWorkflowStepType GetStepType();
     protected abstract DeathWorkflowEventType GetEventType();
+    protected abstract String GetViewName();
     protected abstract List<ItemStack> FilterKeptItem(List<ItemStack> keptItems);
     protected abstract int getUnitaryPrice(ItemStack item);
 
     public AShopStepHandler()
     {
+        shopView = new ShopView(GetViewName(), Arrays.asList());
         this.itemShop = new ItemStackShop(TeamMoneyManager.getInstance());
     }
 
@@ -51,17 +54,17 @@ public abstract class AShopStepHandler implements Listener, WorkflowVisitor<Deat
         if (deathWorkflowStepType != GetStepType()) return;
 
         for (ItemStack keptItem : FilterKeptItem(deathWorkflowData.keptItems)) {
-            itemShop.AddItemStackToShop(keptItem, getUnitaryPrice(keptItem), keptItem.getAmount());
+            itemShop.addItemStackToShop(keptItem, getUnitaryPrice(keptItem), keptItem.getAmount());
         }
 
         if (playerToPendingDeathWorkflowData.isEmpty()) {
             tickSoundTask = Bukkit.getScheduler().runTaskTimer(Common.plugin, this::tickSoundOnPendingPlayers, 20, 20);
 
-            shopView = new ShopView();
             shopView.addPlayerCloseShopCallback(playerCloseShopCallback);
         }
-
-        shopView.setItemControllerList(itemShop.getAllShopItemControllers());
+        else {
+            shopView.resetItemControllerList(itemShop.getAllShopItemControllers());
+        }
 
         playerToPendingDeathWorkflowData.put(deathWorkflowData.deadPlayer, deathWorkflowData);
         playerToCountdown.put(deathWorkflowData.deadPlayer, timerSeconds);
@@ -77,32 +80,33 @@ public abstract class AShopStepHandler implements Listener, WorkflowVisitor<Deat
 
     @Override
     public void ItemAdded(ShopItem shopItem) {
-        shopView.setItemControllerList(itemShop.getAllShopItemControllers());
+        // TODO c'est mal fait
+        shopView.resetItemControllerList(itemShop.getAllShopItemControllers());
     }
 
     @Override
     public void ItemsAdded(List<ShopItem> shopItems) {
-        shopView.setItemControllerList(itemShop.getAllShopItemControllers());
+        shopView.resetItemControllerList(itemShop.getAllShopItemControllers());
     }
 
     @Override
     public void ItemRemoved(ShopItem shopItem) {
-        shopView.setItemControllerList(itemShop.getAllShopItemControllers());
+        shopView.resetItemControllerList(itemShop.getAllShopItemControllers());
     }
 
     @Override
     public void ItemsRemoved(List<ShopItem> shopItems) {
-        shopView.setItemControllerList(itemShop.getAllShopItemControllers());
+        shopView.resetItemControllerList(itemShop.getAllShopItemControllers());
     }
 
     @Override
     public void ItemUpdated(ShopItem shopItem) {
-        shopView.setItemControllerList(itemShop.getAllShopItemControllers());
+        shopView.resetItemControllerList(itemShop.getAllShopItemControllers());
     }
 
     @Override
     public void ItemsUpdated(List<ShopItem> shopItems) {
-        shopView.setItemControllerList(itemShop.getAllShopItemControllers());
+        shopView.resetItemControllerList(itemShop.getAllShopItemControllers());
     }
 
     private void tickSoundOnPendingPlayers() {

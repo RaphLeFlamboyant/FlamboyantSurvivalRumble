@@ -18,6 +18,11 @@ public class CommonShopStepHandler extends AShopStepHandler {
     }
 
     @Override
+    protected String GetViewName() {
+        return "Common death shop";
+    }
+
+    @Override
     protected List<ItemStack> FilterKeptItem(List<ItemStack> keptItems) {
         // TODO
     }

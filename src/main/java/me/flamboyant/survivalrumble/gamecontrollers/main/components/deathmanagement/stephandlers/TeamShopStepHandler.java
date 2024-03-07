@@ -26,6 +26,11 @@ public class TeamShopStepHandler extends AShopStepHandler {
     }
 
     @Override
+    protected String GetViewName() {
+        return teamName + " death shop";
+    }
+
+    @Override
     protected List<ItemStack> FilterKeptItem(List<ItemStack> keptItems) {
         // TODO
     }

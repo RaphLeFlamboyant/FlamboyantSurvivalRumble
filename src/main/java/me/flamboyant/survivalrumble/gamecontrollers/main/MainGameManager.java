@@ -10,10 +10,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainGameManager implements Listener, ITriggerVisitor {
     private GameTimeManager timeManager = new GameTimeManager();
     private BlockScoreListener blockScoreListener = new BlockScoreListener();
-    private GuardianMerchantListener guardianMerchantListener = new GuardianMerchantListener();
+    private List<ChampionShopManager> championShopManagers = new ArrayList<>();
     private QuestListener questListener = new QuestListener();
     private BukkitTask questTask;
     private boolean isLaunched;
@@ -49,7 +52,13 @@ public class MainGameManager implements Listener, ITriggerVisitor {
         PlayerClassMechanicsHelper.getSingleton().enablePlayersClasses();
         PlayerDeathManager.getInstance().start();
         timeManager.launchGameTimeManagement(this);
-        //guardianMerchantListener;
+
+        for (String teamName : data().getTeams()) {
+            ChampionShopManager championShopManager = new ChampionShopManager(teamName);
+            championShopManagers.add(championShopManager);
+            championShopManager.start();
+        }
+
         //questListener;
         //// questTask = Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> handleQuests(), 15 * 60 * 20L, 5 * 60 * 20L);
 
@@ -65,7 +74,9 @@ public class MainGameManager implements Listener, ITriggerVisitor {
         blockScoreListener.stop();
         PlayerClassMechanicsHelper.getSingleton().disablePlayersClasses();
         PlayerDeathManager.getInstance().stop();
-        //guardianMerchantListener;
+        for (ChampionShopManager championShopManager : championShopManagers) {
+            championShopManager.stop();
+        }
         //questListener;
 
         isLaunched = false;

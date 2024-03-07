@@ -15,6 +15,10 @@ public class ShopView {
     private InventoryView inventoryView;
     private HashMap<RunOnPlayerCallback, GuiActionCallback> playerCallbackToGuiCallback = new HashMap<>();
 
+    public ShopView(String viewName, List<ShopItemController> shopItemControllers) {
+        inventoryView = new InventoryView(viewName, ConvertControllers(shopItemControllers));
+    }
+
     public void open(Player player) {
         inventoryView.openPlayerView(player);
     }
@@ -23,14 +27,24 @@ public class ShopView {
         inventoryView.closePlayerView(player);
     }
 
-    public void setItemControllerList(List<ShopItemController> shopItemControllers) {
+    public void resetItemControllerList(List<ShopItemController> shopItemControllers) {
+        List<IconController> itemControllers = ConvertControllers(shopItemControllers);
+        inventoryView.initializeFrom(itemControllers);
+    }
+
+    private List<IconController> ConvertControllers(List<ShopItemController> shopItemControllers) {
+        List<IconController> itemControllers = new ArrayList<>();
         int i = 0;
         for (ShopItemController shopItemController : shopItemControllers) {
             IconController iconController = new IconController(i++);
             iconController.setItemIcon(shopItemController.getRepresentation());
             iconController.setLeftClickCallback((Player p) -> shopItemController.getTryBuyOne().tryRunOnPlayer(p));
             iconController.setShiftClickCallback((Player p) -> shopItemController.getTryBuyAll().tryRunOnPlayer(p));
+
+            itemControllers.add(iconController);
         }
+
+        return itemControllers;
     }
 
     public void addPlayerCloseShopCallback(RunOnPlayerCallback closeShopActionCallback) {
