@@ -161,6 +161,9 @@ public class AssaultManager implements Listener {
             return;
         }
 
+        Location location = player.getLocation();
+        location = new Location(location.getWorld(), location.getX(), location.getWorld().getHighestBlockYAt(location), location.getZ());
+        player.teleport(location);
         player.setGameMode(GameMode.SURVIVAL);
     }
 
