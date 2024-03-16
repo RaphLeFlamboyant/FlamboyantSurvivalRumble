@@ -14,12 +14,11 @@ public class ChampionPower {
 
     public ChampionPower(ChampionPowerType championPowerType,
                          List<LevelDescription> levelDescriptions,
-                         int maxPowerLevel,
                          String powerName,
                          Material powerAppearance) {
         this.championPowerType = championPowerType;
         this.levelDescriptions = levelDescriptions;
-        this.maxPowerLevel = maxPowerLevel;
+        this.maxPowerLevel = levelDescriptions.size();
         this.powerName = powerName;
         this.powerAppearance = powerAppearance;
     }
