@@ -18,7 +18,7 @@ public class ChampionPower {
                          Material powerAppearance) {
         this.championPowerType = championPowerType;
         this.levelDescriptions = levelDescriptions;
-        this.maxPowerLevel = levelDescriptions.size();
+        this.maxPowerLevel = levelDescriptions.size() == 1 ? 1 : levelDescriptions.size() - 1;
         this.powerName = powerName;
         this.powerAppearance = powerAppearance;
     }

@@ -2,6 +2,7 @@ package me.flamboyant.survivalrumble.gamecontrollers.main.components;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.powers.ChampionPower;
+import me.flamboyant.survivalrumble.powers.ChampionPowerHelper;
 import me.flamboyant.survivalrumble.shop.ChampionPowerShop;
 import me.flamboyant.survivalrumble.shop.IMoneyManager;
 import me.flamboyant.survivalrumble.shop.TeamMoneyManager;
@@ -59,6 +60,6 @@ public class ChampionShopManager implements Listener {
     }
 
     private List<ChampionPower> generateChampionPowers() {
-
+        return ChampionPowerHelper.buildChampionPowerList();
     }
 }

@@ -2,20 +2,30 @@ package me.flamboyant.survivalrumble.gamecontrollers.assault;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
+import me.flamboyant.survivalrumble.utils.UsefulConstants;
 import me.flamboyant.utils.ChatHelper;
 import me.flamboyant.utils.Common;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockDispenseArmorEvent;
+import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AssaultManager implements Listener {
     private HashMap<Player, Location> playerLastLocation = new HashMap<>();
@@ -36,6 +46,7 @@ public class AssaultManager implements Listener {
     }
 
     public void start() {
+        Bukkit.getWorld(UsefulConstants.overworldName).setGameRule(GameRule.NATURAL_REGENERATION, false);
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
         for (String teamName : data.getTeams()) {
             Player champion = data.getTeamChampion(teamName);
@@ -61,13 +72,20 @@ public class AssaultManager implements Listener {
             }
         }
 
-        locationDefenderTask = Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> locationDefender(), 0, 20);
+        locationDefenderTask = Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> locationBasedActions(), 0, 20);
 
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
     public void stop() {
         Bukkit.getScheduler().cancelTask(locationDefenderTask.getTaskId());
+        EntityDamageEvent.getHandlerList().unregister(this);
+        PlayerInteractEvent.getHandlerList().unregister(this);
+        PlayerInteractEntityEvent.getHandlerList().unregister(this);
+        BlockDropItemEvent.getHandlerList().unregister(this);
+        BlockDispenseArmorEvent.getHandlerList().unregister(this);
+        InventoryClickEvent.getHandlerList().unregister(this);
+        PlayerItemDamageEvent.getHandlerList().unregister(this);
         //PlayerDeathListener.getInstance().stop();
     }
 
@@ -130,7 +148,73 @@ public class AssaultManager implements Listener {
         }
     }
 
-    private void locationDefender() {
+    private HashSet<Material> storingMaterial = Stream.of(Material.CHEST,
+                    Material.BARREL, Material.TRAPPED_CHEST, Material.DISPENSER,
+                    Material.DROPPER, Material.HOPPER, Material.ENDER_CHEST)
+            .collect(Collectors.toCollection(HashSet::new));
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (TeamHelper.getTeamHeadquarterName(event.getClickedBlock().getLocation()) == null)
+            return;
+
+        SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
+        if ((!storingMaterial.contains(event.getMaterial())
+                && !event.getMaterial().toString().contains("SHULKER_BOX"))
+         || ((event.getMaterial() == Material.ENCHANTING_TABLE || event.getMaterial().toString().contains("ANVIL"))
+                && data.getTeamChampion(data.getPlayerTeam(event.getPlayer())) != event.getPlayer()))
+            return;
+
+        event.setCancelled(true);
+    }
+
+    private HashSet<EntityType> storingEntity = Stream.of(EntityType.CHEST_BOAT,
+                    EntityType.MINECART_CHEST, EntityType.MINECART_HOPPER, EntityType.ITEM_FRAME,
+                    EntityType.GLOW_ITEM_FRAME)
+            .collect(Collectors.toCollection(HashSet::new));
+    @EventHandler
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        if (!storingEntity.contains(event.getRightClicked().getType())) return;
+        if (TeamHelper.getTeamHeadquarterName(event.getRightClicked().getLocation()) == null) return;
+
+        event.setCancelled(true);
+    }
+
+
+    @EventHandler
+    public void onBlockBreak(BlockDropItemEvent event) {
+        if (!storingMaterial.contains(event.getBlockState().getBlockData().getMaterial())
+                && !event.getBlockState().getBlockData().getMaterial().toString().contains("SHULKER_BOX"))
+            return;
+        if (TeamHelper.getTeamHeadquarterName(event.getBlockState().getLocation()) == null)
+            return;
+
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onBlockDispenseArmor(BlockDispenseArmorEvent event) {
+        if (TeamHelper.getTeamHeadquarterName(event.getTargetEntity().getLocation()) == null) return;
+
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (event.getSlotType() != InventoryType.SlotType.ARMOR) return;
+        if (event.getWhoClicked().getType() != EntityType.PLAYER) return;
+        Player player = (Player) event.getWhoClicked();
+        SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
+        if (data.getTeamChampion(data.getPlayerTeam(player)) != player) return;
+
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerItemDamage(PlayerItemDamageEvent event) {
+        event.setDamage(0);
+    }
+
+    private void locationBasedActions() {
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
         for (String teamName : data.getTeams()) {
             Player champion = data.getTeamChampion(teamName);
@@ -138,6 +222,10 @@ public class AssaultManager implements Listener {
                 playerLastLocation.put(champion, champion.getLocation());
             } else {
                 champion.teleport(playerLastLocation.get(champion));
+            }
+
+            if (champion.getLocation().getBlockY() < 64) {
+                champion.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 100, 1));
             }
 
             for (Player player : data.getPlayers(teamName)) {
