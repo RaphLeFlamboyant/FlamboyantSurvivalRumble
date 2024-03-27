@@ -1,10 +1,11 @@
-package me.flamboyant.survivalrumble.powers;
+package me.flamboyant.survivalrumble.powers.shop;
 
+import me.flamboyant.survivalrumble.powers.ChampionPowerType;
 import org.bukkit.Material;
 
 import java.util.List;
 
-public class ChampionPower {
+public class ChampionPowerShopItem {
     private ChampionPowerType championPowerType;
     private int currentPowerLevel;
     private int maxPowerLevel;
@@ -12,10 +13,10 @@ public class ChampionPower {
     private Material powerAppearance;
     private List<LevelDescription> levelDescriptions;
 
-    public ChampionPower(ChampionPowerType championPowerType,
-                         List<LevelDescription> levelDescriptions,
-                         String powerName,
-                         Material powerAppearance) {
+    public ChampionPowerShopItem(ChampionPowerType championPowerType,
+                                 List<LevelDescription> levelDescriptions,
+                                 String powerName,
+                                 Material powerAppearance) {
         this.championPowerType = championPowerType;
         this.levelDescriptions = levelDescriptions;
         this.maxPowerLevel = levelDescriptions.size() == 1 ? 1 : levelDescriptions.size() - 1;

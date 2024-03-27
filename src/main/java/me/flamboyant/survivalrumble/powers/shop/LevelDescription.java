@@ -1,4 +1,4 @@
-package me.flamboyant.survivalrumble.powers;
+package me.flamboyant.survivalrumble.powers.shop;
 
 import java.util.List;
 

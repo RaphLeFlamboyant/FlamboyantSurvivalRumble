@@ -1,11 +1,9 @@
 package me.flamboyant.survivalrumble.gamecontrollers.setup;
 
-import me.flamboyant.configurable.gui.ParameterUtils;
+import me.flamboyant.configurable.gui.ParameterView;
 import me.flamboyant.configurable.parameters.AParameter;
 import me.flamboyant.configurable.parameters.EnumParameter;
 import me.flamboyant.configurable.parameters.IntParameter;
-import me.flamboyant.gui.view.builder.ItemGroupingMode;
-import me.flamboyant.gui.view.common.InventoryGui;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.utils.ChatColors;
 import me.flamboyant.survivalrumble.utils.ITriggerVisitor;
@@ -35,11 +33,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class SetupListener implements IParametrable, Listener {
+public class SetupListener implements Listener {
     private static SetupListener instance;
     private ITriggerVisitor visitor;
     private TeamHQParametersView hqParameters;
-    private InventoryGui parametersSelectionView;
+    private ParameterView parametersSelectionView;
     private HashMap<Player, String> playersTeam = new HashMap<>();
     private EnumParameter<StartStuffKind> stuffParameter;
     private IntParameter timeParameter;
@@ -58,13 +56,16 @@ public class SetupListener implements IParametrable, Listener {
     public void launch(Player opPlayer, ITriggerVisitor visitor) {
         this.visitor = visitor;
 
+        stuffParameter = new EnumParameter<>(Material.IRON_SWORD, "Stuff de départ", "Stuff de départ", StartStuffKind.class);
+        timeParameter = new IntParameter(Material.CLOCK, "Durée avant final", "En quarts d'heure", 2, 32, 16);
+
         opPlayer.getInventory().clear();
         opPlayer.getInventory().setItem(0, getParametersItem());
         opPlayer.getInventory().setItem(1, getTeamHQItem());
         opPlayer.getInventory().setItem(5, getLaunchItem());
         opPlayer.getInventory().setItem(8, getCancelItem());
 
-        parametersSelectionView = ParameterUtils.createParametersGui(this, ItemGroupingMode.PARTED, false);
+        parametersSelectionView = new ParameterView(Arrays.asList(stuffParameter, timeParameter));
 
         for (Player player : Common.server.getOnlinePlayers()) {
             player.getPlayer().getInventory().clear();
@@ -89,7 +90,7 @@ public class SetupListener implements IParametrable, Listener {
                     event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK);
         }
         else if (ItemHelper.isExactlySameItemKind(event.getItem(), getParametersItem())) {
-            parametersSelectionView.open(event.getPlayer());
+            parametersSelectionView.openPlayerView(event.getPlayer());
         } else if (ItemHelper.isExactlySameItemKind(event.getItem(), getTeamHQItem())) {
             Inventory teamHQView = hqParameters.getViewInstance();
             event.getPlayer().openInventory(teamHQView);
@@ -134,17 +135,6 @@ public class SetupListener implements IParametrable, Listener {
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         event.setCancelled(true);
-    }
-
-    @Override
-    public void resetParameters() {
-        stuffParameter = new EnumParameter<>(Material.IRON_SWORD, "Stuff de départ", "Stuff de départ", StartStuffKind.class);
-        timeParameter = new IntParameter(Material.CLOCK, "Durée avant final", "En quarts d'heure", 2, 32, 16);
-    }
-
-    @Override
-    public List<AParameter> getParameters() {
-        return Arrays.asList(stuffParameter, timeParameter);
     }
 
     private void changePlayerTeam(Player player, String teamColor, boolean goForward) {

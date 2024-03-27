@@ -18,18 +18,38 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AssaultManager implements Listener {
+    private HashSet<Material> storingMaterial = Stream.of(Material.CHEST,
+                    Material.BARREL, Material.TRAPPED_CHEST, Material.DISPENSER,
+                    Material.DROPPER, Material.HOPPER, Material.ENDER_CHEST)
+            .collect(Collectors.toCollection(HashSet::new));
+    private HashSet<Material> armorEquipmentMaterials = Stream.of(Material.LEATHER_CHESTPLATE, Material.LEATHER_BOOTS,
+                    Material.LEATHER_HELMET, Material.LEATHER_LEGGINGS, Material.GOLDEN_CHESTPLATE, Material.GOLDEN_BOOTS,
+                    Material.GOLDEN_HELMET, Material.GOLDEN_LEGGINGS, Material.CHAINMAIL_CHESTPLATE, Material.CHAINMAIL_BOOTS,
+                    Material.CHAINMAIL_HELMET, Material.CHAINMAIL_LEGGINGS, Material.DIAMOND_CHESTPLATE, Material.DIAMOND_BOOTS,
+                    Material.DIAMOND_HELMET, Material.DIAMOND_LEGGINGS, Material.NETHERITE_CHESTPLATE, Material.NETHERITE_BOOTS,
+                    Material.NETHERITE_HELMET, Material.NETHERITE_LEGGINGS, Material.TURTLE_HELMET, Material.ELYTRA)
+            .collect(Collectors.toCollection(HashSet::new));
+    private HashSet<EntityType> storingEntity = Stream.of(EntityType.CHEST_BOAT,
+                    EntityType.MINECART_CHEST, EntityType.MINECART_HOPPER, EntityType.ITEM_FRAME,
+                    EntityType.GLOW_ITEM_FRAME)
+            .collect(Collectors.toCollection(HashSet::new));
+
     private HashMap<Player, Location> playerLastLocation = new HashMap<>();
     private HashMap<String, Location> assaultSpawnByTeamTarget = new HashMap<>();
+    private List<IAssaultStepListener> assaultStepListeners = new ArrayList<>();
     private BukkitTask locationDefenderTask;
 
     private static AssaultManager instance;
@@ -86,7 +106,15 @@ public class AssaultManager implements Listener {
         BlockDispenseArmorEvent.getHandlerList().unregister(this);
         InventoryClickEvent.getHandlerList().unregister(this);
         PlayerItemDamageEvent.getHandlerList().unregister(this);
-        //PlayerDeathListener.getInstance().stop();
+        PlayerPortalEvent.getHandlerList().unregister(this);
+    }
+
+    public void addListener(IAssaultStepListener assaultStepListener) {
+        assaultStepListeners.add(assaultStepListener);
+    }
+
+    public void removeListener(IAssaultStepListener assaultStepListener) {
+        assaultStepListeners.remove(assaultStepListener);
     }
 
     @EventHandler
@@ -122,6 +150,7 @@ public class AssaultManager implements Listener {
                 }
 
                 stop();
+                return;
             }
 
             for (Player player : data.getPlayers(teamName)) {
@@ -133,9 +162,9 @@ public class AssaultManager implements Listener {
             String targetTeam = data.getTeamTargetTeam(teamName);
             Location spawnPoint = assaultSpawnByTeamTarget.get(targetTeam);
 
+            String assaultTeam = data.getTeamAssaultTeam(teamName);
             data.removeTeam(teamName);
 
-            String assaultTeam = data.getTeamAssaultTeam(teamName);
             for (Player player : data.getPlayers(assaultTeam)) {
                 if (player == data.getTeamChampion(teamName))
                     continue;
@@ -145,32 +174,41 @@ public class AssaultManager implements Listener {
                 playerLastLocation.put(player, spawnPoint);
                 Bukkit.getScheduler().runTaskLater(Common.plugin, () -> countdownPlayer(10, player), 0);
             }
+
+            for (var assaultListener : assaultStepListeners) {
+                assaultListener.onTeamEliminated();
+            }
         }
     }
 
-    private HashSet<Material> storingMaterial = Stream.of(Material.CHEST,
-                    Material.BARREL, Material.TRAPPED_CHEST, Material.DISPENSER,
-                    Material.DROPPER, Material.HOPPER, Material.ENDER_CHEST)
-            .collect(Collectors.toCollection(HashSet::new));
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
+        onPlayerInteractTriggeredOnForbiddenBloc(event);
+        onPlayerInteractWithForbiddenItem(event);
+    }
+
+    private void onPlayerInteractTriggeredOnForbiddenBloc(PlayerInteractEvent event) {
         if (TeamHelper.getTeamHeadquarterName(event.getClickedBlock().getLocation()) == null)
             return;
-
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
         if ((!storingMaterial.contains(event.getMaterial())
                 && !event.getMaterial().toString().contains("SHULKER_BOX"))
-         || ((event.getMaterial() == Material.ENCHANTING_TABLE || event.getMaterial().toString().contains("ANVIL"))
+                || ((event.getMaterial() == Material.ENCHANTING_TABLE || event.getMaterial().toString().contains("ANVIL"))
                 && data.getTeamChampion(data.getPlayerTeam(event.getPlayer())) != event.getPlayer()))
             return;
 
         event.setCancelled(true);
     }
 
-    private HashSet<EntityType> storingEntity = Stream.of(EntityType.CHEST_BOAT,
-                    EntityType.MINECART_CHEST, EntityType.MINECART_HOPPER, EntityType.ITEM_FRAME,
-                    EntityType.GLOW_ITEM_FRAME)
-            .collect(Collectors.toCollection(HashSet::new));
+    private void onPlayerInteractWithForbiddenItem(PlayerInteractEvent event) {
+        SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
+
+        if (!armorEquipmentMaterials.contains(event.getMaterial())) return;
+        if (data.getTeamChampion(data.getPlayerTeam(event.getPlayer())) != event.getPlayer()) return;
+
+        event.setCancelled(true);
+    }
+
     @EventHandler
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
         if (!storingEntity.contains(event.getRightClicked().getType())) return;
@@ -178,7 +216,6 @@ public class AssaultManager implements Listener {
 
         event.setCancelled(true);
     }
-
 
     @EventHandler
     public void onBlockBreak(BlockDropItemEvent event) {
@@ -212,6 +249,15 @@ public class AssaultManager implements Listener {
     @EventHandler
     public void onPlayerItemDamage(PlayerItemDamageEvent event) {
         event.setDamage(0);
+    }
+
+    @EventHandler
+    public void onPlayerPortal(PlayerPortalEvent event) {
+        SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
+
+        if (data.getTeamChampion(data.getPlayerTeam(event.getPlayer())) != event.getPlayer()) return;
+
+        event.setCancelled(true);
     }
 
     private void locationBasedActions() {

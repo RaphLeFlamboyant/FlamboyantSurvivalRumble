@@ -1,10 +1,9 @@
 package me.flamboyant.survivalrumble.gamecontrollers.main.components;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
-import me.flamboyant.survivalrumble.powers.ChampionPower;
-import me.flamboyant.survivalrumble.powers.ChampionPowerHelper;
+import me.flamboyant.survivalrumble.powers.shop.ChampionPowerShopItem;
+import me.flamboyant.survivalrumble.powers.shop.ChampionPowerHelper;
 import me.flamboyant.survivalrumble.shop.ChampionPowerShop;
-import me.flamboyant.survivalrumble.shop.IMoneyManager;
 import me.flamboyant.survivalrumble.shop.TeamMoneyManager;
 import me.flamboyant.survivalrumble.views.shop.ShopView;
 import me.flamboyant.utils.Common;
@@ -22,18 +21,18 @@ public class ChampionShopManager implements Listener {
     private String teamName;
     private ChampionPowerShop championPowerShop;
     private ShopView shopView;
-    private List<ChampionPower> championPowers;
+    private List<ChampionPowerShopItem> championPowerShopItems;
 
     public ChampionShopManager(String teamName) {
         this.teamName = teamName;
     }
 
     public void start() {
-        championPowers = generateChampionPowers();
+        championPowerShopItems = generateChampionPowers();
 
         championPowerShop = new ChampionPowerShop(TeamMoneyManager.getInstance());
-        for (ChampionPower championPower : championPowers) {
-            championPowerShop.addChampionPowerToShop(championPower);
+        for (ChampionPowerShopItem championPowerShopItem : championPowerShopItems) {
+            championPowerShop.addChampionPowerToShop(championPowerShopItem);
         }
 
         shopView = new ShopView("Pouvoirs du champion", championPowerShop.getAllShopItemControllers());
@@ -59,7 +58,7 @@ public class ChampionShopManager implements Listener {
         shopView.open(player);
     }
 
-    private List<ChampionPower> generateChampionPowers() {
+    private List<ChampionPowerShopItem> generateChampionPowers() {
         return ChampionPowerHelper.buildChampionPowerList();
     }
 }

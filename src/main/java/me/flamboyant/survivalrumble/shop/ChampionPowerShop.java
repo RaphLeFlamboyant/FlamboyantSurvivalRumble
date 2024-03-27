@@ -1,7 +1,7 @@
 package me.flamboyant.survivalrumble.shop;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
-import me.flamboyant.survivalrumble.powers.ChampionPower;
+import me.flamboyant.survivalrumble.powers.shop.ChampionPowerShopItem;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -15,7 +15,7 @@ import java.util.List;
 public class ChampionPowerShop {
     private IMoneyManager moneyManager;
 
-    private HashMap<ShopItem, ChampionPower> shopItemToChampionPower = new HashMap<>();
+    private HashMap<ShopItem, ChampionPowerShopItem> shopItemToChampionPower = new HashMap<>();
 
     public ChampionPowerShop(IMoneyManager moneyManager) {
         this.moneyManager = moneyManager;
@@ -27,10 +27,10 @@ public class ChampionPowerShop {
         shopChangesListeners.add(shopChangesListener);
     }
 
-    public void addChampionPowerToShop(ChampionPower championPower) {
-        ShopItem shopItem = generateShopItem(championPower);
+    public void addChampionPowerToShop(ChampionPowerShopItem championPowerShopItem) {
+        ShopItem shopItem = generateShopItem(championPowerShopItem);
 
-        shopItemToChampionPower.put(shopItem, championPower);
+        shopItemToChampionPower.put(shopItem, championPowerShopItem);
 
         for(IShopChangesListener shopChangesListener : shopChangesListeners) {
             shopChangesListener.ItemAdded(shopItem);
@@ -43,20 +43,20 @@ public class ChampionPowerShop {
         for (ShopItem shopItem : shopItemToChampionPower.keySet()) {
             ShopItemController controller = new ShopItemController();
 
-            ChampionPower championPower = shopItemToChampionPower.get(shopItem);
-            ItemStack itemStack = new ItemStack(championPower.getPowerAppearance());
+            ChampionPowerShopItem championPowerShopItem = shopItemToChampionPower.get(shopItem);
+            ItemStack itemStack = new ItemStack(championPowerShopItem.getPowerAppearance());
 
             ItemMeta meta = itemStack.getItemMeta();
-            if (championPower.hasReachedMaxLevel()) {
+            if (championPowerShopItem.hasReachedMaxLevel()) {
                 meta.addEnchant(Enchantment.ARROW_FIRE, 1, true);
                 meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-                itemStack.setAmount(championPower.getCurrentPowerLevel());
+                itemStack.setAmount(championPowerShopItem.getCurrentPowerLevel());
             }
             else {
-                itemStack.setAmount(championPower.getCurrentPowerLevel() + 1);
+                itemStack.setAmount(championPowerShopItem.getCurrentPowerLevel() + 1);
             }
-            meta.setDisplayName(championPower.getPowerName());
-            meta.setLore(championPower.getDescription());
+            meta.setDisplayName(championPowerShopItem.getPowerName());
+            meta.setLore(championPowerShopItem.getDescription());
             itemStack.setItemMeta(meta);
 
             controller.setRepresentation(itemStack);
@@ -70,16 +70,16 @@ public class ChampionPowerShop {
     }
 
     private boolean tryBuyPower(ShopItem shopItem, Player player) {
-        ChampionPower championPower = shopItemToChampionPower.get(shopItem);
+        ChampionPowerShopItem championPowerShopItem = shopItemToChampionPower.get(shopItem);
 
-        if (championPower.hasReachedMaxLevel()) return false;
-        if (!moneyManager.trySpendMoney(player, championPower.getPrice())) return false;
+        if (championPowerShopItem.hasReachedMaxLevel()) return false;
+        if (!moneyManager.trySpendMoney(player, championPowerShopItem.getPrice())) return false;
 
-        championPower.levelUp();
+        championPowerShopItem.levelUp();
 
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
         String teamName = data.getPlayerTeam(player);
-        data.setChampionPowerTypeLevel(teamName, championPower.getChampionPowerType(), championPower.getCurrentPowerLevel());
+        data.setChampionPowerTypeLevel(teamName, championPowerShopItem.getChampionPowerType(), championPowerShopItem.getCurrentPowerLevel());
 
         for(IShopChangesListener shopChangesListener : shopChangesListeners) {
             shopChangesListener.ItemUpdated(shopItem);
@@ -88,9 +88,9 @@ public class ChampionPowerShop {
         return true;
     }
 
-    private ShopItem generateShopItem(ChampionPower championPower) {
+    private ShopItem generateShopItem(ChampionPowerShopItem championPowerShopItem) {
         ShopItem shopItem = new ShopItem();
-        shopItem.setItemName(championPower.getPowerName());
+        shopItem.setItemName(championPowerShopItem.getPowerName());
         return shopItem;
     }
 }
