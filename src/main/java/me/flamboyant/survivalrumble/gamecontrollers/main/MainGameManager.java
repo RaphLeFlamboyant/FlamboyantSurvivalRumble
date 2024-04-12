@@ -6,8 +6,13 @@ import me.flamboyant.survivalrumble.gamecontrollers.main.components.*;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.PlayerDeathManager;
 import me.flamboyant.survivalrumble.utils.ITriggerVisitor;
 import me.flamboyant.utils.ChatHelper;
+import me.flamboyant.utils.Common;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
@@ -63,6 +68,8 @@ public class MainGameManager implements Listener, ITriggerVisitor {
         //// questTask = Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> handleQuests(), 15 * 60 * 20L, 5 * 60 * 20L);
 
         isLaunched = true;
+
+        Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
     public void stop() {
@@ -80,6 +87,8 @@ public class MainGameManager implements Listener, ITriggerVisitor {
         //questListener;
 
         isLaunched = false;
+
+        PlayerJoinEvent.getHandlerList().unregister(this);
     }
     /*
     private void handleQuests() {
@@ -95,5 +104,13 @@ public class MainGameManager implements Listener, ITriggerVisitor {
     public void onAction() {
         stop();
         AssaultManager.getInstance().start();
+    }
+
+    @EventHandler
+    public void onPlayerConnects(PlayerJoinEvent event) {
+        var player = event.getPlayer();
+        if (SurvivalRumbleData.getSingleton().getPlayerTeam(player) != null) return;
+
+        player.setGameMode(GameMode.SPECTATOR);
     }
 }

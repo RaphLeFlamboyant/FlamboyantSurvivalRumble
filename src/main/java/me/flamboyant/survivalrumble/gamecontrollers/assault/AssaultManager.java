@@ -20,10 +20,7 @@ import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemDamageEvent;
-import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
@@ -119,6 +116,7 @@ public class AssaultManager implements Listener {
         InventoryClickEvent.getHandlerList().unregister(this);
         PlayerItemDamageEvent.getHandlerList().unregister(this);
         PlayerPortalEvent.getHandlerList().unregister(this);
+        PlayerJoinEvent.getHandlerList().unregister(this);
     }
 
     public void addListener(IAssaultStepListener assaultStepListener) {
@@ -276,6 +274,14 @@ public class AssaultManager implements Listener {
         if (data.getTeamChampion(data.getPlayerTeam(event.getPlayer())) != event.getPlayer()) return;
 
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerConnects(PlayerJoinEvent event) {
+        var player = event.getPlayer();
+        if (SurvivalRumbleData.getSingleton().getPlayerTeam(player) != null) return;
+
+        player.setGameMode(GameMode.SPECTATOR);
     }
 
     private void locationBasedActions() {

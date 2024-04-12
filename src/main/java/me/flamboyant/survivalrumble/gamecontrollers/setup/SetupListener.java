@@ -11,6 +11,7 @@ import me.flamboyant.survivalrumble.utils.TeamHelper;
 import me.flamboyant.survivalrumble.views.TeamHQParametersView;
 import me.flamboyant.utils.*;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -24,6 +25,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -71,13 +73,7 @@ public class SetupListener implements Listener {
         parametersSelectionView = new ParameterView(Arrays.asList(stuffParameter, timeParameter));
 
         for (Player player : Common.server.getOnlinePlayers()) {
-            player.getPlayer().getInventory().clear();
-            String team = TeamHelper.teamNames.get(0);
-            playersTeam.put(player, TeamHelper.teamNames.get(0));
-            ItemStack item = ItemHelper.generateItem(TeamHelper.getTeamBannerMaterial(team), 1, "Equipe " + team, new ArrayList<>(), false, null, false, true);
-            player.getPlayer().getInventory().setItem(2, item);
-            item = ItemHelper.generateItem(Material.RED_WOOL, 1, "Pas Capitaine", Arrays.asList("Clique pour demander", "à devenir capitaine"), false, null, true, true);
-            player.getPlayer().getInventory().setItem(3, item);
+            giveNonAdminPlayerItems(player);
         }
 
         hqParameters = new TeamHQParametersView();
@@ -143,6 +139,23 @@ public class SetupListener implements Listener {
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerConnects(PlayerJoinEvent event) {
+        var player = event.getPlayer();
+
+        giveNonAdminPlayerItems(player);
+    }
+
+    private void giveNonAdminPlayerItems(Player player) {
+        player.getPlayer().getInventory().clear();
+        String team = TeamHelper.teamNames.get(0);
+        playersTeam.put(player, TeamHelper.teamNames.get(0));
+        ItemStack item = ItemHelper.generateItem(TeamHelper.getTeamBannerMaterial(team), 1, "Equipe " + team, new ArrayList<>(), false, null, false, true);
+        player.getPlayer().getInventory().setItem(2, item);
+        item = ItemHelper.generateItem(Material.RED_WOOL, 1, "Pas Capitaine", Arrays.asList("Clique pour demander", "à devenir capitaine"), false, null, true, true);
+        player.getPlayer().getInventory().setItem(3, item);
     }
 
     private void changePlayerTeam(Player player, String teamColor, boolean goForward) {
@@ -253,6 +266,7 @@ public class SetupListener implements Listener {
         BlockPlaceEvent.getHandlerList().unregister(this);
         BlockDamageEvent.getHandlerList().unregister(this);
         EntityDamageByEntityEvent.getHandlerList().unregister(this);
+        PlayerJoinEvent.getHandlerList().unregister(this);
     }
 
     public static ItemStack getTeamHQItem() {
