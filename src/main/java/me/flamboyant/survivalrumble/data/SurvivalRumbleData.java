@@ -104,6 +104,18 @@ public class SurvivalRumbleData {
         return null;
     }
 
+    public List<Player> getAttackingPlayers(Player defendingChampion) {
+        var teamName = getPlayerTeam(defendingChampion);
+        var assaultTeamName = getTeamAssaultTeam(teamName);
+        var assaultTeamChampion = getTeamChampion(assaultTeamName);
+
+        return playersByTeam.get(assaultTeamName)
+                .stream()
+                .map(i -> Common.server.getPlayer(i))
+                .filter(p -> p != assaultTeamChampion)
+                .collect(Collectors.toList());
+    }
+
     public void removeTeam(String teamName) {
         teams.remove(teamName);
         playersByTeam.remove(teamName);
