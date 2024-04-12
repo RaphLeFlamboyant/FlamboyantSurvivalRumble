@@ -1,5 +1,6 @@
 package me.flamboyant.survivalrumble.gamecontrollers.launch;
 
+import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.gamecontrollers.classselection.ClassSelectionListener;
@@ -88,7 +89,7 @@ public class GameLauncher implements ITriggerVisitor, IClassSelectionVisitor {
 
             String team = SurvivalRumbleData.getSingleton().getPlayerTeam(player);
             sbl.getTeam(team).addPlayer(player);
-            ScoreHelper.addScore(team, playerClass.getScoreMalus());
+            GameManager.getInstance().addAddMoney(team, playerClass.getScoreMalus());
         }
 
         Bukkit.getScheduler().runTaskLater(Common.plugin, () -> launchOnCountdown(5), 20);

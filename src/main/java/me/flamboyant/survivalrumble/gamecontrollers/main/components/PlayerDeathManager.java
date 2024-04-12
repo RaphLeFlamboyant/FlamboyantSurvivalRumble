@@ -123,6 +123,7 @@ public class PlayerDeathManager implements Listener, WorkflowVisitor<DeathWorkfl
         List<ItemStack> eventItemDrops = event.getDrops();
         List<ItemStack> keptItems = new ArrayList<>();
 
+
         for (ItemStack item : eventItemDrops) {
             keptItems.add(item.clone());
         }
