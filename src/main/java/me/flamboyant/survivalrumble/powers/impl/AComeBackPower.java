@@ -20,11 +20,14 @@ public abstract class AComeBackPower implements IChampionPower, Listener {
         hasAlreadyBeenUsed = false;
 
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
+
+        onActivate();
     }
 
     @Override
     public void deactivate() {
         EntityDamageEvent.getHandlerList().unregister(this);
+        onDeactivate();
     }
 
     @EventHandler
@@ -44,6 +47,7 @@ public abstract class AComeBackPower implements IChampionPower, Listener {
         hasAlreadyBeenUsed = true;
     }
 
+    protected void onActivate() {}
     protected void onDeactivate() {}
 
     protected abstract void onPowerTriggered();

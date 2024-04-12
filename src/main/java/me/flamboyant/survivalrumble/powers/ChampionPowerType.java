@@ -14,7 +14,7 @@ public enum ChampionPowerType {
     EFFECT_WATER_BREATHING,
 
     MOB_FRIEND,
-    ENNEMY_DETECTION,
+    ENEMIES_DETECTION,
     NO_FALL_DAMAGE,
 
     SPELL_SCREAM,

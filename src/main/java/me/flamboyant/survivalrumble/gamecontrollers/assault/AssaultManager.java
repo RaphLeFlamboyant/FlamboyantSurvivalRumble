@@ -94,6 +94,8 @@ public class AssaultManager implements Listener {
 
         locationDefenderTask = Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> locationBasedActions(), 0, 20);
 
+        ChampionPowerManager.getInstance().activateChampionsPowers();
+
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
@@ -138,6 +140,7 @@ public class AssaultManager implements Listener {
         }
         else {
             if (data.getTeams().size() == 2) {
+                ChampionPowerManager.getInstance().deactivateAllAndReset();
                 data.removeTeam(teamName);
                 Bukkit.broadcastMessage(ChatHelper.importantMessage("L'équipe " + teamName + " est éliminée !"));
                 String winTeamName = data.getTeams().get(0);
@@ -153,6 +156,7 @@ public class AssaultManager implements Listener {
                 return;
             }
 
+            ChampionPowerManager.getInstance().deactivateChampionPowers(data.getTeamChampion(teamName));
             for (Player player : data.getPlayers(teamName)) {
                 player.setGameMode(GameMode.SPECTATOR);
             }

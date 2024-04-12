@@ -1,14 +1,28 @@
 package me.flamboyant.survivalrumble.powers.impl;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
+import me.flamboyant.survivalrumble.gamecontrollers.assault.IAssaultStepListener;
 import me.flamboyant.utils.Common;
 import org.bukkit.Bukkit;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
-public class BalanceComeBackPower extends AComeBackPower {
+import java.util.ArrayList;
+import java.util.List;
+
+public class BalanceComeBackPower extends AComeBackPower implements IAssaultStepListener {
     private BukkitTask poisonTask;
+    private List<Player> assaultPlayers = new ArrayList<>();
+
+    @Override
+    public void onTeamEliminated() {
+        refreshAssaultPlayers();
+    }
+
+    @Override
+    protected void onActivate() {
+        refreshAssaultPlayers();
+    }
 
     @Override
     protected void onDeactivate() {
@@ -28,9 +42,12 @@ public class BalanceComeBackPower extends AComeBackPower {
     }
 
     private void damageAssaultPlayers() {
-        var players = SurvivalRumbleData.getSingleton().getAttackingPlayers(powerOwner);
-        for (Player player : players) {
+        for (Player player : assaultPlayers) {
             player.setHealth(player.getHealth() - 1);
         }
+    }
+
+    private void refreshAssaultPlayers() {
+        assaultPlayers = SurvivalRumbleData.getSingleton().getAttackingPlayers(powerOwner);
     }
 }
