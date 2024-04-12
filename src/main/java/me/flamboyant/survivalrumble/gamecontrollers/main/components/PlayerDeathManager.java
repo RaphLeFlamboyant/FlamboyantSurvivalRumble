@@ -123,6 +123,7 @@ public class PlayerDeathManager implements Listener, WorkflowVisitor<DeathWorkfl
         List<ItemStack> eventItemDrops = event.getDrops();
         List<ItemStack> keptItems = new ArrayList<>();
 
+        PlayerClassMechanicsHelper.getSingleton().disablePlayerClass(event.getEntity().getUniqueId());
 
         for (ItemStack item : eventItemDrops) {
             keptItems.add(item.clone());
@@ -167,6 +168,7 @@ public class PlayerDeathManager implements Listener, WorkflowVisitor<DeathWorkfl
             deathWorld.dropItem(deathWorkflowData.deathLocation, item);
         }
 
+        PlayerClassMechanicsHelper.getSingleton().enablePlayerClass(player.getUniqueId());
         DeathWorkflowOrchestrator.getInstance().onEventTriggered(DeathWorkflowEventType.RESPAWN, deathWorkflowData);
     }
 }

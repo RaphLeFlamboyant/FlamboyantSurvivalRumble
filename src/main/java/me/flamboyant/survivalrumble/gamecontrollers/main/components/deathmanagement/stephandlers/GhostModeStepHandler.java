@@ -1,6 +1,7 @@
 package me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.stephandlers;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
+import me.flamboyant.survivalrumble.gamecontrollers.main.PlayerClassMechanicsHelper;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.DeathWorkflowData;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowEventType;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowOrchestrator;
@@ -63,6 +64,7 @@ public class GhostModeStepHandler implements WorkflowVisitor<DeathWorkflowStepTy
                 playerToPendingDeathWorkflowData.remove(player);
 
                 player.setGameMode(GameMode.SURVIVAL);
+                PlayerClassMechanicsHelper.getSingleton().enablePlayerClass(player.getUniqueId());
                 DeathWorkflowOrchestrator.getInstance().onEventTriggered(DeathWorkflowEventType.END_OF_GHOST_MODE, deathWorkflowData);
                 return;
             }
