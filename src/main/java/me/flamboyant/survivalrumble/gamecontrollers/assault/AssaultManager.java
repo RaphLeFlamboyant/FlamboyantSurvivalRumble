@@ -6,6 +6,11 @@ import me.flamboyant.survivalrumble.utils.UsefulConstants;
 import me.flamboyant.utils.ChatHelper;
 import me.flamboyant.utils.Common;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarFlag;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -51,6 +56,7 @@ public class AssaultManager implements Listener {
     private HashMap<String, Location> assaultSpawnByTeamTarget = new HashMap<>();
     private List<IAssaultStepListener> assaultStepListeners = new ArrayList<>();
     private BukkitTask locationDefenderTask;
+    private HashMap<String, BossBar> teamNameToChampionBar = new HashMap<>();
 
     private static AssaultManager instance;
     protected AssaultManager() {
@@ -73,6 +79,7 @@ public class AssaultManager implements Listener {
             Location teamHq = data.getHeadquarterLocation(teamName);
 
             champion.closeInventory();
+            resetPlayerState(champion);
             champion.setGameMode(GameMode.SPECTATOR);
             champion.teleport(teamHq);
             playerLastLocation.put(champion, teamHq);
@@ -86,6 +93,7 @@ public class AssaultManager implements Listener {
             for (Player player : data.getPlayers(teamName)) {
                 if (player == champion) continue;
 
+                resetPlayerState(player);
                 player.setGameMode(GameMode.SPECTATOR);
                 player.teleport(spawnPoint);
                 playerLastLocation.put(player, spawnPoint);
@@ -96,6 +104,7 @@ public class AssaultManager implements Listener {
         locationDefenderTask = Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> locationBasedActions(), 0, 20);
 
         ChampionPowerManager.getInstance().activateChampionsPowers();
+        createBossBars();
 
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
@@ -142,6 +151,7 @@ public class AssaultManager implements Listener {
         else {
             if (data.getTeams().size() == 2) {
                 ChampionPowerManager.getInstance().deactivateAllAndReset();
+                deactivateBossBars();
                 data.removeTeam(teamName);
                 Bukkit.broadcastMessage(ChatHelper.importantMessage("L'équipe " + teamName + " est éliminée !"));
                 String winTeamName = data.getTeams().get(0);
@@ -183,6 +193,9 @@ public class AssaultManager implements Listener {
             for (var assaultListener : assaultStepListeners) {
                 assaultListener.onTeamEliminated();
             }
+
+            deactivateBossBars();
+            createBossBars();
         }
     }
 
@@ -313,6 +326,43 @@ public class AssaultManager implements Listener {
         player.setFireTicks(0);
         for (PotionEffect effect : player.getActivePotionEffects()) {
             player.removePotionEffect(effect.getType());
+        }
+    }
+
+    private BukkitTask bossBarsRefreshTask;
+    private void createBossBars() {
+        var data = SurvivalRumbleData.getSingleton();
+
+        for (var teamName : data.getTeams()) {
+            var champion = data.getTeamChampion(teamName);
+            var bar = Bukkit.createBossBar(champion.getDisplayName(), BarColor.RED, BarStyle.SEGMENTED_20, BarFlag.PLAY_BOSS_MUSIC);
+            teamNameToChampionBar.put(teamName, bar);
+
+            for (Player player : data.getAttackingPlayers(champion)) {
+                bar.addPlayer(player);
+            }
+
+            bar.setVisible(true);
+        }
+
+        bossBarsRefreshTask = Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> refreshBossBars(), 20, 20);
+    }
+
+    private void deactivateBossBars() {
+        for (var bar : teamNameToChampionBar.values()) {
+            bar.setVisible(false);
+            bar.removeAll();
+        }
+
+        teamNameToChampionBar.clear();
+        Bukkit.getScheduler().cancelTask(bossBarsRefreshTask.getTaskId());
+    }
+
+    private void refreshBossBars() {
+        for (String teamName : teamNameToChampionBar.keySet()) {
+            var champion = SurvivalRumbleData.getSingleton().getTeamChampion(teamName);
+
+            teamNameToChampionBar.get(teamName).setProgress(champion.getHealth() / champion.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
         }
     }
 }
