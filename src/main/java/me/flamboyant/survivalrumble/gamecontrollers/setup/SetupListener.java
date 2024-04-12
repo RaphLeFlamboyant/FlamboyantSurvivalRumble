@@ -42,6 +42,8 @@ public class SetupListener implements Listener {
     private EnumParameter<StartStuffKind> stuffParameter;
     private IntParameter timeParameter;
 
+    private List<Player> claimingCaptainPlayers = new ArrayList<>();
+
     protected SetupListener() {
     }
 
@@ -55,6 +57,7 @@ public class SetupListener implements Listener {
 
     public void launch(Player opPlayer, ITriggerVisitor visitor) {
         this.visitor = visitor;
+        claimingCaptainPlayers.clear();
 
         stuffParameter = new EnumParameter<>(Material.IRON_SWORD, "Stuff de départ", "Stuff de départ", StartStuffKind.class);
         timeParameter = new IntParameter(Material.CLOCK, "Durée avant final", "En quarts d'heure", 2, 32, 16);
@@ -73,6 +76,8 @@ public class SetupListener implements Listener {
             playersTeam.put(player, TeamHelper.teamNames.get(0));
             ItemStack item = ItemHelper.generateItem(TeamHelper.getTeamBannerMaterial(team), 1, "Equipe " + team, new ArrayList<>(), false, null, false, true);
             player.getPlayer().getInventory().setItem(2, item);
+            item = ItemHelper.generateItem(Material.RED_WOOL, 1, "Pas Capitaine", Arrays.asList("Clique pour demander", "à devenir capitaine"), false, null, true, true);
+            player.getPlayer().getInventory().setItem(3, item);
         }
 
         hqParameters = new TeamHQParametersView();
@@ -88,6 +93,9 @@ public class SetupListener implements Listener {
             changePlayerTeam(event.getPlayer(),
                     event.getItem().getType().toString().split("_")[0],
                     event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK);
+        }
+        else if (event.getItem().getType().toString().contains("WOOL")) {
+            changeChampionClaim(event.getPlayer(), event.getItem().getType());
         }
         else if (ItemHelper.isExactlySameItemKind(event.getItem(), getParametersItem())) {
             parametersSelectionView.openPlayerView(event.getPlayer());
@@ -154,6 +162,22 @@ public class SetupListener implements Listener {
         player.getPlayer().getInventory().setItem(2, item);
     }
 
+    private void changeChampionClaim(Player player, Material itemType) {
+        var claimsChampion = itemType == Material.RED_WOOL;
+
+        var item = ItemHelper.generateItem(claimsChampion ? Material.GREEN_WOOL : Material.RED_WOOL,
+                1,
+                claimsChampion ? "Capitaine" : "Pas Capitaine",
+                Arrays.asList("Clique pour demander", "à " + (claimsChampion ? "ne pas" : "") + " devenir capitaine"),
+                false, null, true, true);
+        player.getPlayer().getInventory().setItem(3, item);
+
+        if (claimsChampion)
+            claimingCaptainPlayers.add(player);
+        else
+            claimingCaptainPlayers.remove(player);
+    }
+
     private void launchGame(Player sender) {
         System.out.println("Le plugin est lancé");
         sender.sendMessage(ChatHelper.feedback("Le plugin est lancé"));
@@ -192,8 +216,20 @@ public class SetupListener implements Listener {
         String teamChampionsAnnouncement = "";
 
         for (String teamName : data.getTeams()) {
-            List<Player> players = data.getPlayers(teamName);
-            Player champion = players.get(Common.rng.nextInt(players.size()));
+            Player champion = null;
+            for (Player player : claimingCaptainPlayers) {
+                if (data.getPlayerTeam(player) != teamName)
+                    continue;
+
+                champion = player;
+                break;
+            }
+
+            if (champion == null) {
+                List<Player> players = data.getPlayers(teamName);
+                champion = players.get(Common.rng.nextInt(players.size()));
+            }
+
             data.setTeamChampion(teamName, champion);
             teamChampionsAnnouncement += "- " + teamName + " : " + champion.getDisplayName() + "\n";
         }
