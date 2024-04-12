@@ -48,7 +48,7 @@ public class MainGameManager implements Listener, ITriggerVisitor {
             return;
         }
 
-        blockScoreListener.start();
+        //blockScoreListener.start();
         PlayerClassMechanicsHelper.getSingleton().enablePlayersClasses();
         PlayerDeathManager.getInstance().start();
         timeManager.launchGameTimeManagement(this);
@@ -71,7 +71,7 @@ public class MainGameManager implements Listener, ITriggerVisitor {
             return;
         }
 
-        blockScoreListener.stop();
+        //blockScoreListener.stop();
         PlayerClassMechanicsHelper.getSingleton().disablePlayersClasses();
         PlayerDeathManager.getInstance().stop();
         for (ChampionShopManager championShopManager : championShopManagers) {
