@@ -72,6 +72,7 @@ public class AssaultManager implements Listener {
             Player champion = data.getTeamChampion(teamName);
             Location teamHq = data.getHeadquarterLocation(teamName);
 
+            champion.closeInventory();
             champion.setGameMode(GameMode.SPECTATOR);
             champion.teleport(teamHq);
             playerLastLocation.put(champion, teamHq);

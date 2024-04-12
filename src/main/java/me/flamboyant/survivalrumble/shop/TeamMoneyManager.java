@@ -1,5 +1,6 @@
 package me.flamboyant.survivalrumble.shop;
 
+import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import org.bukkit.entity.Player;
 
@@ -19,7 +20,7 @@ public class TeamMoneyManager implements IMoneyManager {
         SurvivalRumbleData data = data();
         String teamName = data.getPlayerTeam(player);
         if (data.getMoney(teamName) >= amount) {
-            data.addMoney(teamName, -amount);
+            GameManager.getInstance().addAddMoney(teamName, -amount);
             return true;
         }
 
