@@ -84,7 +84,8 @@ public class TeamHelper {
     public static Boolean isLocationInHeadQuarter(Location location, String teamName) {
         Location teamHQLocation = SurvivalRumbleData.getSingleton().getHeadquarterLocation(teamName);
 
-        return Math.abs(location.getBlockX() - teamHQLocation.getBlockX()) < 25
+        return teamHQLocation.getWorld() == location.getWorld()
+                && Math.abs(location.getBlockX() - teamHQLocation.getBlockX()) < 25
                 && Math.abs(location.getBlockZ() - teamHQLocation.getBlockZ()) < 25;
     }
 

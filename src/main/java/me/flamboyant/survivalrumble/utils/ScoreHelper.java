@@ -9,12 +9,6 @@ public class ScoreHelper {
     public static int zeroScoreYUnderground = 20;
     public static int zeroScoreYInSky = 200;
 
-    public static void addScore(String team, int delta) {
-        SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
-        data.addMoney(team, delta);
-        ScoreboardBricklayer.getSingleton().setTeamScore("Score", team, data.getMoney(team));
-    }
-
     public static double scoreAltitudeCoefficient(int blockLocationY) {
         if (blockLocationY >= fullScoreMinY && blockLocationY < fullScoreMaxY)
             return 1;

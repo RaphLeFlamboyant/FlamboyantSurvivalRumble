@@ -1,11 +1,9 @@
 package me.flamboyant.survivalrumble.gamecontrollers.setup;
 
-import me.flamboyant.configurable.gui.ParameterUtils;
+import me.flamboyant.configurable.gui.ParameterView;
 import me.flamboyant.configurable.parameters.AParameter;
 import me.flamboyant.configurable.parameters.EnumParameter;
 import me.flamboyant.configurable.parameters.IntParameter;
-import me.flamboyant.gui.view.builder.ItemGroupingMode;
-import me.flamboyant.gui.view.common.InventoryGui;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.utils.ChatColors;
 import me.flamboyant.survivalrumble.utils.ITriggerVisitor;
@@ -13,6 +11,7 @@ import me.flamboyant.survivalrumble.utils.TeamHelper;
 import me.flamboyant.survivalrumble.views.TeamHQParametersView;
 import me.flamboyant.utils.*;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -26,6 +25,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -35,14 +35,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class SetupListener implements IParametrable, Listener {
+public class SetupListener implements Listener {
     private static SetupListener instance;
     private ITriggerVisitor visitor;
     private TeamHQParametersView hqParameters;
-    private InventoryGui parametersSelectionView;
+    private ParameterView parametersSelectionView;
     private HashMap<Player, String> playersTeam = new HashMap<>();
     private EnumParameter<StartStuffKind> stuffParameter;
     private IntParameter timeParameter;
+
+    private List<Player> claimingCaptainPlayers = new ArrayList<>();
 
     protected SetupListener() {
     }
@@ -57,6 +59,10 @@ public class SetupListener implements IParametrable, Listener {
 
     public void launch(Player opPlayer, ITriggerVisitor visitor) {
         this.visitor = visitor;
+        claimingCaptainPlayers.clear();
+
+        stuffParameter = new EnumParameter<>(Material.IRON_SWORD, "Stuff de départ", "Stuff de départ", StartStuffKind.class);
+        timeParameter = new IntParameter(Material.CLOCK, "Durée avant final", "En quarts d'heure", 2, 32, 16);
 
         opPlayer.getInventory().clear();
         opPlayer.getInventory().setItem(0, getParametersItem());
@@ -64,14 +70,10 @@ public class SetupListener implements IParametrable, Listener {
         opPlayer.getInventory().setItem(5, getLaunchItem());
         opPlayer.getInventory().setItem(8, getCancelItem());
 
-        parametersSelectionView = ParameterUtils.createParametersGui(this, ItemGroupingMode.PARTED, false);
+        parametersSelectionView = new ParameterView(Arrays.asList(stuffParameter, timeParameter));
 
         for (Player player : Common.server.getOnlinePlayers()) {
-            player.getPlayer().getInventory().clear();
-            String team = TeamHelper.teamNames.get(0);
-            playersTeam.put(player, TeamHelper.teamNames.get(0));
-            ItemStack item = ItemHelper.generateItem(TeamHelper.getTeamBannerMaterial(team), 1, "Equipe " + team, new ArrayList<>(), false, null, false, true);
-            player.getPlayer().getInventory().setItem(2, item);
+            giveNonAdminPlayerItems(player);
         }
 
         hqParameters = new TeamHQParametersView();
@@ -88,8 +90,11 @@ public class SetupListener implements IParametrable, Listener {
                     event.getItem().getType().toString().split("_")[0],
                     event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK);
         }
+        else if (event.getItem().getType().toString().contains("WOOL")) {
+            changeChampionClaim(event.getPlayer(), event.getItem().getType());
+        }
         else if (ItemHelper.isExactlySameItemKind(event.getItem(), getParametersItem())) {
-            parametersSelectionView.open(event.getPlayer());
+            parametersSelectionView.openPlayerView(event.getPlayer());
         } else if (ItemHelper.isExactlySameItemKind(event.getItem(), getTeamHQItem())) {
             Inventory teamHQView = hqParameters.getViewInstance();
             event.getPlayer().openInventory(teamHQView);
@@ -136,15 +141,21 @@ public class SetupListener implements IParametrable, Listener {
         event.setCancelled(true);
     }
 
-    @Override
-    public void resetParameters() {
-        stuffParameter = new EnumParameter<>(Material.IRON_SWORD, "Stuff de départ", "Stuff de départ", StartStuffKind.class);
-        timeParameter = new IntParameter(Material.CLOCK, "Durée avant final", "En quarts d'heure", 2, 32, 16);
+    @EventHandler
+    public void onPlayerConnects(PlayerJoinEvent event) {
+        var player = event.getPlayer();
+
+        giveNonAdminPlayerItems(player);
     }
 
-    @Override
-    public List<AParameter> getParameters() {
-        return Arrays.asList(stuffParameter, timeParameter);
+    private void giveNonAdminPlayerItems(Player player) {
+        player.getPlayer().getInventory().clear();
+        String team = TeamHelper.teamNames.get(0);
+        playersTeam.put(player, TeamHelper.teamNames.get(0));
+        ItemStack item = ItemHelper.generateItem(TeamHelper.getTeamBannerMaterial(team), 1, "Equipe " + team, new ArrayList<>(), false, null, false, true);
+        player.getPlayer().getInventory().setItem(2, item);
+        item = ItemHelper.generateItem(Material.RED_WOOL, 1, "Pas Capitaine", Arrays.asList("Clique pour demander", "à devenir capitaine"), false, null, true, true);
+        player.getPlayer().getInventory().setItem(3, item);
     }
 
     private void changePlayerTeam(Player player, String teamColor, boolean goForward) {
@@ -162,6 +173,22 @@ public class SetupListener implements IParametrable, Listener {
 
         ItemStack item = ItemHelper.generateItem(TeamHelper.getTeamBannerMaterial(selectedTeam), 1, "Equipe " + selectedTeam, new ArrayList<>(), false, null, false, true);
         player.getPlayer().getInventory().setItem(2, item);
+    }
+
+    private void changeChampionClaim(Player player, Material itemType) {
+        var claimsChampion = itemType == Material.RED_WOOL;
+
+        var item = ItemHelper.generateItem(claimsChampion ? Material.GREEN_WOOL : Material.RED_WOOL,
+                1,
+                claimsChampion ? "Capitaine" : "Pas Capitaine",
+                Arrays.asList("Clique pour demander", "à " + (claimsChampion ? "ne pas" : "") + " devenir capitaine"),
+                false, null, true, true);
+        player.getPlayer().getInventory().setItem(3, item);
+
+        if (claimsChampion)
+            claimingCaptainPlayers.add(player);
+        else
+            claimingCaptainPlayers.remove(player);
     }
 
     private void launchGame(Player sender) {
@@ -202,8 +229,20 @@ public class SetupListener implements IParametrable, Listener {
         String teamChampionsAnnouncement = "";
 
         for (String teamName : data.getTeams()) {
-            List<Player> players = data.getPlayers(teamName);
-            Player champion = players.get(Common.rng.nextInt(players.size()));
+            Player champion = null;
+            for (Player player : claimingCaptainPlayers) {
+                if (data.getPlayerTeam(player) != teamName)
+                    continue;
+
+                champion = player;
+                break;
+            }
+
+            if (champion == null) {
+                List<Player> players = data.getPlayers(teamName);
+                champion = players.get(Common.rng.nextInt(players.size()));
+            }
+
             data.setTeamChampion(teamName, champion);
             teamChampionsAnnouncement += "- " + teamName + " : " + champion.getDisplayName() + "\n";
         }
@@ -227,6 +266,7 @@ public class SetupListener implements IParametrable, Listener {
         BlockPlaceEvent.getHandlerList().unregister(this);
         BlockDamageEvent.getHandlerList().unregister(this);
         EntityDamageByEntityEvent.getHandlerList().unregister(this);
+        PlayerJoinEvent.getHandlerList().unregister(this);
     }
 
     public static ItemStack getTeamHQItem() {

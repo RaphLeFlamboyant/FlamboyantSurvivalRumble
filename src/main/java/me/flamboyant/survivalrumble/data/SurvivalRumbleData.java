@@ -2,6 +2,7 @@ package me.flamboyant.survivalrumble.data;
 
 import me.flamboyant.survivalrumble.data.classes.PlayerClassData;
 import me.flamboyant.survivalrumble.playerclass.classobjects.APlayerClass;
+import me.flamboyant.survivalrumble.powers.ChampionPowerType;
 import me.flamboyant.survivalrumble.utils.ChatColors;
 import me.flamboyant.utils.Common;
 import org.bukkit.Bukkit;
@@ -17,6 +18,7 @@ public class SurvivalRumbleData {
     protected Map<String, List<UUID>> playersByTeam = new HashMap<>();
     protected HashMap<String, Integer> teamMoney = new HashMap<>();
     protected HashMap<String, Location> teamHeadquarterLocation = new HashMap<>();
+    protected HashMap<String, HashMap<ChampionPowerType, Integer>> teamToChampionPowerLevels = new HashMap<>();
     
     protected HashMap<UUID, PlayerClassType> playersClass = new HashMap<>();
     protected HashMap<PlayerClassType, PlayerClassData> playerClassDataList = new HashMap<>();
@@ -50,6 +52,12 @@ public class SurvivalRumbleData {
             playersByTeam.put(teamName, new ArrayList<>());
             teamMoney.put(teamName, 0);
             teamHeadquarterLocation.put(teamName, null);
+
+            HashMap<ChampionPowerType, Integer> championPowerTypeToLevel = new HashMap<>();
+            for (ChampionPowerType championPowerType: ChampionPowerType.values()) {
+                championPowerTypeToLevel.put(championPowerType, 0);
+            }
+            teamToChampionPowerLevels.put(teamName, championPowerTypeToLevel);
             return true;
         }
 
@@ -67,7 +75,15 @@ public class SurvivalRumbleData {
     public Player getTeamChampion(String teamName) {
         return Common.server.getPlayer(teamChampion.get(teamName));
     }
-    
+
+    public int getChampionPowerTypeLevel(String teamName, ChampionPowerType championPowerType) {
+        return teamToChampionPowerLevels.get(teamName).get(championPowerType);
+    }
+
+    public void setChampionPowerTypeLevel(String teamName, ChampionPowerType championPowerType, int level) {
+        teamToChampionPowerLevels.get(teamName).put(championPowerType, level);
+    }
+
     public String getTeamTargetTeam(String attackingTeamName) {
         for (int i = 0; i < teams.size(); i++) {
             if (teams.get(i).equals(attackingTeamName)) {
@@ -86,6 +102,18 @@ public class SurvivalRumbleData {
         }
 
         return null;
+    }
+
+    public List<Player> getAttackingPlayers(Player defendingChampion) {
+        var teamName = getPlayerTeam(defendingChampion);
+        var assaultTeamName = getTeamAssaultTeam(teamName);
+        var assaultTeamChampion = getTeamChampion(assaultTeamName);
+
+        return playersByTeam.get(assaultTeamName)
+                .stream()
+                .map(i -> Common.server.getPlayer(i))
+                .filter(p -> p != assaultTeamChampion)
+                .collect(Collectors.toList());
     }
 
     public void removeTeam(String teamName) {

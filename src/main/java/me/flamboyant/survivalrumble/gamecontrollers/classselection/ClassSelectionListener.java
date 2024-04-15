@@ -2,6 +2,7 @@ package me.flamboyant.survivalrumble.gamecontrollers.classselection;
 
 import me.flamboyant.survivalrumble.data.PlayerClassMetadata;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
+import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.utils.ITriggerVisitor;
 import me.flamboyant.survivalrumble.utils.PlayerClassHelper;
 import me.flamboyant.utils.Common;
@@ -10,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.List;
 
@@ -52,6 +54,7 @@ public class ClassSelectionListener implements Listener, ITriggerVisitor {
         if (visitor != null) {
             PlayerClassSelectionView.getInstance().stop();
             InventoryCloseEvent.getHandlerList().unregister(this);
+            PlayerJoinEvent.getHandlerList().unregister(this);
             visitor = null;
         }
     }
@@ -81,6 +84,14 @@ public class ClassSelectionListener implements Listener, ITriggerVisitor {
                 && !PlayerClassSelectionView.getInstance().getPlayerClassSelection().containsKey(currentPlayer.getDisplayName())) {
             Bukkit.getScheduler().runTaskLater(Common.plugin, () -> currentPlayer.openInventory(PlayerClassSelectionView.getInstance().getViewInstance()), 1);
         }
+    }
+
+    @EventHandler
+    public void onPlayerConnects(PlayerJoinEvent event) {
+        var player = event.getPlayer();
+        if (SurvivalRumbleData.getSingleton().getPlayerTeam(player) != null) return;
+
+        player.setGameMode(GameMode.SPECTATOR);
     }
 
     private void nextPlayerSelect() {

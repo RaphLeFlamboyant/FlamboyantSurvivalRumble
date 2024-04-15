@@ -12,19 +12,19 @@ import java.util.UUID;
 
 public class PlayerClassMechanicsHelper {
     private static PlayerClassMechanicsHelper instance;
-    public HashMap<ScoringTriggerType, List<APlayerClass>> connectedClasses = new HashMap<ScoringTriggerType, List<APlayerClass>>();
+    public HashMap<ScoringTriggerType, List<APlayerClass>> connectedClasses = new HashMap<>();
     private HashMap<UUID, APlayerClass> playerClasses = new HashMap<>();
 
     protected PlayerClassMechanicsHelper() {
-        connectedClasses.put(ScoringTriggerType.BLOCK_BREAK, new ArrayList<APlayerClass>());
-        connectedClasses.put(ScoringTriggerType.BLOCK_BURNED, new ArrayList<APlayerClass>());
-        connectedClasses.put(ScoringTriggerType.BLOCK_EXPLOSION, new ArrayList<APlayerClass>());
-        connectedClasses.put(ScoringTriggerType.BLOCK_MODIFIER, new ArrayList<APlayerClass>());
-        connectedClasses.put(ScoringTriggerType.BLOCK_PLACE, new ArrayList<APlayerClass>());
-        connectedClasses.put(ScoringTriggerType.CHEST_MODIFICATION, new ArrayList<APlayerClass>());
-        connectedClasses.put(ScoringTriggerType.DEATH, new ArrayList<APlayerClass>());
-        connectedClasses.put(ScoringTriggerType.HURT, new ArrayList<APlayerClass>());
-        connectedClasses.put(ScoringTriggerType.ON_TIMER, new ArrayList<APlayerClass>());
+        connectedClasses.put(ScoringTriggerType.BLOCK_BREAK, new ArrayList<>());
+        connectedClasses.put(ScoringTriggerType.BLOCK_BURNED, new ArrayList<>());
+        connectedClasses.put(ScoringTriggerType.BLOCK_EXPLOSION, new ArrayList<>());
+        connectedClasses.put(ScoringTriggerType.BLOCK_MODIFIER, new ArrayList<>());
+        connectedClasses.put(ScoringTriggerType.BLOCK_PLACE, new ArrayList<>());
+        connectedClasses.put(ScoringTriggerType.CHEST_MODIFICATION, new ArrayList<>());
+        connectedClasses.put(ScoringTriggerType.DEATH, new ArrayList<>());
+        connectedClasses.put(ScoringTriggerType.HURT, new ArrayList<>());
+        connectedClasses.put(ScoringTriggerType.ON_TIMER, new ArrayList<>());
     }
 
     public static PlayerClassMechanicsHelper getSingleton() {

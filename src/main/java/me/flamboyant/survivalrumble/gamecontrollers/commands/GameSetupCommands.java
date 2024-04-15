@@ -2,8 +2,8 @@ package me.flamboyant.survivalrumble.gamecontrollers.commands;
 
 import me.flamboyant.survivalrumble.gamecontrollers.launch.GameLauncher;
 import me.flamboyant.survivalrumble.utils.ScoreboardBricklayer;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Server;
+import me.flamboyant.survivalrumble.utils.UsefulConstants;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -38,15 +38,14 @@ public class GameSetupCommands implements CommandExecutor {
     }
 
     private boolean startSetup(Player senderPlayer, String[] args) {
-        OfflinePlayer[] players = server.getOfflinePlayers();
-
-
-        for (int i = 0; i < players.length; i++) {
-            OfflinePlayer player = players[i];
-            if (player.getPlayer() == null) {
-                System.out.println("Warning : player " + player.getName() + " and ID " + player.getUniqueId() + " is not considered as a Player in the system");
-                continue;
-            }
+        if (Bukkit.getWorld(UsefulConstants.waitingWorldName) == null) {
+            Bukkit.getLogger().info("Creating the custom world");
+            new WorldCreator(UsefulConstants.waitingWorldName)
+                    .environment(World.Environment.NORMAL)
+                    .type(WorldType.FLAT)
+                    .generatorSettings("{\"layers\": [{\"block\": \"bedrock\", \"height\": 1}, {\"block\": \"grass_block\", \"height\": 1}], \"biome\":\"plains\"}")
+                    .generateStructures(false)
+                    .createWorld();
         }
 
         GameLauncher listener = new GameLauncher();
