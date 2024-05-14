@@ -16,6 +16,7 @@ public class TeamShopStepHandler extends AShopStepHandler {
     private String teamName;
 
     public TeamShopStepHandler(String teamName) {
+        super(teamName + " death shop");
         this.teamName = teamName;
     }
 
@@ -27,11 +28,6 @@ public class TeamShopStepHandler extends AShopStepHandler {
     @Override
     protected DeathWorkflowEventType GetEventType() {
         return DeathWorkflowEventType.END_OF_TEAM_SHOP;
-    }
-
-    @Override
-    protected String GetViewName() {
-        return teamName + " death shop";
     }
 
     @Override

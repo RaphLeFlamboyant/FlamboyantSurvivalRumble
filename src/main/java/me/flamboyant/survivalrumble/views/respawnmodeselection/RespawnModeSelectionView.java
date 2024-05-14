@@ -15,11 +15,11 @@ public class RespawnModeSelectionView {
     private InventoryView inventoryView;
 
     public RespawnModeSelectionView(RunOnPlayerCallback onClassicSpawnSelection, RunOnPlayerCallback onSpecialSpawnSelection) {
-        IconController classicIconController = new IconController(1);
+        IconController classicIconController = new IconController();//1);
         classicIconController.setItemIcon(ItemHelper.generateItem(Material.WHITE_BED, 1, "Respawn classique", Arrays.asList("Spawn classique Minecraft"), false, Enchantment.ARROW_FIRE, false, false));
         classicIconController.setLeftClickCallback((p) -> onClassicSpawnSelection.runOnPlayer(p));
 
-        IconController specialIconController = new IconController(2);
+        IconController specialIconController = new IconController();//2);
         specialIconController.setItemIcon(
                 ItemHelper.generateItem(Material.WHITE_BED,
                         1,

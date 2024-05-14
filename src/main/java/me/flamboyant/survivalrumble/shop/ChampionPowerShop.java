@@ -2,6 +2,7 @@ package me.flamboyant.survivalrumble.shop;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.powers.shop.ChampionPowerShopItem;
+import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -72,17 +73,27 @@ public class ChampionPowerShop {
     private boolean tryBuyPower(ShopItem shopItem, Player player) {
         ChampionPowerShopItem championPowerShopItem = shopItemToChampionPower.get(shopItem);
 
+        Bukkit.getLogger().info("[ChampionPowerShop.tryBuyItem] With shop item " + shopItem.getItemName() + " at price " + shopItem.getUnitaryPrice());
         if (championPowerShopItem.hasReachedMaxLevel()) return false;
         if (!moneyManager.trySpendMoney(player, championPowerShopItem.getPrice())) return false;
 
+        Bukkit.getLogger().info("[ChampionPowerShop.tryBuyItem] Succeed");
         championPowerShopItem.levelUp();
 
-        SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
-        String teamName = data.getPlayerTeam(player);
+        var data = SurvivalRumbleData.getSingleton();
+        var teamName = data.getPlayerTeam(player);
         data.setChampionPowerTypeLevel(teamName, championPowerShopItem.getChampionPowerType(), championPowerShopItem.getCurrentPowerLevel());
 
-        for(IShopChangesListener shopChangesListener : shopChangesListeners) {
-            shopChangesListener.ItemUpdated(shopItem);
+        if (championPowerShopItem.hasReachedMaxLevel()) {
+            shopItemToChampionPower.remove(shopItem);
+            for(IShopChangesListener shopChangesListener : shopChangesListeners) {
+                shopChangesListener.ItemRemoved(shopItem);
+            }
+        }
+        else {
+            for (IShopChangesListener shopChangesListener : shopChangesListeners) {
+                shopChangesListener.ItemUpdated(shopItem);
+            }
         }
 
         return true;

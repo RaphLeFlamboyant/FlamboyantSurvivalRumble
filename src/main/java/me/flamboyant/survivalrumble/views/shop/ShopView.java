@@ -5,6 +5,7 @@ import me.flamboyant.gui.view.IconController;
 import me.flamboyant.gui.view.InventoryView;
 import me.flamboyant.survivalrumble.delegates.RunOnPlayerCallback;
 import me.flamboyant.survivalrumble.shop.ShopItemController;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -24,19 +25,21 @@ public class ShopView {
     }
 
     public void close(Player player) {
+        Bukkit.getLogger().info("[InventoryView.close]");
         inventoryView.closePlayerView(player);
     }
 
     public void resetItemControllerList(List<ShopItemController> shopItemControllers) {
+        Bukkit.getLogger().info("[ShopView.resetItemControllerList] With a list of " + shopItemControllers.size() + " elements");
         List<IconController> itemControllers = ConvertControllers(shopItemControllers);
         inventoryView.initializeFrom(itemControllers);
     }
 
     private List<IconController> ConvertControllers(List<ShopItemController> shopItemControllers) {
         List<IconController> itemControllers = new ArrayList<>();
-        int i = 0;
+        //int i = 0;
         for (ShopItemController shopItemController : shopItemControllers) {
-            IconController iconController = new IconController(i++);
+            IconController iconController = new IconController();//i++);
             iconController.setItemIcon(shopItemController.getRepresentation());
             iconController.setLeftClickCallback((Player p) -> shopItemController.getTryBuyOne().tryRunOnPlayer(p));
             iconController.setShiftClickCallback((Player p) -> shopItemController.getTryBuyAll().tryRunOnPlayer(p));
@@ -54,6 +57,7 @@ public class ShopView {
     }
 
     public void removePlayerCloseShopCallback(RunOnPlayerCallback closeShopActionCallback) {
+        inventoryView.removeCloseViewCallback(playerCallbackToGuiCallback.get(closeShopActionCallback));
         playerCallbackToGuiCallback.remove(closeShopActionCallback);
     }
 }

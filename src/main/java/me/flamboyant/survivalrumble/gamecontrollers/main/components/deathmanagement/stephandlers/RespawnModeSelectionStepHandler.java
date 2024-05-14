@@ -1,5 +1,6 @@
 package me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.stephandlers;
 
+import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.DeathWorkflowData;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowEventType;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowOrchestrator;
@@ -17,7 +18,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.HashMap;
 
 public class RespawnModeSelectionStepHandler implements Listener, WorkflowVisitor<DeathWorkflowStepType, DeathWorkflowData> {
-    private static final int timerSeconds = 10;
+    private static final int timerSeconds = 30;
     private BukkitTask tickSoundTask;
     private HashMap<Player, DeathWorkflowData> playerToPendingDeathWorkflowData = new HashMap<>();
     private HashMap<Player, Integer> playerToCountdown = new HashMap<>();
@@ -56,7 +57,6 @@ public class RespawnModeSelectionStepHandler implements Listener, WorkflowVisito
             int currentRemainingSeconds = playerToCountdown.get(player) - 1;
 
             if (currentRemainingSeconds == 0) {
-                respawnModeSelectionView.close(player);
                 onClassicRespawnSelection(player);
 
                 return;
@@ -79,7 +79,8 @@ public class RespawnModeSelectionStepHandler implements Listener, WorkflowVisito
     }
 
     private void onSpecialRespawnSelection(Player player) {
-        player.setBedSpawnLocation(null);
+        var data = SurvivalRumbleData.getSingleton();
+        player.setRespawnLocation(data.getHeadquarterLocation(data.getPlayerTeam(player)));
         triggerWorkflowEvent(player, DeathWorkflowEventType.SELECT_SPECIAL_RESPAWN);
     }
 
@@ -93,6 +94,7 @@ public class RespawnModeSelectionStepHandler implements Listener, WorkflowVisito
         DeathWorkflowData deathWorkflowData = playerToPendingDeathWorkflowData.get(player);
         playerToPendingDeathWorkflowData.remove(player);
 
-        DeathWorkflowOrchestrator.getInstance().onEventTriggered(eventType, deathWorkflowData);
+        respawnModeSelectionView.close(player);
+        Bukkit.getScheduler().runTaskLater(Common.plugin, () -> DeathWorkflowOrchestrator.getInstance().onEventTriggered(eventType, deathWorkflowData), 1);
     }
 }

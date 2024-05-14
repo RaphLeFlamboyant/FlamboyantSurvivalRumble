@@ -1,10 +1,13 @@
 package me.flamboyant.survivalrumble.gamecontrollers.commands;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
+import me.flamboyant.survivalrumble.powers.ChampionPowerType;
 import me.flamboyant.survivalrumble.utils.ChatColors;
 import me.flamboyant.survivalrumble.utils.PlayerClassHelper;
+import me.flamboyant.utils.ChatHelper;
 import me.flamboyant.utils.Common;
 import me.flamboyant.survivalrumble.utils.QuestHelper;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -36,8 +39,30 @@ public class PublicCommands implements CommandExecutor {
 
             return true;
         }
+        else if (cmd.getName().equalsIgnoreCase("f_sr_check_buff")) {
+            Player player = (Player) sender;
+            printChampionPowers(player);
+
+            return true;
+        }
 
         return false;
+    }
+
+    private void printChampionPowers(Player player) {
+        var data = SurvivalRumbleData.getSingleton();
+        var teamName = data.getPlayerTeam(player);
+        var msg = "" + ChatColor.BOLD + ChatColor.UNDERLINE + ChatColor.AQUA + "[Pouvoirs du champion de la team " + teamName + "]" + ChatColor.RESET;
+
+        for (var powerType : ChampionPowerType.values()) {
+            var level = data.getChampionPowerTypeLevel(teamName, powerType);
+
+            if (level > 0) {
+                msg += "\n" + ChatColor.BOLD + powerType + ChatColor.RESET + " lvl " + ChatColor.GOLD + level + ChatColor.RESET;
+            }
+        }
+
+        player.sendMessage(msg);
     }
 
     private String gameInfo() {

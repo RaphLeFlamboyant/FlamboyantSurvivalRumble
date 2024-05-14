@@ -90,15 +90,15 @@ public class PlayerDeathManager implements Listener, WorkflowVisitor<DeathWorkfl
 
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
-        Location loc = event.getRespawnLocation();
+        var location = event.getRespawnLocation();
         if (!event.isBedSpawn()) {
-            loc = data().getHeadquarterLocation(data().getPlayerTeam(event.getPlayer()));
-            event.setRespawnLocation(loc);
+            location = data().getHeadquarterLocation(data().getPlayerTeam(event.getPlayer()));
+            event.setRespawnLocation(location);
         }
 
         if (playerToPendingDeathWorkflowData.containsKey(event.getPlayer())) {
             DeathWorkflowData deathWorkflowData = playerToPendingDeathWorkflowData.get(event.getPlayer());
-            deathWorkflowData.respawnLocation = loc;
+            deathWorkflowData.respawnLocation = location;
             event.setRespawnLocation(zeroWaitingSpawn);
             event.getPlayer().setGameMode(GameMode.CREATIVE);
 

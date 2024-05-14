@@ -18,10 +18,11 @@ public final class Main extends FlamboyantPlugin {
 
         getCommand("f_sr_gametime").setExecutor(publicCommands);
         getCommand("f_sr_questinfo").setExecutor(publicCommands);
+        getCommand("f_sr_check_buff").setExecutor(publicCommands);
 
         getCommand("c_sr_reset_server").setExecutor(consistencyCommands);
 
-        getCommand("d_add_score").setExecutor(debugCommands);
+        getCommand("babki").setExecutor(debugCommands);
 
         // ##########################################################################
 

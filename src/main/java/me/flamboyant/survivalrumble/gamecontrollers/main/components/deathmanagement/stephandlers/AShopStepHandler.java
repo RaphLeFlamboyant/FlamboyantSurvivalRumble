@@ -25,24 +25,28 @@ import java.util.HashMap;
 import java.util.List;
 
 public abstract class AShopStepHandler implements Listener, WorkflowVisitor<DeathWorkflowStepType, DeathWorkflowData>, IShopChangesListener {
-    private static final int timerSeconds = 60;
+    private static final int timerSeconds = 120;
     private BukkitTask tickSoundTask;
     private HashMap<Player, DeathWorkflowData> playerToPendingDeathWorkflowData = new HashMap<>();
     private HashMap<Player, Integer> playerToCountdown = new HashMap<>();
     private ItemStackShop itemShop;
     private ShopView shopView;
-    private RunOnPlayerCallback playerCloseShopCallback = (p) -> onShopStepEndind(p);
+    private RunOnPlayerCallback playerCloseShopCallback = (p) -> {
+        Bukkit.getLogger().info("[AShopStepHandler] playerCloseShopCallback");
+        onShopStepEndind(p);
+    };
 
     protected abstract DeathWorkflowStepType GetStepType();
     protected abstract DeathWorkflowEventType GetEventType();
-    protected abstract String GetViewName();
     protected abstract List<ItemStack> FilterKeptItem(List<ItemStack> keptItems);
     protected abstract int getUnitaryPrice(ItemStack item);
 
-    public AShopStepHandler()
+    public AShopStepHandler(String viewName)
     {
-        shopView = new ShopView(GetViewName(), Arrays.asList());
-        this.itemShop = new ItemStackShop(TeamMoneyManager.getInstance());
+        Bukkit.getLogger().info("[AShopStepHandler] Creating view : " + viewName);
+        shopView = new ShopView(viewName, Arrays.asList());
+        itemShop = new ItemStackShop(TeamMoneyManager.getInstance());
+        itemShop.addShopContentChangeListener(this);
     }
 
     @Override
@@ -53,16 +57,29 @@ public abstract class AShopStepHandler implements Listener, WorkflowVisitor<Deat
     public void onNextStep(DeathWorkflowStepType deathWorkflowStepType, DeathWorkflowData deathWorkflowData) {
         if (deathWorkflowStepType != GetStepType()) return;
 
+
+        Bukkit.getLogger().info("[AShopStepHandler] Shop triggered on event " + deathWorkflowStepType.toString() + " for player " + deathWorkflowData.deadPlayer.getDisplayName());
+        Bukkit.getLogger().info("[AShopStepHandler] ITEMS IN INVENTORY WHEN DEAD");
+        for (var item : deathWorkflowData.keptItems) {
+            Bukkit.getLogger().info("[AShopStepHandler]   - " + item.getType() + " x " + item.getAmount());
+        }
+        Bukkit.getLogger().info("[AShopStepHandler] ## END");
+
+        Bukkit.getLogger().info("[AShopStepHandler] FILTERED ITEMS");
         for (ItemStack keptItem : FilterKeptItem(deathWorkflowData.keptItems)) {
+            Bukkit.getLogger().info("[AShopStepHandler]   - " + keptItem.getType() + " x " + keptItem.getAmount());
             itemShop.addItemStackToShop(keptItem, getUnitaryPrice(keptItem), keptItem.getAmount());
         }
+        Bukkit.getLogger().info("[AShopStepHandler] ## END");
 
         if (playerToPendingDeathWorkflowData.isEmpty()) {
+            Bukkit.getLogger().info("[AShopStepHandler] FIRST PLAYER ENTERING THE SHOP");
             tickSoundTask = Bukkit.getScheduler().runTaskTimer(Common.plugin, this::tickSoundOnPendingPlayers, 20, 20);
 
             shopView.addPlayerCloseShopCallback(playerCloseShopCallback);
         }
         else {
+            Bukkit.getLogger().info("[AShopStepHandler] CONCURRENT PLAYER ENTERING THE SHOP");
             shopView.resetItemControllerList(itemShop.getAllShopItemControllers());
         }
 
@@ -91,6 +108,7 @@ public abstract class AShopStepHandler implements Listener, WorkflowVisitor<Deat
 
     @Override
     public void ItemRemoved(ShopItem shopItem) {
+        Bukkit.getLogger().info("[AShopStepHandler.ItemRemoved]");
         shopView.resetItemControllerList(itemShop.getAllShopItemControllers());
     }
 
@@ -101,6 +119,7 @@ public abstract class AShopStepHandler implements Listener, WorkflowVisitor<Deat
 
     @Override
     public void ItemUpdated(ShopItem shopItem) {
+        Bukkit.getLogger().info("[AShopStepHandler.ItemUpdated]");
         shopView.resetItemControllerList(itemShop.getAllShopItemControllers());
     }
 
@@ -114,9 +133,8 @@ public abstract class AShopStepHandler implements Listener, WorkflowVisitor<Deat
             int currentRemainingSeconds = playerToCountdown.get(player) - 1;
 
             if (currentRemainingSeconds == 0) {
-                shopView.removePlayerCloseShopCallback(playerCloseShopCallback);
                 shopView.close(player);
-                onShopStepEndind(player);
+                //onShopStepEndind(player);
 
                 return;
             }
@@ -143,6 +161,10 @@ public abstract class AShopStepHandler implements Listener, WorkflowVisitor<Deat
         DeathWorkflowData deathWorkflowData = playerToPendingDeathWorkflowData.get(player);
         playerToPendingDeathWorkflowData.remove(player);
 
-        DeathWorkflowOrchestrator.getInstance().onEventTriggered(eventType, deathWorkflowData);
+        if (playerToPendingDeathWorkflowData.isEmpty()) {
+            shopView.removePlayerCloseShopCallback(playerCloseShopCallback);
+        }
+
+        Bukkit.getScheduler().runTaskLater(Common.plugin, () -> DeathWorkflowOrchestrator.getInstance().onEventTriggered(eventType, deathWorkflowData), 1);
     }
 }

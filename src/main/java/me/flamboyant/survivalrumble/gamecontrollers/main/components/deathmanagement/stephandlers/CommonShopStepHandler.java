@@ -11,6 +11,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CommonShopStepHandler extends AShopStepHandler {
+    public CommonShopStepHandler() {
+        super("Common death shop");
+    }
+
     @Override
     protected DeathWorkflowStepType GetStepType() {
         return DeathWorkflowStepType.COMMON_SHOP;
@@ -19,11 +23,6 @@ public class CommonShopStepHandler extends AShopStepHandler {
     @Override
     protected DeathWorkflowEventType GetEventType() {
         return DeathWorkflowEventType.END_OF_COMMON_SHOP;
-    }
-
-    @Override
-    protected String GetViewName() {
-        return "Common death shop";
     }
 
     @Override

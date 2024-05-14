@@ -13,6 +13,7 @@ public class StartStuffHelper {
     public static void givePlayersStartStuff(StartStuffKind stuffKind) {
         List<ItemStack> stuff = baseStuff(stuffKind);
         for (Player player : Common.server.getOnlinePlayers()) {
+            player.getInventory().clear();
             for (ItemStack item : stuff) {
                 player.getInventory().addItem(item.clone());
             }

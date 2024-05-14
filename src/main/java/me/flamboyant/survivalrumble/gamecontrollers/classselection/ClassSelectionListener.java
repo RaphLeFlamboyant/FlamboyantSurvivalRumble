@@ -13,17 +13,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ClassSelectionListener implements Listener, ITriggerVisitor {
     private int currentPlayerIndex;
-    private List<Player> playerOrder;
+    private List<Player> playerOrder = new ArrayList<>();
     private IClassSelectionVisitor visitor;
 
     private static ClassSelectionListener instance;
-    protected ClassSelectionListener() {
-
-    }
+    protected ClassSelectionListener() {}
 
     public static ClassSelectionListener getInstance() {
         if (instance == null) {
@@ -79,6 +78,8 @@ public class ClassSelectionListener implements Listener, ITriggerVisitor {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
+        if (playerOrder.size() <= currentPlayerIndex) return;
+
         Player currentPlayer = playerOrder.get(currentPlayerIndex);
         if (event.getPlayer() == currentPlayer
                 && !PlayerClassSelectionView.getInstance().getPlayerClassSelection().containsKey(currentPlayer.getDisplayName())) {
@@ -95,13 +96,14 @@ public class ClassSelectionListener implements Listener, ITriggerVisitor {
     }
 
     private void nextPlayerSelect() {
+        var currentPlayer = playerOrder.get(currentPlayerIndex);
         for (Player player : Common.server.getOnlinePlayers()) {
             player.playSound(player, Sound.ENTITY_ARROW_HIT_PLAYER, SoundCategory.MASTER, 1, 1);
-            player.sendTitle(ChatColor.RED + player.getDisplayName(), ChatColor.BLUE + "À lui/elle de choisir", 10, 80, 10);
+            player.sendTitle(ChatColor.RED + currentPlayer.getDisplayName(), ChatColor.BLUE + "À lui/elle de choisir", 10, 80, 10);
         }
 
         Bukkit.getScheduler().runTaskLater(Common.plugin, () -> {
-            playerOrder.get(currentPlayerIndex).openInventory(PlayerClassSelectionView.getInstance().getViewInstance());
+            currentPlayer.openInventory(PlayerClassSelectionView.getInstance().getViewInstance());
         }, 100);
     }
 }

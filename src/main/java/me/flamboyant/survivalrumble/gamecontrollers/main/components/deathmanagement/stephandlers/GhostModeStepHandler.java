@@ -15,7 +15,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.HashMap;
 
 public class GhostModeStepHandler implements WorkflowVisitor<DeathWorkflowStepType, DeathWorkflowData> {
-    private static final int timerSeconds = 12;
+    private static final int timerSeconds = 5;
     private BukkitTask tickSoundTask;
     private HashMap<Player, DeathWorkflowData> playerToPendingDeathWorkflowData = new HashMap<>();
     private HashMap<Player, Integer> playerToCountdown = new HashMap<>();
@@ -71,7 +71,7 @@ public class GhostModeStepHandler implements WorkflowVisitor<DeathWorkflowStepTy
 
             playerToCountdown.put(player, currentRemainingSeconds);
             if (currentRemainingSeconds <= 5) {
-                player.sendTitle(String.valueOf(timerSeconds), "",0, 20, 20);
+                player.sendTitle(String.valueOf(currentRemainingSeconds), "",0, 20, 20);
                 player.playSound(player, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.MASTER, 1f, 1);
             }
             else {

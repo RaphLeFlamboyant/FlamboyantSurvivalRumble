@@ -62,7 +62,7 @@ public class SetupListener implements Listener {
         claimingCaptainPlayers.clear();
 
         stuffParameter = new EnumParameter<>(Material.IRON_SWORD, "Stuff de départ", "Stuff de départ", StartStuffKind.class);
-        timeParameter = new IntParameter(Material.CLOCK, "Durée avant final", "En quarts d'heure", 2, 32, 16);
+        timeParameter = new IntParameter(Material.CLOCK, "Durée avant final", "En quarts d'heure", 16, 16, 32);
 
         opPlayer.getInventory().clear();
         opPlayer.getInventory().setItem(0, getParametersItem());
@@ -73,6 +73,9 @@ public class SetupListener implements Listener {
         parametersSelectionView = new ParameterView(Arrays.asList(stuffParameter, timeParameter));
 
         for (Player player : Common.server.getOnlinePlayers()) {
+            if (player != opPlayer)
+                player.getInventory().clear();
+
             giveNonAdminPlayerItems(player);
         }
 
@@ -145,11 +148,11 @@ public class SetupListener implements Listener {
     public void onPlayerConnects(PlayerJoinEvent event) {
         var player = event.getPlayer();
 
+        player.getInventory().clear();
         giveNonAdminPlayerItems(player);
     }
 
     private void giveNonAdminPlayerItems(Player player) {
-        player.getPlayer().getInventory().clear();
         String team = TeamHelper.teamNames.get(0);
         playersTeam.put(player, TeamHelper.teamNames.get(0));
         ItemStack item = ItemHelper.generateItem(TeamHelper.getTeamBannerMaterial(team), 1, "Equipe " + team, new ArrayList<>(), false, null, false, true);
@@ -162,9 +165,9 @@ public class SetupListener implements Listener {
         List<String> teams = TeamHelper.teamNames;
         String selectedTeam = "";
         int i = 0;
-        while (playersTeam.get(player) == teamColor) {
-            int next = goForward ? (i + 1) % teams.size() : i == 0 ? teams.size() : i - 1;
-            if (teams.get(i) == teamColor) {
+        while (playersTeam.get(player).equals(teamColor)) {
+            int next = goForward ? (i + 1) % teams.size() : i == 0 ? teams.size() - 1 : i - 1;
+            if (teams.get(i).equals(teamColor)) {
                 selectedTeam = teams.get(next);
                 playersTeam.put(player, selectedTeam);
             }

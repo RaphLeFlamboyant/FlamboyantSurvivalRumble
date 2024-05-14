@@ -17,8 +17,12 @@ import java.util.stream.Collectors;
 public class DebugCommands implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String msg, String[] args) {
-        if (cmd.getName().equalsIgnoreCase("d_add_score")) {
-            addScore(args[0], Integer.parseInt(args[1]));
+        if (cmd.getName().equalsIgnoreCase("babki")) {
+            var data = SurvivalRumbleData.getSingleton();
+
+            for (var teamName : data.getTeams()) {
+                addScore(teamName, 50000);
+            }
 
             return true;
         }

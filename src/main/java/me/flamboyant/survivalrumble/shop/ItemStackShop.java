@@ -1,5 +1,6 @@
 package me.flamboyant.survivalrumble.shop;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -24,6 +25,10 @@ public class ItemStackShop {
         shopChangesListeners.add(shopChangesListener);
     }
 
+    public void removeShopContentChangeListener(IShopChangesListener shopChangesListener) {
+        shopChangesListeners.remove(shopChangesListener);
+    }
+
     public void addItemStackToShop(ItemStack itemStack, int unitPrice, int quantity) {
         ShopItem shopItem = GenerateShopItem(itemStack, unitPrice, quantity);
 
@@ -46,8 +51,8 @@ public class ItemStackShop {
             itemStack.setItemMeta(meta);
 
             controller.setRepresentation(itemStack);
-            controller.setTryBuyAll((Player p) -> TryBuyItem(shopItem, p, shopItem.getQuantity()));
-            controller.setTryBuyOne((Player p) -> TryBuyItem(shopItem, p, 1));
+            controller.setTryBuyAll((Player p) -> tryBuyItem(shopItem, p, shopItem.getQuantity()));
+            controller.setTryBuyOne((Player p) -> tryBuyItem(shopItem, p, 1));
 
             res.add(controller);
         }
@@ -55,12 +60,14 @@ public class ItemStackShop {
         return res;
     }
 
-    private boolean TryBuyItem(ShopItem shopItem, Player player, int quantity) {
+    private boolean tryBuyItem(ShopItem shopItem, Player player, int quantity) {
+        Bukkit.getLogger().info("[ItemStackShop.tryBuyItem] Item : " + shopItem.getItemName() + " for player " + player.getDisplayName() + " and quantity = " + quantity);
         if (quantity > shopItem.getQuantity()) return false;
 
         if (!moneyManager.trySpendMoney(player, shopItem.getUnitaryPrice() * quantity)) {
             return false;
         }
+        Bukkit.getLogger().info("[ItemStackShop.tryBuyItem] Succeed");
 
         ItemStack shopItemStack = shopItemToItemStack.get(shopItem);
         ItemStack boughtItem = shopItemStack.clone();
@@ -78,7 +85,7 @@ public class ItemStackShop {
         else {
             shopItemToItemStack.remove(shopItem);
             for(IShopChangesListener shopChangesListener : shopChangesListeners) {
-                    shopChangesListener.ItemRemoved(shopItem);
+                shopChangesListener.ItemRemoved(shopItem);
             }
         }
 
@@ -87,6 +94,7 @@ public class ItemStackShop {
 
     private ShopItem GenerateShopItem(ItemStack itemStack, int unitPrice, int quantity) {
         ShopItem shopItem = new ShopItem();
+        Bukkit.getLogger().info("[ItemStackShop.GenerateShopItem] With ItemStack of type " + itemStack.getType() + " and display name " + itemStack.getItemMeta().getDisplayName());
         shopItem.setItemName(itemStack.getItemMeta().getDisplayName());
         shopItem.setUnitaryPrice(unitPrice);
         shopItem.setQuantity(quantity);
