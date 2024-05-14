@@ -23,6 +23,7 @@ public final class Main extends FlamboyantPlugin {
         getCommand("c_sr_reset_server").setExecutor(consistencyCommands);
 
         getCommand("babki").setExecutor(debugCommands);
+        getCommand("bastoooooon").setExecutor(debugCommands);
 
         // ##########################################################################
 

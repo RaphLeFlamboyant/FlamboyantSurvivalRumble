@@ -64,6 +64,7 @@ public class ChampionPowerManager {
 
     private HashMap<ChampionPowerType, PowerCreator> powerTypeToPower = new HashMap<>() {{
         put(ChampionPowerType.EQUIPMENT, EquipmentPower::new);
+        put(ChampionPowerType.BOW, BowPower::new);
         put(ChampionPowerType.ENDERCHEST_STUFF, EnderChestContentPower::new);
         put(ChampionPowerType.NO_SHIELD, ShieldRemovalPower::new);
 

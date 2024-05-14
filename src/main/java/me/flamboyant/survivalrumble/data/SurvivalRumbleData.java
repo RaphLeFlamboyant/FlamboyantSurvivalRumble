@@ -191,7 +191,7 @@ public class SurvivalRumbleData {
             return null;
         }
 
-        return teamHeadquarterLocation.get(teamName);
+        return teamHeadquarterLocation.get(teamName).clone();
     }
 
     public void setHeadquarterLocation(String teamName, Location location) {

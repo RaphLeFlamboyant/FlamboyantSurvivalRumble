@@ -26,6 +26,10 @@ public class DebugCommands implements CommandExecutor {
 
             return true;
         }
+        if (cmd.getName().equalsIgnoreCase("bastoooooon")) {
+            SurvivalRumbleData.getSingleton().minutesBeforeEnd = 1;
+            return true;
+        }
         return false;
     }
 

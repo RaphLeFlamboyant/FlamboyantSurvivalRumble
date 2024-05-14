@@ -6,7 +6,9 @@ public class EnderChestContentPower implements IChampionPower {
     @Override
     public void activate(Player powerOwner, int powerLevel) {
         var enderChestInventory = powerOwner.getEnderChest();
-        powerOwner.getInventory().addItem(enderChestInventory.getContents());
+        var content = enderChestInventory.getContents();
+        if (content.length > 0)
+            powerOwner.getInventory().addItem(enderChestInventory.getContents());
         enderChestInventory.clear();
     }
 

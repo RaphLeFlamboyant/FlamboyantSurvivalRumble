@@ -16,28 +16,19 @@ public class GameTimeManager {
 
     public void launchGameTimeManagement(ITriggerVisitor visitor) {
         this.visitor = visitor;
-        scheduleStopTask();
         scheduleUpdateGameTimeTask();
     }
 
-    private void scheduleStopTask() {
-        Bukkit.getScheduler().runTaskLater(Common.plugin, () -> {
-            doOnEndOfTimer();
-        }, data().minutesBeforeEnd * 60 * 20L);
-    }
-
     private void scheduleUpdateGameTimeTask() {
-        updateGameTimeTask = Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> {
-            updateGameTime();
-        }, 60 * 20L, 60 * 20L);
+        updateGameTimeTask = Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> doOnScheduledTick(), 60 * 20L, 60 * 20L);
     }
 
-    private void updateGameTime() {
+    private void doOnScheduledTick() {
         data().minutesBeforeEnd--;
-    }
 
-    private void doOnEndOfTimer() {
-        visitor.onAction();
-        Bukkit.getScheduler().cancelTask(updateGameTimeTask.getTaskId());
+        if (data().minutesBeforeEnd == 0) {
+            visitor.onAction();
+            Bukkit.getScheduler().cancelTask(updateGameTimeTask.getTaskId());
+        }
     }
 }

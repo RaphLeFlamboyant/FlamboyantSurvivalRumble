@@ -23,8 +23,13 @@ commands:
   babki:
     description: Cheat to add score to a team (for debug purpose only)
     permission: d_add_score.use
+  bastoooooon:
+    description: Reduces the timer to 0
+    permission: bastoooooon.use
 permissions:
   f_sr_gametime.use:
     default: true
   f_sr_questinfo.use:
+    default: true
+  f_sr_check_buff.use:
     default: true

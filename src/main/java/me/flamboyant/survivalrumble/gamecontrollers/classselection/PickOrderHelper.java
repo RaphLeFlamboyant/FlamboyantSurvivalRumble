@@ -1,6 +1,7 @@
 package me.flamboyant.survivalrumble.gamecontrollers.classselection;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
+import me.flamboyant.utils.Common;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -13,12 +14,25 @@ public class PickOrderHelper {
         List<List<Player>> teamPlayerList = new ArrayList<>();
         List<Player> res = new ArrayList<>();
 
+        int maxPlayerCountInTeam = 0;
         for (String teamName : SurvivalRumbleData.getSingleton().getTeams()) {
-            teamPlayerList.add(SurvivalRumbleData.getSingleton().getPlayers(teamName));
+            var players = SurvivalRumbleData.getSingleton().getPlayers(teamName);
+            teamPlayerList.add(players);
+
+            if (maxPlayerCountInTeam < players.size())
+                maxPlayerCountInTeam = players.size();
         }
 
-        teamPlayerList.sort(Comparator.comparingInt(List::size));
-        Collections.reverse(teamPlayerList);
+        List<List<Player>> halfRandomizedTeamPlayerList = new ArrayList<>();
+        Collections.shuffle(teamPlayerList);
+        for (var i = maxPlayerCountInTeam; i < 0; i--) {
+            for (var teamList : teamPlayerList) {
+                if (teamList.size() == i) {
+                    halfRandomizedTeamPlayerList.add(teamList);
+                }
+            }
+        }
+        teamPlayerList = halfRandomizedTeamPlayerList;
 
         int teamIndex = 0;
         int listIndex = 0;
