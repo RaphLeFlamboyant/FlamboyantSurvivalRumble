@@ -25,7 +25,7 @@ public class PickOrderHelper {
 
         List<List<Player>> halfRandomizedTeamPlayerList = new ArrayList<>();
         Collections.shuffle(teamPlayerList);
-        for (var i = maxPlayerCountInTeam; i < 0; i--) {
+        for (var i = maxPlayerCountInTeam; i > 0; i--) {
             for (var teamList : teamPlayerList) {
                 if (teamList.size() == i) {
                     halfRandomizedTeamPlayerList.add(teamList);

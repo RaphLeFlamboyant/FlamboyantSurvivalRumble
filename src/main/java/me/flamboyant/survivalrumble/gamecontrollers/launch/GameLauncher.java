@@ -11,6 +11,7 @@ import me.flamboyant.survivalrumble.playerclass.classobjects.APlayerClass;
 import me.flamboyant.survivalrumble.playerclass.factory.PlayerClassFactory;
 import me.flamboyant.survivalrumble.utils.ITriggerVisitor;
 import me.flamboyant.survivalrumble.gamecontrollers.main.PlayerClassMechanicsHelper;
+import me.flamboyant.survivalrumble.utils.PlayerStateHelper;
 import me.flamboyant.survivalrumble.utils.ScoreHelper;
 import me.flamboyant.survivalrumble.utils.ScoreboardBricklayer;
 import me.flamboyant.utils.ChatHelper;
@@ -122,6 +123,7 @@ public class GameLauncher implements ITriggerVisitor, IClassSelectionVisitor {
             Location spawn = data.getHeadquarterLocation(data.getPlayerTeam(player));
             // TODO : launch message
             player.teleport(spawn);
+            PlayerStateHelper.resetPlayerState(player);
         }
 
         MainGameManager.getInstance().start();

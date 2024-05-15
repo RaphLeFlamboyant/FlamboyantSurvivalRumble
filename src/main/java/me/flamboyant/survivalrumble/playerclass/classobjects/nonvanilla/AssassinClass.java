@@ -82,6 +82,17 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
+    @Override
+    public void disableClass() {
+        super.disableClass();
+
+        cancelContract();
+
+        PlayerInteractEvent.getHandlerList().unregister(this);
+        PlayerRespawnEvent.getHandlerList().unregister(this);
+        PlayerDeathEvent.getHandlerList().unregister(this);
+        EntityPortalEnterEvent.getHandlerList().unregister(this);
+    }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {

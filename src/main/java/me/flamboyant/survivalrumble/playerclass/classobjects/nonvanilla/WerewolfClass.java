@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.world.TimeSkipEvent;
@@ -65,6 +66,20 @@ public class WerewolfClass extends ANonVanillaClass implements Listener {
 
         currentTask = Bukkit.getScheduler().runTaskLater(Common.plugin, () -> switchState(), 20L * 60 * 10 * (12000 - time) / 12000);
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
+    }
+
+    @Override
+    public void disableClass() {
+        super.disableClass();
+        disableEffects();
+
+        Bukkit.getScheduler().cancelTask(currentTask.getTaskId());
+
+        TimeSkipEvent.getHandlerList().unregister(this);
+        PlayerItemConsumeEvent.getHandlerList().unregister(this);
+        EntityPotionEffectEvent.getHandlerList().unregister(this);
+        PlayerRespawnEvent.getHandlerList().unregister(this);
+        PlayerDeathEvent.getHandlerList().unregister(this);
     }
 
     private void enableEffects(int durationTicks) {

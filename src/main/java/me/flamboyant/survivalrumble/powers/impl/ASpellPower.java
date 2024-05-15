@@ -16,6 +16,7 @@ public abstract class ASpellPower implements IChampionPower, Listener {
         this.powerOwner = powerOwner;
 
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
+        powerOwner.getInventory().addItem(getSpellItem());
 
         onActivate();
     }

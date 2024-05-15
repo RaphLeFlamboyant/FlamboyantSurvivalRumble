@@ -64,6 +64,15 @@ public class ThiefClass extends ANonVanillaClass implements Listener {
     }
 
     @Override
+    public void disableClass() {
+        super.disableClass();
+        PlayerInteractEvent.getHandlerList().unregister(this);
+        PlayerRespawnEvent.getHandlerList().unregister(this);
+        InventoryCloseEvent.getHandlerList().unregister(this);
+        CraftItemEvent.getHandlerList().unregister(this);
+    }
+
+    @Override
     public void onBlockPlaceTrigger(Player playerWhoBreaks, Block block) {
         if (playerWhoBreaks != owner) return;
         // TODO : j'ai pas accès au player sur l'event modifier mais le check de location y est déjà fait donc ici ça fait doublon

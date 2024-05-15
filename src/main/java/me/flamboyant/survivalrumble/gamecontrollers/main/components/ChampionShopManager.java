@@ -53,8 +53,11 @@ public class ChampionShopManager implements Listener, IShopChangesListener {
         Bukkit.getLogger().info("[ChampionShopManager.onPlayerInteract]");
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
         if (data.getPlayerTeam(event.getPlayer()) != teamName) return;
+        if (event.getClickedBlock() == null) return;
         if (!Arrays.asList(Material.BEDROCK, Material.DIAMOND_BLOCK).contains(event.getClickedBlock().getType())) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+
+        event.setCancelled(true);
 
         onPlayerOpen(event.getPlayer());
     }

@@ -1,6 +1,8 @@
 package me.flamboyant.survivalrumble.gamecontrollers.assault;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
+import me.flamboyant.survivalrumble.delegates.EntityDamageEventCallback;
+import me.flamboyant.survivalrumble.utils.PlayerStateHelper;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
 import me.flamboyant.survivalrumble.utils.UsefulConstants;
 import me.flamboyant.utils.ChatHelper;
@@ -54,6 +56,7 @@ public class AssaultManager implements Listener {
     private List<IAssaultStepListener> assaultStepListeners = new ArrayList<>();
     private BukkitTask locationDefenderTask;
     private HashMap<String, BossBar> teamNameToChampionBar = new HashMap<>();
+    private List<EntityDamageEventCallback> damageListeningPowers = new ArrayList<>();
 
     private static AssaultManager instance;
     protected AssaultManager() {
@@ -76,7 +79,7 @@ public class AssaultManager implements Listener {
             Location teamHq = data.getHeadquarterLocation(teamName);
 
             champion.closeInventory();
-            resetPlayerState(champion);
+            PlayerStateHelper.resetPlayerState(champion);
             champion.setGameMode(GameMode.SPECTATOR);
             champion.teleport(teamHq);
             playerLastLocation.put(champion, teamHq);
@@ -90,7 +93,7 @@ public class AssaultManager implements Listener {
             for (Player player : data.getPlayers(teamName)) {
                 if (player == champion) continue;
 
-                resetPlayerState(player);
+                PlayerStateHelper.resetPlayerState(player);
                 player.setGameMode(GameMode.SPECTATOR);
                 player.teleport(spawnPoint);
                 playerLastLocation.put(player, spawnPoint);
@@ -127,11 +130,24 @@ public class AssaultManager implements Listener {
         assaultStepListeners.remove(assaultStepListener);
     }
 
+    public void addListener(EntityDamageEventCallback entityDamageEventCallback) {
+        damageListeningPowers.add(entityDamageEventCallback);
+    }
+
+    public void removeListener(EntityDamageEventCallback entityDamageEventCallback) {
+        damageListeningPowers.remove(entityDamageEventCallback);
+    }
+
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
         if (event.getEntityType() != EntityType.PLAYER) return;
         Player deadPlayer = (Player) event.getEntity();
-        if (event.getFinalDamage() < deadPlayer.getHealth()) return;
+
+        for (var damageListeningPower : damageListeningPowers) {
+            damageListeningPower.onEntityDamageEvent(event);
+        }
+
+        if (event.isCancelled() || event.getFinalDamage() < deadPlayer.getHealth()) return;
 
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
         String teamName = data.getPlayerTeam(deadPlayer);
@@ -140,7 +156,7 @@ public class AssaultManager implements Listener {
             String targetTeamName = data.getTeamTargetTeam(teamName);
             Location spawnPoint = assaultSpawnByTeamTarget.get(targetTeamName);
 
-            resetPlayerState(deadPlayer);
+            PlayerStateHelper.resetPlayerState(deadPlayer);
             playerLastLocation.put(deadPlayer, spawnPoint);
             deadPlayer.setGameMode(GameMode.SPECTATOR);
             deadPlayer.teleport(spawnPoint);
@@ -204,6 +220,7 @@ public class AssaultManager implements Listener {
     }
 
     private void onPlayerInteractTriggeredOnForbiddenBloc(PlayerInteractEvent event) {
+        if (event.getClickedBlock() == null) return;
         if (TeamHelper.getTeamHeadquarterName(event.getClickedBlock().getLocation()) == null)
             return;
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
@@ -320,19 +337,12 @@ public class AssaultManager implements Listener {
         }
 
         Location location = player.getLocation();
-        location = new Location(location.getWorld(), location.getX(), location.getWorld().getHighestBlockYAt(location), location.getZ());
+
+        var data = SurvivalRumbleData.getSingleton();
+        if (data.getTeamChampion(data.getPlayerTeam(player)) != player)
+            location = new Location(location.getWorld(), location.getX(), location.getWorld().getHighestBlockYAt(location), location.getZ());
         player.teleport(location);
         player.setGameMode(GameMode.SURVIVAL);
-    }
-
-    private void resetPlayerState(Player player) {
-        player.setHealth(20);
-        player.setFoodLevel(20);
-        player.setSaturation(3);
-        player.setFireTicks(0);
-        for (PotionEffect effect : player.getActivePotionEffects()) {
-            player.removePotionEffect(effect.getType());
-        }
     }
 
     private BukkitTask bossBarsRefreshTask;

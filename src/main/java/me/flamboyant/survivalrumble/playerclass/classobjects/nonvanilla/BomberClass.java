@@ -30,6 +30,12 @@ public class BomberClass extends ANonVanillaClass implements Listener {
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
+    @Override
+    public void disableClass() {
+        super.disableClass();
+        PlayerInteractEvent.getHandlerList().unregister(this);
+    }
+
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (!event.getPlayer().getUniqueId().equals(owner.getUniqueId())) return;
