@@ -20,6 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDispenseArmorEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
@@ -96,6 +97,7 @@ public class AssaultManager implements Listener {
                 PlayerStateHelper.resetPlayerState(player);
                 player.setGameMode(GameMode.SPECTATOR);
                 player.teleport(spawnPoint);
+                player.setRespawnLocation(spawnPoint);
                 playerLastLocation.put(player, spawnPoint);
                 Bukkit.getScheduler().runTaskLater(Common.plugin, () -> countdownPlayer(10, player), 0);
             }
@@ -111,7 +113,8 @@ public class AssaultManager implements Listener {
 
     public void stop() {
         Bukkit.getScheduler().cancelTask(locationDefenderTask.getTaskId());
-        EntityDamageEvent.getHandlerList().unregister(this);
+        PlayerDeathEvent.getHandlerList().unregister(this);
+        PlayerRespawnEvent.getHandlerList().unregister(this);
         PlayerInteractEvent.getHandlerList().unregister(this);
         PlayerInteractEntityEvent.getHandlerList().unregister(this);
         BlockDropItemEvent.getHandlerList().unregister(this);
@@ -138,79 +141,81 @@ public class AssaultManager implements Listener {
         damageListeningPowers.remove(entityDamageEventCallback);
     }
 
+
     @EventHandler
-    public void onEntityDamage(EntityDamageEvent event) {
-        if (event.getEntityType() != EntityType.PLAYER) return;
-        Player deadPlayer = (Player) event.getEntity();
-
-        for (var damageListeningPower : damageListeningPowers) {
-            damageListeningPower.onEntityDamageEvent(event);
-        }
-
-        if (event.isCancelled() || event.getFinalDamage() < deadPlayer.getHealth()) return;
-
+    public void onPlayerDeath(PlayerDeathEvent event) {
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
+        var deadPlayer = event.getEntity();
         String teamName = data.getPlayerTeam(deadPlayer);
 
-        if (deadPlayer != data.getTeamChampion(teamName)) {
-            String targetTeamName = data.getTeamTargetTeam(teamName);
-            Location spawnPoint = assaultSpawnByTeamTarget.get(targetTeamName);
+        if (deadPlayer != data.getTeamChampion(teamName)) return;
 
-            PlayerStateHelper.resetPlayerState(deadPlayer);
-            playerLastLocation.put(deadPlayer, spawnPoint);
-            deadPlayer.setGameMode(GameMode.SPECTATOR);
-            deadPlayer.teleport(spawnPoint);
-            Bukkit.getScheduler().runTaskLater(Common.plugin, () -> countdownPlayer(10, deadPlayer), 0);
-        }
-        else {
-            if (data.getTeams().size() == 2) {
-                ChampionPowerManager.getInstance().deactivateAllAndReset();
-                deactivateBossBars();
-                data.removeTeam(teamName);
-                Bukkit.broadcastMessage(ChatHelper.importantMessage("L'équipe " + teamName + " est éliminée !"));
-                String winTeamName = data.getTeams().get(0);
-                Bukkit.broadcastMessage(ChatHelper.importantMessage("L'équipe " + winTeamName + " a gagné !"));
-
-                Location spawnPoint = data.getHeadquarterLocation(winTeamName);
-                for (Player player : Common.server.getOnlinePlayers()) {
-                    player.setGameMode(GameMode.SURVIVAL);
-                    player.teleport(spawnPoint);
-                }
-
-                stop();
-                return;
-            }
-
-            ChampionPowerManager.getInstance().deactivateChampionPowers(data.getTeamChampion(teamName));
-            for (Player player : data.getPlayers(teamName)) {
-                player.setGameMode(GameMode.SPECTATOR);
-            }
-
-            Bukkit.broadcastMessage(ChatHelper.importantMessage("L'équipe " + teamName + " est éliminée !"));
-
-            String targetTeam = data.getTeamTargetTeam(teamName);
-            Location spawnPoint = assaultSpawnByTeamTarget.get(targetTeam);
-
-            String assaultTeam = data.getTeamAssaultTeam(teamName);
-            data.removeTeam(teamName);
-
-            for (Player player : data.getPlayers(assaultTeam)) {
-                if (player == data.getTeamChampion(teamName))
-                    continue;
-
-                player.setGameMode(GameMode.SPECTATOR);
-                player.teleport(spawnPoint);
-                playerLastLocation.put(player, spawnPoint);
-                Bukkit.getScheduler().runTaskLater(Common.plugin, () -> countdownPlayer(10, player), 0);
-            }
-
-            for (var assaultListener : assaultStepListeners) {
-                assaultListener.onTeamEliminated();
-            }
-
+        if (data.getTeams().size() == 2) {
+            ChampionPowerManager.getInstance().deactivateAllAndReset();
             deactivateBossBars();
-            createBossBars();
+            data.removeTeam(teamName);
+            Bukkit.broadcastMessage(ChatHelper.importantMessage("L'équipe " + teamName + " est éliminée !"));
+            String winTeamName = data.getTeams().get(0);
+            Bukkit.broadcastMessage(ChatHelper.importantMessage("L'équipe " + winTeamName + " a gagné !"));
+
+            Location spawnPoint = data.getHeadquarterLocation(winTeamName);
+            for (Player player : Common.server.getOnlinePlayers()) {
+                player.setGameMode(GameMode.SURVIVAL);
+                player.teleport(spawnPoint);
+            }
+
+            stop();
+            return;
         }
+
+        ChampionPowerManager.getInstance().deactivateChampionPowers(data.getTeamChampion(teamName));
+        for (Player player : data.getPlayers(teamName)) {
+            player.setGameMode(GameMode.SPECTATOR);
+        }
+
+        Bukkit.broadcastMessage(ChatHelper.importantMessage("L'équipe " + teamName + " est éliminée !"));
+
+        String targetTeam = data.getTeamTargetTeam(teamName);
+        Location spawnPoint = assaultSpawnByTeamTarget.get(targetTeam);
+
+        String assaultTeam = data.getTeamAssaultTeam(teamName);
+        data.removeTeam(teamName);
+
+        for (Player player : data.getPlayers(assaultTeam)) {
+            if (player == data.getTeamChampion(teamName))
+                continue;
+
+            player.setGameMode(GameMode.SPECTATOR);
+            player.teleport(spawnPoint);
+            playerLastLocation.put(player, spawnPoint);
+            Bukkit.getScheduler().runTaskLater(Common.plugin, () -> countdownPlayer(10, player), 0);
+        }
+
+        for (var assaultListener : assaultStepListeners) {
+            assaultListener.onTeamEliminated();
+        }
+
+        deactivateBossBars();
+        createBossBars();
+    }
+
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
+        var deadPlayer = event.getPlayer();
+        String teamName = data.getPlayerTeam(deadPlayer);
+
+        if (deadPlayer == data.getTeamChampion(teamName)) {
+            Bukkit.getLogger().warning("Champion " + deadPlayer.getDisplayName() + " repawn but death supposed to disqualify the team");
+            return;
+        }
+
+        String targetTeamName = data.getTeamTargetTeam(teamName);
+        Location spawnPoint = assaultSpawnByTeamTarget.get(targetTeamName);
+
+        playerLastLocation.put(deadPlayer, spawnPoint);
+        deadPlayer.setGameMode(GameMode.SPECTATOR);
+        Bukkit.getScheduler().runTaskLater(Common.plugin, () -> countdownPlayer(10, deadPlayer), 0);
     }
 
     @EventHandler
@@ -315,10 +320,12 @@ public class AssaultManager implements Listener {
                 champion.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 100, 1));
             }
 
+            var targetTeamName = data.getTeamTargetTeam(teamName);
+
             for (Player player : data.getPlayers(teamName)) {
                 if (player == champion) continue;
 
-                if (player.getGameMode() == GameMode.SPECTATOR && TeamHelper.isLocationInHeadQuarter(player.getLocation(), teamName)) {
+                if (player.getGameMode() == GameMode.SPECTATOR && TeamHelper.isLocationInHeadQuarter(player.getLocation(), targetTeamName)) {
                     player.teleport(playerLastLocation.get(player));
                 }
                 else {

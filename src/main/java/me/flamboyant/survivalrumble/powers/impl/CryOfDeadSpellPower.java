@@ -39,7 +39,7 @@ public class CryOfDeadSpellPower extends ASpellPower {
             player.damage(1, powerOwner);
             Bukkit.getScheduler().runTaskLater(Common.plugin, () -> {
                 Vector velocity = player.getVelocity();
-                player.setVelocity(new Vector(0, 0.3 * ratio, 0));
+                player.setVelocity(new Vector(0, 3 * ratio, 0));
             }, 1);
         }
 

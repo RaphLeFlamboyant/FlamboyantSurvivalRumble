@@ -16,10 +16,7 @@ import me.flamboyant.survivalrumble.utils.ScoreHelper;
 import me.flamboyant.survivalrumble.utils.ScoreboardBricklayer;
 import me.flamboyant.utils.ChatHelper;
 import me.flamboyant.utils.Common;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -124,6 +121,7 @@ public class GameLauncher implements ITriggerVisitor, IClassSelectionVisitor {
             // TODO : launch message
             player.teleport(spawn);
             PlayerStateHelper.resetPlayerState(player);
+            player.setGameMode(GameMode.SURVIVAL);
         }
 
         MainGameManager.getInstance().start();

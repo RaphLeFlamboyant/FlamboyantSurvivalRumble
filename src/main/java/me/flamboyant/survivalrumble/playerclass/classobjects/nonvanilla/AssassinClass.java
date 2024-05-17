@@ -166,7 +166,7 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
             String selectedTeam = data().getTeams().stream().filter(t -> !t.equals(data().getPlayerTeam(owner))).collect(Collectors.toList()).get(Common.rng.nextInt(data().getTeams().size() - 1));
             List<Player> playersInTeam = data().getPlayers(selectedTeam);
             classData.targetPlayerId = playersInTeam.get(Common.rng.nextInt(playersInTeam.size())).getUniqueId();
-            owner.getInventory().remove(paper);
+            paper.setAmount(paper.getAmount() - 1);
             launchContract();
         }
     }
@@ -195,7 +195,8 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
     }
 
     private void cancelContract() {
-        owner.sendMessage(ChatColors.personalAnnouncement("Le contrat est annulé", "Le contrat sur " + targetPlayer.getDisplayName() + " est annulé."));
+        if (targetPlayer != null)
+            owner.sendMessage(ChatColors.personalAnnouncement("Le contrat est annulé", "Le contrat sur " + targetPlayer.getDisplayName() + " est annulé."));
         targetPlayer = null;
         classData.targetPlayerId = null;
         cancelContractTask = null;

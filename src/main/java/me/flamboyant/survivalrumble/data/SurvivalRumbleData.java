@@ -123,7 +123,7 @@ public class SurvivalRumbleData {
         teamHeadquarterLocation.remove(teamName);
         teamChampion.remove(teamName);
 
-        for (UUID playerId : playersTeam.keySet()) {
+        for (UUID playerId : playersTeam.keySet().stream().toList()) {
             if (playersTeam.get(playerId).equals(teamName)) {
                 playersTeam.remove(playerId);
                 PlayerClassType classType = playersClass.get(playerId);
