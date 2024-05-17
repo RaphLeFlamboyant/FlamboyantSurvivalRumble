@@ -60,6 +60,7 @@ public class ClassSelectionListener implements Listener, ITriggerVisitor {
 
     @Override
     public void onAction() {
+        Bukkit.getLogger().info("playerOrder.get(" + currentPlayerIndex + " display name is " + playerOrder.get(currentPlayerIndex).getDisplayName());
         PlayerClassMetadata metadata = PlayerClassHelper.playerClassMetadata.get(PlayerClassType.valueOf(PlayerClassSelectionView.getInstance().getPlayerClassSelection().get(playerOrder.get(currentPlayerIndex).getDisplayName())));
 
         for (Player player : Common.server.getOnlinePlayers()) {

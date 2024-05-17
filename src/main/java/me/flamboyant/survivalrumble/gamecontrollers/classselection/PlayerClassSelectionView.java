@@ -124,6 +124,7 @@ public class PlayerClassSelectionView implements Listener {
             player.openInventory(pages.get(currentPage));
         } else {
             String className = clicked.getItemMeta().getLore().get(0);
+            Bukkit.getLogger().info("Player " + player.getDisplayName() + " chose class " + className);
             playerClassSelection.put(player.getDisplayName(), className);
             visitor.onAction();
 

@@ -2,6 +2,7 @@ package me.flamboyant.survivalrumble.gamecontrollers.classselection;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.utils.Common;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -14,9 +15,12 @@ public class PickOrderHelper {
         List<List<Player>> teamPlayerList = new ArrayList<>();
         List<Player> res = new ArrayList<>();
 
+        Bukkit.getLogger().info("PickupOrder");
         int maxPlayerCountInTeam = 0;
         for (String teamName : SurvivalRumbleData.getSingleton().getTeams()) {
             var players = SurvivalRumbleData.getSingleton().getPlayers(teamName);
+            Collections.shuffle(players);
+            Bukkit.getLogger().info("Team " + teamName + " size = " + players.size());
             teamPlayerList.add(players);
 
             if (maxPlayerCountInTeam < players.size())
@@ -33,24 +37,17 @@ public class PickOrderHelper {
             }
         }
         teamPlayerList = halfRandomizedTeamPlayerList;
+        Bukkit.getLogger().info("Randomized list of list size : " + teamPlayerList.size());
 
-        int teamIndex = 0;
-        int listIndex = 0;
-        int delta = 1;
-        do {
-            if (teamPlayerList.get(teamIndex).size() > listIndex) {
-                res.add(teamPlayerList.get(teamIndex).get(listIndex));
+        for (int i = 0; i < teamPlayerList.get(0).size(); i++) {
+            for (int j = 0; j < teamPlayerList.size(); j++) {
+                if (teamPlayerList.get(j).size() > i) {
+                    res.add(teamPlayerList.get(j).get(i));
+                }
             }
+        }
 
-            if (teamIndex + delta == teamPlayerList.size()
-                    || teamIndex + delta == -1) {
-                listIndex++;
-                delta *= -1;
-            }
-            else
-                teamIndex += delta;
-        } while (teamPlayerList.get(teamPlayerList.size() - 1).size() > listIndex);
-
+        Bukkit.getLogger().info("res size : " + res.size());
         return res;
     }
 }

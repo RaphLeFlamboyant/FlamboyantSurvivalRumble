@@ -50,7 +50,6 @@ public class ChampionShopManager implements Listener, IShopChangesListener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        Bukkit.getLogger().info("[ChampionShopManager.onPlayerInteract]");
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
         if (data.getPlayerTeam(event.getPlayer()) != teamName) return;
         if (event.getClickedBlock() == null) return;

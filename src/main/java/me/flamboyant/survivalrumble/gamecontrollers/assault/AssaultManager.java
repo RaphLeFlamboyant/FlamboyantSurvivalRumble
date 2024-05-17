@@ -343,6 +343,7 @@ public class AssaultManager implements Listener {
             location = new Location(location.getWorld(), location.getX(), location.getWorld().getHighestBlockYAt(location), location.getZ());
         player.teleport(location);
         player.setGameMode(GameMode.SURVIVAL);
+        PlayerStateHelper.resetPlayerState(player);
     }
 
     private BukkitTask bossBarsRefreshTask;

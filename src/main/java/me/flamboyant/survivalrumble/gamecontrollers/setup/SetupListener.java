@@ -88,6 +88,8 @@ public class SetupListener implements Listener {
     public void onPlayerInteract(PlayerInteractEvent event) {
         event.setCancelled(true);
 
+        if (event.getItem() == null) return;
+
         if (event.getItem().getType().toString().contains("BANNER")) {
             changePlayerTeam(event.getPlayer(),
                     event.getItem().getType().toString().split("_")[0],
