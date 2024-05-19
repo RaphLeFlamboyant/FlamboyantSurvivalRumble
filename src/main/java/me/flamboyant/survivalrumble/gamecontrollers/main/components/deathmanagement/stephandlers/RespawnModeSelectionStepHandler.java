@@ -79,8 +79,7 @@ public class RespawnModeSelectionStepHandler implements Listener, WorkflowVisito
     }
 
     private void onSpecialRespawnSelection(Player player) {
-        var data = SurvivalRumbleData.getSingleton();
-        player.setRespawnLocation(data.getHeadquarterLocation(data.getPlayerTeam(player)));
+        player.setRespawnLocation(null);
         triggerWorkflowEvent(player, DeathWorkflowEventType.SELECT_SPECIAL_RESPAWN);
     }
 

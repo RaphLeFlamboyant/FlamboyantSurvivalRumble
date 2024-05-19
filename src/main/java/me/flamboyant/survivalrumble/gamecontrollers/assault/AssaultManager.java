@@ -90,6 +90,7 @@ public class AssaultManager implements Listener {
             Location targetTeamHq = data.getHeadquarterLocation(targetTeamName);
             Location spawnPoint = targetTeamHq.add(55, 0, 0);
             spawnPoint = new Location(spawnPoint.getWorld(), spawnPoint.getX(), spawnPoint.getWorld().getHighestBlockYAt(spawnPoint), spawnPoint.getZ());
+            Bukkit.getLogger().info("Assault spawn for team " + targetTeamName + " is " + spawnPoint);
             assaultSpawnByTeamTarget.put(targetTeamName, spawnPoint);
             for (Player player : data.getPlayers(teamName)) {
                 if (player == champion) continue;
@@ -97,7 +98,6 @@ public class AssaultManager implements Listener {
                 PlayerStateHelper.resetPlayerState(player);
                 player.setGameMode(GameMode.SPECTATOR);
                 player.teleport(spawnPoint);
-                player.setRespawnLocation(spawnPoint);
                 playerLastLocation.put(player, spawnPoint);
                 Bukkit.getScheduler().runTaskLater(Common.plugin, () -> countdownPlayer(10, player), 0);
             }
@@ -212,6 +212,10 @@ public class AssaultManager implements Listener {
 
         String targetTeamName = data.getTeamTargetTeam(teamName);
         Location spawnPoint = assaultSpawnByTeamTarget.get(targetTeamName);
+        event.setRespawnLocation(spawnPoint);
+        Bukkit.getLogger().info("Assault spawn for team " + targetTeamName + " is " + spawnPoint);
+
+        Bukkit.getLogger().info("Respawning point for player " + deadPlayer.getDisplayName() + " is " + event.getRespawnLocation());
 
         playerLastLocation.put(deadPlayer, spawnPoint);
         deadPlayer.setGameMode(GameMode.SPECTATOR);
