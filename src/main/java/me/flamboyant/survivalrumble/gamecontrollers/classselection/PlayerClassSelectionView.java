@@ -1,5 +1,6 @@
 package me.flamboyant.survivalrumble.gamecontrollers.classselection;
 
+import me.flamboyant.survivalrumble.data.PlayerClassCategory;
 import me.flamboyant.survivalrumble.data.PlayerClassMetadata;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.survivalrumble.utils.ITriggerVisitor;
@@ -24,6 +25,15 @@ public class PlayerClassSelectionView implements Listener {
     private int currentPage;
     private HashMap<String, String> playerClassSelection = new HashMap<>();
     private ITriggerVisitor visitor;
+
+    private HashMap<PlayerClassCategory, String> categoryToName = new HashMap<>() {{
+        put(PlayerClassCategory.SURVIVAL, "Survie");
+        put(PlayerClassCategory.ATTACK, "Attaque");
+        put(PlayerClassCategory.PVP, "PvP");
+        put(PlayerClassCategory.DEFENSE, "Défense");
+        put(PlayerClassCategory.REDSTONE, "Redstone");
+        put(PlayerClassCategory.NON_VANILLA, "Non Vanilla");
+    }};
 
     protected PlayerClassSelectionView() {
 
@@ -60,31 +70,56 @@ public class PlayerClassSelectionView implements Listener {
     public Inventory getViewInstance() {
         if (pages.size() > 0) return pages.get(0);
 
-        int i = 0;
-        int size = PlayerClassHelper.playerClassMetadata.size() - 1;
-        Inventory currentInventory = null;
-        ArrayList<PlayerClassMetadata> classMetadataList = new ArrayList<>(PlayerClassHelper.playerClassMetadata.values());
+        var currentInventory = Bukkit.createInventory(null, 54, getViewID());
+        pages.add(currentInventory);
+
+        var classMetadataList = new ArrayList<>(PlayerClassHelper.playerClassMetadata.values());
         Collections.sort(classMetadataList, (PlayerClassMetadata a, PlayerClassMetadata b) ->
                 a.getPlayerClassCategory() == b.getPlayerClassCategory() ? a.getDisplayName().compareTo(b.getDisplayName()) : a.getPlayerClassCategory().compareTo(b.getPlayerClassCategory()));
+
+        var currentCategory = PlayerClassCategory.SURVIVAL;
         for (PlayerClassMetadata classMetadata : classMetadataList) {
             if (classMetadata.getPlayerClassType() == PlayerClassType.FAKE_CLASS) continue;
-            if (i % 36 == 0) {
-                if (currentInventory != null) {
-                    if (i < size) currentInventory.setItem(53, getNextPageItem());
-                    if (i > 36) currentInventory.setItem(45, getPreviousPageItem());
-                    pages.add(currentInventory);
-                }
 
-                currentInventory = Bukkit.createInventory(null, 54, getViewID());
+            if (currentCategory != classMetadata.getPlayerClassCategory()) {
+                currentCategory = classMetadata.getPlayerClassCategory();
+                var pane = new ItemStack(Material.GLASS_PANE);
+                var meta = pane.getItemMeta();
+                meta.setDisplayName(categoryToName.get(currentCategory));
+                pane.setItemMeta(meta);
+
+                handleItemAdd(pane);
             }
-
             ItemStack item = getInventoryItem(classMetadata.getPlayerClassType().toString(), classMetadata.getPlayerClassRepresentation(), classMetadata.getDisplayName());
-            currentInventory.setItem(i % 36, item);
-            i++;
+            handleItemAdd(item);
         }
 
         pages.add(currentInventory);
         return pages.get(0);
+    }
+
+    private int currentItemIndex = 0;
+    private void handleItemAdd(ItemStack item) {
+        var currentInventory = pages.get(pages.size() - 1);
+        var itemListSize = PlayerClassHelper.playerClassMetadata.size() - 1;
+
+        Bukkit.getLogger().info("Try add item " + item.getItemMeta().getDisplayName());
+        Bukkit.getLogger().info("  # Current item index is " + currentItemIndex);
+        Bukkit.getLogger().info("  # itemListSize is " + itemListSize);
+        Bukkit.getLogger().info("  # pages size is " + pages.size());
+
+        currentInventory.setItem(currentItemIndex++, item);
+
+        if (currentItemIndex % 36 == 0) {
+            Bukkit.getLogger().info("  ## Modulo is 0");
+            if (currentItemIndex < itemListSize) currentInventory.setItem(53, getNextPageItem());
+            if (currentItemIndex > 36) currentInventory.setItem(45, getPreviousPageItem());
+
+            currentItemIndex = 0;
+
+            currentInventory = Bukkit.createInventory(null, 54, getViewID());
+            pages.add(currentInventory);
+        }
     }
 
     private ItemStack getNextPageItem() {
@@ -113,13 +148,20 @@ public class PlayerClassSelectionView implements Listener {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
 
-        if (clicked == null || clicked.getType().isAir() || clicked.containsEnchantment(Enchantment.ARROW_DAMAGE))
+        if (clicked == null
+                || clicked.getType() == Material.GLASS_PANE
+                || clicked.getType().isAir()
+                || clicked.containsEnchantment(Enchantment.ARROW_DAMAGE))
             return;
 
-        if (clicked.getItemMeta().getDisplayName() == "Page suivante") {
+        Bukkit.getLogger().info("CLICK ON " + clicked.getItemMeta().getDisplayName());
+        if (clicked.getItemMeta().getDisplayName().equals("Page suivante")) {
+            Bukkit.getLogger().info("  # pages size is " + pages.size());
+            Bukkit.getLogger().info("  # currentPage is " + currentPage);
             if (pages.size() > currentPage - 1) currentPage++;
             player.openInventory(pages.get(currentPage));
-        } else if (clicked.getItemMeta().getDisplayName() == "Page précédente") {
+        } else if (clicked.getItemMeta().getDisplayName().equals("Page précédente")) {
+            Bukkit.getLogger().info("  # currentPage is " + currentPage);
             if (0 < currentPage) currentPage--;
             player.openInventory(pages.get(currentPage));
         } else {

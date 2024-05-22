@@ -52,6 +52,6 @@ public class ElbmurLavivrusClass extends APlayerClass implements Listener {
         if (!TeamHelper.isLocationInHeadQuarter(location, ownerTeam))
             return;
 
-        GameManager.getInstance().addAddMoney(ownerTeam, 2);
+        GameManager.getInstance().addAddMoney(ownerTeam, 5);
     }
 }

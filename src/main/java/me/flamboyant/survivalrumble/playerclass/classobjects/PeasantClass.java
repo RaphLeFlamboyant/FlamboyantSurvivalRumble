@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 public class PeasantClass extends APlayerClass implements Listener {
+    private static final float plantingAmountReward = 1;
     private static final float fertilizeAmountReward = 1;
     private static final float harvestAmountReward = 5;
     private static final float makingFarmlandAmountReward = 0.2f;
@@ -32,6 +33,12 @@ public class PeasantClass extends APlayerClass implements Listener {
             Material.POTATOES,
             Material.BEETROOTS,
             Material.WHEAT
+    ));
+    private HashSet<Material> validPlantationMaterial = new HashSet<>(Arrays.asList(
+            Material.CARROTS,
+            Material.POTATOES,
+            Material.BEETROOT_SEEDS,
+            Material.WHEAT_SEEDS
     ));
     private HashSet<EntityType> validEntityType = new HashSet<>(Arrays.asList(
             EntityType.PIG,
@@ -92,11 +99,19 @@ public class PeasantClass extends APlayerClass implements Listener {
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getPlayer() != owner) return;
         if (!event.hasItem()) return;
-        if (!event.getItem().getType().toString().contains("HOE")) return;
-        if (event.getClickedBlock() == null) return;
-        if (event.getClickedBlock().getType() != Material.GRASS_BLOCK && event.getClickedBlock().getType() != Material.DIRT) return;
 
-        earnMoney(makingFarmlandAmountReward);
+        if (event.getItem().getType().toString().contains("HOE")) {
+            if (event.getClickedBlock() == null) return;
+            if (event.getClickedBlock().getType() != Material.GRASS_BLOCK && event.getClickedBlock().getType() != Material.DIRT) return;
+
+            earnMoney(makingFarmlandAmountReward);
+        }
+        else if (validPlantationMaterial.contains(event.getItem().getType())) {
+            if (event.getClickedBlock() == null) return;
+            if (event.getClickedBlock().getType() != Material.FARMLAND) return;
+
+            earnMoney(plantingAmountReward);
+        }
     }
 
     @EventHandler

@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ScoutClass extends AAttackClass {
-    private static final float scoreRatioInMalus = 0.05f;
+    private static final float scoreRatioInMalus = 0.1f;
     private static final int minDistDefault = 101;
     private int checkInterval = 1;
     private HashMap<Integer, Float> scoreBySeconds = new HashMap<>() {{
@@ -62,7 +62,7 @@ public class ScoutClass extends AAttackClass {
         applyAmount(amount);
     }
 
-    private int getFlatAmount(int distToHqCenter) {
+    private float getFlatAmount(int distToHqCenter) {
         float score = 0f;
         for (Integer dist : orderedDistance) {
             if (distToHqCenter <= dist) {
@@ -71,6 +71,6 @@ public class ScoutClass extends AAttackClass {
             }
         }
 
-        return (int) score;
+        return score;
     }
 }

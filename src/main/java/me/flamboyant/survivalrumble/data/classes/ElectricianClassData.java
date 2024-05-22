@@ -2,8 +2,8 @@ package me.flamboyant.survivalrumble.data.classes;
 
 import org.bukkit.Location;
 
-import java.util.HashMap;
+import java.util.HashSet;
 
 public class ElectricianClassData extends PlayerClassData {
-    public HashMap<Location, Float> blockLocationList = new HashMap<>();
+    public HashSet<Location> blockLocationList = new HashSet<>();
 }

@@ -21,7 +21,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import java.util.*;
 
 public class PyromaniacClass extends AAttackClass implements Listener {
-    private static final float blocAmountReward = 2f;
+    private static final float blocAmountReward = 8f;
     private static final float foesAwayMalusRatio = 0.25f;
     private static final double validFoesDistance = 50;
 

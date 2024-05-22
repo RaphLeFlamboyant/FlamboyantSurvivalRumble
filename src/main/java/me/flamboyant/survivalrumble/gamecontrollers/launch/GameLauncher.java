@@ -12,7 +12,6 @@ import me.flamboyant.survivalrumble.playerclass.factory.PlayerClassFactory;
 import me.flamboyant.survivalrumble.utils.ITriggerVisitor;
 import me.flamboyant.survivalrumble.gamecontrollers.main.PlayerClassMechanicsHelper;
 import me.flamboyant.survivalrumble.utils.PlayerStateHelper;
-import me.flamboyant.survivalrumble.utils.ScoreHelper;
 import me.flamboyant.survivalrumble.utils.ScoreboardBricklayer;
 import me.flamboyant.utils.ChatHelper;
 import me.flamboyant.utils.Common;

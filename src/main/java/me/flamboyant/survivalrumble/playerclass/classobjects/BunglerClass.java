@@ -16,8 +16,8 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import java.util.HashSet;
 
 public class BunglerClass extends AAttackClass implements Listener {
-    private static final float blocAmountReward = 2f;
-    private static final float foesAwayMalusRatio = 0.05f;
+    private static final float blocAmountReward = 3f;
+    private static final float foesAwayMalusRatio = 0.06f;
     private static final double validFoesDistance = 50;
 
     private HashSet<Block> blocksPlacedByOwnerTeam = new HashSet<>();

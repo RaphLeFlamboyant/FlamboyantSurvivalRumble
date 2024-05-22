@@ -34,21 +34,10 @@ public class ElectricianClass extends APlayerClass implements Listener {
         put(Material.NETHERITE_BLOCK, 50);
     }};
 
-    private HashMap<Material, Float> scoreLossByBrokenBlockType = new HashMap<Material, Float>() {{
-        put(Material.COAL_BLOCK, 1f);
-        put(Material.IRON_BLOCK, 0.9f);
-        put(Material.GOLD_BLOCK, 0.8f);
-        put(Material.REDSTONE_BLOCK, 1f);
-        put(Material.LAPIS_BLOCK, 1f);
-        put(Material.EMERALD_BLOCK, 0.5f);
-        put(Material.DIAMOND_BLOCK, 0.9f);
-        put(Material.NETHERITE_BLOCK, 0.9f);
-    }};
-
     private ElectricianClassData classData;
 
     private int checkInterval = 5;
-    private float total = 0f;
+    private float leftovers;
 
     public ElectricianClass(Player owner) {
         super(owner);
@@ -83,74 +72,76 @@ public class ElectricianClass extends APlayerClass implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        handleBlockModification(event.getBlock(), true);
+        handleBlockBreak(event.getBlock());
     }
 
     @EventHandler
     public void onBlockBurn(BlockBurnEvent event) {
-        handleBlockModification(event.getBlock(), true);
+        handleBlockBreak(event.getBlock());
     }
 
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent event) {
-        handleBlockModification(event.getBlock(), true);
+        handleBlockBreak(event.getBlock());
     }
 
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent event) {
         for (var block : event.blockList()) {
-            handleBlockModification(block, true);
+            handleBlockBreak(block);
         }
     }
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        handleBlockModification(event.getBlock(), false);
+        handleBlockPlace(event.getBlock());
     }
 
-    private void handleBlockModification(Block block, boolean broken) {
+    private boolean shouldWeCareAboutThisBlock(Block block) {
         Location location = block.getLocation();
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
         String ownerTeam = data().getPlayerTeam(owner);
-        if (concernedTeamName == null || !ownerTeam.equals(concernedTeamName)) return;
+        if (concernedTeamName == null || !ownerTeam.equals(concernedTeamName)) return false;
         if (location.getWorld().getHighestBlockYAt(location.getBlockX(), location.getBlockZ()) != location.getBlockY())
-            return;
+            return false;
 
-        handleBlockLocation(classData.blockLocationList, block, broken);
+        return true;
     }
 
-    private void handleBlockLocation(HashMap<Location, Float> blockLocationAndScore, Block block, boolean broken) {
-        if (!broken) {
-            blockLocationAndScore.put(block.getLocation(), 0f);
-            return;
-        }
+    private void handleBlockBreak(Block block) {
+        if (!shouldWeCareAboutThisBlock(block)) return;
 
-        Location loc = block.getLocation();
-        for (Location existingLocation : blockLocationAndScore.keySet()) {
-            if (existingLocation.equals(loc)) {
-                float score = blockLocationAndScore.get(loc);
-                blockLocationAndScore.remove(loc);
-                int lastTotal = (int) total;
-                total -= score * scoreLossByBrokenBlockType.get(block.getType());
-                GameManager.getInstance().addAddMoney(data().getPlayerTeam(owner), -(lastTotal - (int) total));
-                return;
+        classData.blockLocationList.remove(block.getLocation());
+    }
+
+    private void handleBlockPlace(Block block) {
+        if (!shouldWeCareAboutThisBlock(block)) return;
+        var blockLocation = block.getLocation();
+
+        for (var l : classData.blockLocationList) {
+            if (l.getBlockX() == blockLocation.getBlockX() && l.getBlockZ() == blockLocation.getBlockZ()) {
+                Bukkit.getScheduler().runTaskLater(Common.plugin, () -> classData.blockLocationList.remove(l), 1);
             }
         }
+
+        if (scoreByBlockType.containsKey(block.getType())) {
+            classData.blockLocationList.add(block.getLocation());
+        }
+
     }
 
     private void updateScoring() {
-        int lastTotal = (int) total;
+        var amount = 0f;
 
-        for (Location loc : classData.blockLocationList.keySet()) {
+        for (Location loc : classData.blockLocationList) {
             if (loc.getWorld().getHighestBlockYAt(loc.getBlockX(), loc.getBlockZ()) == loc.getBlockY()) {
-                float score = classData.blockLocationList.get(loc);
-                float earned = scoreByBlockType.get(loc.getBlock().getType()) * checkInterval / 60f; // coef is score by minute
-                score += earned;
-                total += earned;
-                classData.blockLocationList.put(loc, score);
+                amount += scoreByBlockType.get(loc.getBlock().getType()) * checkInterval / 60f;
             }
         }
 
-        GameManager.getInstance().addAddMoney(data().getPlayerTeam(owner), ((int) total - lastTotal));
+        amount += leftovers;
+        leftovers = amount % 1f;
+
+        GameManager.getInstance().addAddMoney(data().getPlayerTeam(owner), ((int) amount));
     }
 }

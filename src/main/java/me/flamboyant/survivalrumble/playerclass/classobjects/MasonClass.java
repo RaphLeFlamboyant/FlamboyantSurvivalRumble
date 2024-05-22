@@ -47,7 +47,7 @@ public class MasonClass extends APlayerClass implements Listener {
         if (event.getWhoClicked() != owner) return;
         if (!moneyByMaterial.containsKey(event.getInventory().getResult().getType())) return;
 
-        var earnedAmount = moneyByMaterial.get(event.getInventory().getResult().getType());
+        var earnedAmount = moneyByMaterial.get(event.getInventory().getResult().getType()) * event.getInventory().getResult().getAmount();
         GameManager.getInstance().addAddMoney(data().getPlayerTeam(owner), earnedAmount);
     }
 }
