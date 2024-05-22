@@ -103,15 +103,9 @@ public class PlayerClassSelectionView implements Listener {
         var currentInventory = pages.get(pages.size() - 1);
         var itemListSize = PlayerClassHelper.playerClassMetadata.size() - 1;
 
-        Bukkit.getLogger().info("Try add item " + item.getItemMeta().getDisplayName());
-        Bukkit.getLogger().info("  # Current item index is " + currentItemIndex);
-        Bukkit.getLogger().info("  # itemListSize is " + itemListSize);
-        Bukkit.getLogger().info("  # pages size is " + pages.size());
-
         currentInventory.setItem(currentItemIndex++, item);
 
         if (currentItemIndex % 36 == 0) {
-            Bukkit.getLogger().info("  ## Modulo is 0");
             if (currentItemIndex < itemListSize) currentInventory.setItem(53, getNextPageItem());
             if (currentItemIndex > 36) currentInventory.setItem(45, getPreviousPageItem());
 
@@ -154,14 +148,10 @@ public class PlayerClassSelectionView implements Listener {
                 || clicked.containsEnchantment(Enchantment.ARROW_DAMAGE))
             return;
 
-        Bukkit.getLogger().info("CLICK ON " + clicked.getItemMeta().getDisplayName());
         if (clicked.getItemMeta().getDisplayName().equals("Page suivante")) {
-            Bukkit.getLogger().info("  # pages size is " + pages.size());
-            Bukkit.getLogger().info("  # currentPage is " + currentPage);
             if (pages.size() > currentPage - 1) currentPage++;
             player.openInventory(pages.get(currentPage));
         } else if (clicked.getItemMeta().getDisplayName().equals("Page précédente")) {
-            Bukkit.getLogger().info("  # currentPage is " + currentPage);
             if (0 < currentPage) currentPage--;
             player.openInventory(pages.get(currentPage));
         } else {
