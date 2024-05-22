@@ -2,36 +2,25 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.ScoreHelper;
-import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
+import me.flamboyant.utils.Common;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class BoorishClass extends APlayerClass {
-    private Map<Material, Integer> pointsByOre = new HashMap<Material, Integer>() {{
-        put(Material.COAL_ORE, 3);
-        put(Material.REDSTONE_ORE, 4);
-        put(Material.IRON_ORE, 2);
-        put(Material.NETHER_GOLD_ORE, 4);
-        put(Material.NETHER_QUARTZ_ORE, 4);
-        put(Material.GILDED_BLACKSTONE, 3);
-        put(Material.LAPIS_ORE, 7);
-        put(Material.GOLD_ORE, 3);
-        put(Material.EMERALD_ORE, 25);
-        put(Material.DIAMOND_ORE, 20);
-    }};
+public class BoorishClass extends APlayerClass implements Listener {
+    private static final int validDistance = 100;
+    private static final int hitMoneyReward = 10;
+    private static final int killMoneyReward = 50;
 
     public BoorishClass(Player owner) {
         super(owner);
-        this.triggers.add(ScoringTriggerType.BLOCK_MODIFIER);
 
-        scoringDescription = "Placer des blocs de minerais entre la couche 70 et la couche " + ScoreHelper.fullScoreMaxY;
+        scoringDescription = "Frapper et tuer des ennemis proches de ta base ";
     }
 
     @Override
@@ -40,38 +29,41 @@ public class BoorishClass extends APlayerClass {
     }
 
     @Override
-    public void onBlockPlaceTrigger(Player playerWhoBreaks, Block block) {
-        handleBlockModification(block, false);
+    public void enableClass() {
+        super.enableClass();
+        Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
     @Override
-    public void onBlockBreakTrigger(Player playerWhoBreaks, Block block) {
-        handleBlockBreak(block);
+    public void disableClass() {
+        EntityDamageByEntityEvent.getHandlerList().unregister(this);
+        PlayerDeathEvent.getHandlerList().unregister(this);
     }
 
-    @Override
-    public void onBlockBurnedTrigger(Block block) {
-        handleBlockBreak(block);
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (event.getDamager() != owner) return;
+        onOwnerAttackPlayer(event.getEntity(), hitMoneyReward);
     }
 
-    @Override
-    public void onExplosionTrigger(Block block) {
-        handleBlockBreak(block);
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        if (event.getEntity().getKiller() != owner) return;
+        onOwnerAttackPlayer(event.getEntity(), killMoneyReward);
     }
 
-    private void handleBlockBreak(Block block) {
-        handleBlockModification(block, true);
-    }
+    private void onOwnerAttackPlayer(Entity hitPlayer, int moneyReward) {
+        if (hitPlayer.getType() != EntityType.PLAYER) return;
+        var ownerTeamName = data().getPlayerTeam(owner);
+        if (data().getPlayerTeam((Player) hitPlayer) == ownerTeamName) return;
 
-    private void handleBlockModification(Block block, boolean broken) {
-        int coef = broken ? -1 : 1;
-        if (!pointsByOre.containsKey(block.getType())) return;
-        Location location = block.getLocation();
-        if (location.getBlockY() <= 70 || location.getBlockY() > ScoreHelper.fullScoreMaxY) return;
-        String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
-        String ownerTeamName = data().getPlayerTeam(owner);
-        if (concernedTeamName == null || !ownerTeamName.equals(concernedTeamName)) return;
+        var teamLocation = data().getHeadquarterLocation(ownerTeamName);
+        var foeLocation = hitPlayer.getLocation();
 
-        GameManager.getInstance().addAddMoney(ownerTeamName, (coef * (int) (pointsByOre.get(block.getType()) * ScoreHelper.scoreAltitudeCoefficient(location.getBlockY()))));
+        var isFoeInHQ = TeamHelper.isLocationInHeadQuarter(hitPlayer.getLocation(), ownerTeamName);
+        var isFoeCloseToHQ = foeLocation.distance(teamLocation) <= validDistance;
+        if (!isFoeCloseToHQ && !isFoeInHQ) return;
+
+        GameManager.getInstance().addAddMoney(ownerTeamName, moneyReward);
     }
 }

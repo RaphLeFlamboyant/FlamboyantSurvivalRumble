@@ -11,10 +11,17 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 
 import java.util.HashMap;
 
-public class ElectricianClass extends APlayerClass {
+public class ElectricianClass extends APlayerClass implements Listener {
     // TODO : ajouter une écoute de mouvements par piston pour maj la liste de location (via BlockPistonExtendEvent par ex)
     private HashMap<Material, Integer> scoreByBlockType = new HashMap<Material, Integer>() {{
         put(Material.COAL_BLOCK, 1);
@@ -45,9 +52,6 @@ public class ElectricianClass extends APlayerClass {
 
     public ElectricianClass(Player owner) {
         super(owner);
-        this.triggers.add(ScoringTriggerType.BLOCK_BREAK);
-        this.triggers.add(ScoringTriggerType.BLOCK_EXPLOSION);
-        this.triggers.add(ScoringTriggerType.BLOCK_PLACE);
 
         scoringDescription = "Poser, exposés au ciel, des blocs de ressource issus de minerais (fer, redstone, diamant, etc)";
     }
@@ -65,21 +69,43 @@ public class ElectricianClass extends APlayerClass {
         super.enableClass();
         classData = (ElectricianClassData) data().getPlayerClassData(owner);
         Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> updateScoring(), 0l, checkInterval * 20l);
+        Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
     @Override
-    public void onBlockPlaceTrigger(Player playerWhoBreaks, Block block) {
-        handleBlockModification(block, false);
+    public void disableClass() {
+        BlockBreakEvent.getHandlerList().unregister(this);
+        BlockBurnEvent.getHandlerList().unregister(this);
+        BlockExplodeEvent.getHandlerList().unregister(this);
+        EntityExplodeEvent.getHandlerList().unregister(this);
+        BlockPlaceEvent.getHandlerList().unregister(this);
     }
 
-    @Override
-    public void onBlockBreakTrigger(Player playerWhoBreaks, Block block) {
-        handleBlockModification(block, true);
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        handleBlockModification(event.getBlock(), true);
     }
 
-    @Override
-    public void onExplosionTrigger(Block block) {
-        handleBlockModification(block, true);
+    @EventHandler
+    public void onBlockBurn(BlockBurnEvent event) {
+        handleBlockModification(event.getBlock(), true);
+    }
+
+    @EventHandler
+    public void onBlockExplode(BlockExplodeEvent event) {
+        handleBlockModification(event.getBlock(), true);
+    }
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent event) {
+        for (var block : event.blockList()) {
+            handleBlockModification(block, true);
+        }
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        handleBlockModification(event.getBlock(), false);
     }
 
     private void handleBlockModification(Block block, boolean broken) {

@@ -1,20 +1,29 @@
 package me.flamboyant.survivalrumble.playerclass.classobjects;
 
+import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
-import org.bukkit.Location;
+import me.flamboyant.utils.Common;
 import org.bukkit.Material;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.CraftItemEvent;
 
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
-public class MasonClass extends APlayerClass {
+public class MasonClass extends APlayerClass implements Listener {
+
+    private Map<Material, Integer> moneyByMaterial = new HashMap<>() {{
+        put(Material.BRICKS, 5);
+        put(Material.NETHER_BRICKS, 5);
+        put(Material.RED_NETHER_BRICKS, 8);
+    }};
+
     public MasonClass(Player owner) {
         super(owner);
-        this.triggers.add(ScoringTriggerType.BLOCK_MODIFIER);
 
-        scoringDescription = "Poser des briques rapporte le double de points";
+        scoringDescription = "Crafter des blocs à base de briques";
     }
 
     @Override
@@ -23,12 +32,22 @@ public class MasonClass extends APlayerClass {
     }
 
     @Override
-    public Integer onBlockModifierTrigger(Integer score, BlockData blockData, Location blockLocation, String teamConcerned) {
-        if (Arrays.asList(Material.BRICKS, Material.BRICK_STAIRS, Material.BRICK_SLAB, Material.BRICK_WALL).contains(blockData.getMaterial())
-                && teamConcerned.equals(data().getPlayerTeam(owner))) {
-            score *= 2;
-        }
+    public void enableClass() {
+        super.enableClass();
+        Common.server.getPluginManager().registerEvents(this, Common.plugin);
+    }
 
-        return score;
+    @Override
+    public void disableClass() {
+        CraftItemEvent.getHandlerList().unregister(this);
+    }
+
+    @EventHandler
+    public void onCraftItem(CraftItemEvent event) {
+        if (event.getWhoClicked() != owner) return;
+        if (!moneyByMaterial.containsKey(event.getInventory().getResult().getType())) return;
+
+        var earnedAmount = moneyByMaterial.get(event.getInventory().getResult().getType());
+        GameManager.getInstance().addAddMoney(data().getPlayerTeam(owner), earnedAmount);
     }
 }

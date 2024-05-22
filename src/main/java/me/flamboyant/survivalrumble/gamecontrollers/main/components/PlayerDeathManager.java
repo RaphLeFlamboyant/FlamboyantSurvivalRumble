@@ -10,8 +10,6 @@ import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagem
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowEventType;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowOrchestrator;
 import me.flamboyant.survivalrumble.gamecontrollers.main.components.deathmanagement.workflow.DeathWorkflowStepType;
-import me.flamboyant.survivalrumble.playerclass.classobjects.APlayerClass;
-import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
 import me.flamboyant.survivalrumble.utils.UsefulConstants;
 import me.flamboyant.utils.Common;
 import me.flamboyant.workflow.WorkflowVisitor;
@@ -110,12 +108,6 @@ public class PlayerDeathManager implements Listener, WorkflowVisitor<DeathWorkfl
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        if (event.getEntity() != null) {
-            for (APlayerClass playerClass : PlayerClassMechanicsHelper.getSingleton().connectedClasses.get(ScoringTriggerType.DEATH)) {
-                playerClass.onPlayerDeathTrigger(event.getEntity(), event.getEntity().getKiller());
-            }
-        }
-
         DeathWorkflowData playerDeathData = new DeathWorkflowData();
         playerDeathData.deadPlayer = event.getEntity();
         playerDeathData.deathLocation = event.getEntity().getLocation();

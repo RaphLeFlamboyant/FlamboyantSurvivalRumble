@@ -2,29 +2,16 @@ package me.flamboyant.survivalrumble.gamecontrollers.main;
 
 import me.flamboyant.survivalrumble.playerclass.classobjects.APlayerClass;
 import me.flamboyant.survivalrumble.utils.QuestPoolType;
-import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 public class PlayerClassMechanicsHelper {
     private static PlayerClassMechanicsHelper instance;
-    public HashMap<ScoringTriggerType, List<APlayerClass>> connectedClasses = new HashMap<>();
     private HashMap<UUID, APlayerClass> playerClasses = new HashMap<>();
 
     protected PlayerClassMechanicsHelper() {
-        connectedClasses.put(ScoringTriggerType.BLOCK_BREAK, new ArrayList<>());
-        connectedClasses.put(ScoringTriggerType.BLOCK_BURNED, new ArrayList<>());
-        connectedClasses.put(ScoringTriggerType.BLOCK_EXPLOSION, new ArrayList<>());
-        connectedClasses.put(ScoringTriggerType.BLOCK_MODIFIER, new ArrayList<>());
-        connectedClasses.put(ScoringTriggerType.BLOCK_PLACE, new ArrayList<>());
-        connectedClasses.put(ScoringTriggerType.CHEST_MODIFICATION, new ArrayList<>());
-        connectedClasses.put(ScoringTriggerType.DEATH, new ArrayList<>());
-        connectedClasses.put(ScoringTriggerType.HURT, new ArrayList<>());
-        connectedClasses.put(ScoringTriggerType.ON_TIMER, new ArrayList<>());
     }
 
     public static PlayerClassMechanicsHelper getSingleton() {
@@ -34,16 +21,7 @@ public class PlayerClassMechanicsHelper {
         return instance;
     }
 
-    private void addPlayerClassToTriggers(APlayerClass playerClass) {
-        for (ScoringTriggerType trigger : playerClass.triggers) {
-            System.out.println("Setup trigger " + trigger.toString() + " for class " + playerClass.getClassType().toString());
-            connectedClasses.get(trigger).add(playerClass);
-        }
-    }
-
     public void declarePlayerClass(Player player, APlayerClass playerClass) {
-        addPlayerClassToTriggers(playerClass);
-
         playerClasses.put(player.getUniqueId(), playerClass);
     }
 

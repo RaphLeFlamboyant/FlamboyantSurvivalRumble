@@ -2,145 +2,84 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.ScoreHelper;
-import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
+import me.flamboyant.utils.Common;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.*;
 
-public class PyromaniacClass extends APlayerClass {
-    private static final int scoringCoef = 20;
-    private static final int malusCoef = -16;
+public class PyromaniacClass extends AAttackClass implements Listener {
+    private static final float blocAmountReward = 2f;
+    private static final float foesAwayMalusRatio = 0.25f;
+    private static final double validFoesDistance = 50;
 
-    private HashSet<Material> validBurnableBlocks = new HashSet<>(Arrays.asList(
-            Material.OAK_LOG,
-            Material.ACACIA_LOG,
-            Material.BIRCH_LOG,
-            Material.DARK_OAK_LOG,
-            Material.JUNGLE_LOG,
-            Material.MANGROVE_LOG,
-            Material.SPRUCE_LOG,
-            Material.STRIPPED_ACACIA_LOG,
-            Material.STRIPPED_DARK_OAK_LOG,
-            Material.STRIPPED_BIRCH_LOG,
-            Material.STRIPPED_JUNGLE_LOG,
-            Material.STRIPPED_MANGROVE_LOG,
-            Material.STRIPPED_OAK_LOG,
-            Material.STRIPPED_SPRUCE_LOG,
-            Material.ACACIA_WOOD,
-            Material.BIRCH_WOOD,
-            Material.DARK_OAK_WOOD,
-            Material.JUNGLE_WOOD,
-            Material.MANGROVE_WOOD,
-            Material.OAK_WOOD,
-            Material.SPRUCE_WOOD,
-            Material.STRIPPED_ACACIA_WOOD,
-            Material.STRIPPED_BIRCH_WOOD,
-            Material.STRIPPED_DARK_OAK_WOOD,
-            Material.STRIPPED_JUNGLE_WOOD,
-            Material.STRIPPED_MANGROVE_WOOD,
-            Material.STRIPPED_OAK_WOOD,
-            Material.STRIPPED_SPRUCE_WOOD,
-            Material.COAL_BLOCK,
-            Material.OAK_PLANKS,
-            Material.ACACIA_PLANKS,
-            Material.BIRCH_PLANKS,
-            Material.DARK_OAK_PLANKS,
-            Material.JUNGLE_PLANKS,
-            Material.MANGROVE_PLANKS,
-            Material.SPRUCE_PLANKS,
-            Material.OAK_SLAB,
-            Material.ACACIA_SLAB,
-            Material.BIRCH_SLAB,
-            Material.DARK_OAK_SLAB,
-            Material.JUNGLE_SLAB,
-            Material.MANGROVE_SLAB,
-            Material.SPRUCE_SLAB,
-            Material.OAK_FENCE,
-            Material.ACACIA_FENCE,
-            Material.BIRCH_FENCE,
-            Material.DARK_OAK_FENCE,
-            Material.JUNGLE_FENCE,
-            Material.MANGROVE_FENCE,
-            Material.SPRUCE_FENCE,
-            Material.OAK_FENCE_GATE,
-            Material.ACACIA_FENCE_GATE,
-            Material.BIRCH_FENCE_GATE,
-            Material.DARK_OAK_FENCE_GATE,
-            Material.JUNGLE_FENCE_GATE,
-            Material.MANGROVE_FENCE_GATE,
-            Material.SPRUCE_FENCE_GATE,
-            Material.OAK_STAIRS,
-            Material.ACACIA_STAIRS,
-            Material.BIRCH_STAIRS,
-            Material.DARK_OAK_STAIRS,
-            Material.JUNGLE_STAIRS,
-            Material.MANGROVE_STAIRS,
-            Material.SPRUCE_STAIRS,
-            Material.OAK_LEAVES,
+    private HashSet<Block> blocksPlacedByOwnerTeam = new HashSet<>();
+
+    private HashSet<Material> invalidBurnableBlocks = new HashSet<>(Arrays.asList(
+            Material.SHORT_GRASS,
+            Material.TALL_GRASS,
+            Material.VINE,
+            Material.CAVE_VINES,
+            Material.TWISTING_VINES,
+            Material.WEEPING_VINES,
+            Material.CAVE_VINES_PLANT,
+            Material.TWISTING_VINES_PLANT,
+            Material.WEEPING_VINES_PLANT,
+            Material.GLOW_LICHEN,
+            Material.AZALEA_LEAVES,
+            Material.FLOWERING_AZALEA_LEAVES,
             Material.ACACIA_LEAVES,
             Material.BIRCH_LEAVES,
-            Material.DARK_OAK_LEAVES,
             Material.JUNGLE_LEAVES,
+            Material.CHERRY_LEAVES,
+            Material.DARK_OAK_LEAVES,
             Material.MANGROVE_LEAVES,
+            Material.OAK_LEAVES,
             Material.SPRUCE_LEAVES,
-            Material.FLOWERING_AZALEA_LEAVES,
-            Material.AZALEA_LEAVES,
-            Material.COMPOSTER,
-            Material.BEEHIVE,
-            Material.TARGET,
-            Material.BOOKSHELF,
-            Material.LECTERN,
-            Material.BEE_NEST,
-            Material.BLACK_WOOL,
-            Material.BLUE_WOOL,
-            Material.BROWN_WOOL,
-            Material.CYAN_WOOL,
-            Material.GRAY_WOOL,
-            Material.GREEN_WOOL,
-            Material.LIGHT_BLUE_WOOL,
-            Material.LIGHT_GRAY_WOOL,
-            Material.LIME_WOOL,
-            Material.MAGENTA_WOOL,
-            Material.ORANGE_WOOL,
-            Material.PINK_WOOL,
-            Material.PURPLE_WOOL,
-            Material.RED_WOOL,
-            Material.WHITE_WOOL,
-            Material.YELLOW_WOOL,
-            Material.BLACK_CARPET,
-            Material.BLUE_CARPET,
-            Material.BROWN_CARPET,
-            Material.CYAN_CARPET,
-            Material.GRAY_CARPET,
-            Material.GREEN_CARPET,
-            Material.LIGHT_BLUE_CARPET,
-            Material.LIGHT_GRAY_CARPET,
-            Material.LIME_CARPET,
-            Material.MAGENTA_CARPET,
-            Material.ORANGE_CARPET,
-            Material.PINK_CARPET,
-            Material.PURPLE_CARPET,
-            Material.RED_CARPET,
-            Material.WHITE_CARPET,
-            Material.YELLOW_CARPET,
-            Material.DRIED_KELP_BLOCK,
-            Material.HAY_BLOCK,
-            Material.SCAFFOLDING
+            Material.HANGING_ROOTS,
+            Material.FERN,
+            Material.LARGE_FERN,
+            Material.DEAD_BUSH,
+            Material.BIG_DRIPLEAF,
+            Material.BIG_DRIPLEAF_STEM,
+            Material.SMALL_DRIPLEAF,
+            Material.SPORE_BLOSSOM,
+            Material.BAMBOO,
+            Material.BAMBOO_SAPLING,
+            Material.SWEET_BERRY_BUSH,
+            Material.PITCHER_PLANT,
+            Material.DANDELION,
+            Material.POPPY,
+            Material.BLUE_ORCHID,
+            Material.ALLIUM,
+            Material.ORANGE_TULIP,
+            Material.PINK_TULIP,
+            Material.RED_TULIP,
+            Material.WHITE_TULIP,
+            Material.OXEYE_DAISY,
+            Material.CORNFLOWER,
+            Material.LILY_OF_THE_VALLEY,
+            Material.TORCHFLOWER
     ));
 
     private HashSet<EntityDamageEvent.DamageCause> validDeathCauses = new HashSet<>(Arrays.asList(EntityDamageEvent.DamageCause.LAVA, EntityDamageEvent.DamageCause.FIRE_TICK, EntityDamageEvent.DamageCause.FIRE));
 
     public PyromaniacClass(Player owner) {
         super(owner);
-        this.triggers.add(ScoringTriggerType.BLOCK_BURNED);
 
-        scoringDescription = "Bréler des blocs dans la base adverse";
+        scoringDescription = "Brûler des blocs dans la base adverse et tuer les ennemis par le feu";
     }
 
     @Override
@@ -149,36 +88,100 @@ public class PyromaniacClass extends APlayerClass {
     }
 
     @Override
-    public void onBlockBurnedTrigger(Block block) {
-        if (!validBurnableBlocks.contains(block.getType())) return;
+    public void enableClass() {
+        super.enableClass();
+        Common.server.getPluginManager().registerEvents(this, Common.plugin);
+    }
+
+    @Override
+    public void disableClass() {
+        BlockBreakEvent.getHandlerList().unregister(this);
+        BlockBurnEvent.getHandlerList().unregister(this);
+        BlockExplodeEvent.getHandlerList().unregister(this);
+        EntityExplodeEvent.getHandlerList().unregister(this);
+        BlockPlaceEvent.getHandlerList().unregister(this);
+        PlayerDeathEvent.getHandlerList().unregister(this);
+    }
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (blocksPlacedByOwnerTeam.contains(event.getBlock())) {
+            blocksPlacedByOwnerTeam.remove(event.getBlock());
+            return;
+        }
+    }
+
+    @EventHandler
+    public void onBlockBurn(BlockBurnEvent event) {
+        var block = event.getBlock();
+
+        if (blocksPlacedByOwnerTeam.contains(block)) {
+            blocksPlacedByOwnerTeam.remove(block);
+            return;
+        }
+
+        if (invalidBurnableBlocks.contains(block.getType())) return;
         Location location = block.getLocation();
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
         String ownerTeamName = data().getPlayerTeam(owner);
         if (concernedTeamName == null || ownerTeamName.equals(concernedTeamName)) return;
 
-        GameManager.getInstance().addAddMoney(ownerTeamName, (int) (scoringCoef * ScoreHelper.scoreAltitudeCoefficient(location.getBlockY())));
+        applyAmount(blocAmountReward);
     }
 
-    @Override
-    public void onBlockPlaceTrigger(Player playerWhoBreaks, Block block) {
-        if (!validBurnableBlocks.contains(block.getType())) return;
-        if (!data().getPlayerTeam(playerWhoBreaks).equals(data().getPlayerTeam(owner))) return;
-
-        String ownerTeamName = data().getPlayerTeam(owner);
-        GameManager.getInstance().addAddMoney(ownerTeamName, (int) (malusCoef * ScoreHelper.scoreAltitudeCoefficient(block.getLocation().getBlockY())));
+    @EventHandler
+    public void onBlockExplode(BlockExplodeEvent event) {
+        if (blocksPlacedByOwnerTeam.contains(event.getBlock())) {
+            blocksPlacedByOwnerTeam.remove(event.getBlock());
+            return;
+        }
     }
 
-    @Override
-    public void onPlayerDeathTrigger(Player killed, Player killer) {
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent event) {
+        for (Block block : event.blockList()) {
+            if (blocksPlacedByOwnerTeam.contains(block)) {
+                blocksPlacedByOwnerTeam.remove(block);
+                return;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        var block = event.getBlock();
+        var playerWhoPlaces = event.getPlayer();
+
+        if (invalidBurnableBlocks.contains(block.getType())) return;
+        var ownerTeam = data().getPlayerTeam(owner);
+        if (!data().getPlayerTeam(playerWhoPlaces).equals(ownerTeam)) return;
+        var location = block.getLocation();
+        var concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
+        if (concernedTeamName == null || ownerTeam.equals(concernedTeamName)) return;
+
+        blocksPlacedByOwnerTeam.add(block);
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        var killed = event.getEntity();
+
         EntityDamageEvent.DamageCause deathCause = killed.getLastDamageCause().getCause();
-        // Mob & co is not a valid death, we don't want trapper to earn free points
         if (!validDeathCauses.contains(deathCause)) return;
-        // the trapper is too far away
         if (owner.getWorld() != killed.getWorld()
                 || owner.getLocation().distance(killed.getLocation()) > 100) return;
-        // the dead is in the trapper team
         if (data().getPlayerTeam(killed).equals(data().getPlayerTeam(owner))) return;
 
-        GameManager.getInstance().addAddMoney(data().getPlayerTeam(owner), 50);
+        GameManager.getInstance().addAddMoney(data().getPlayerTeam(owner), 100);
+    }
+
+    @Override
+    protected float getMalusRatio() {
+        return foesAwayMalusRatio;
+    }
+
+    @Override
+    protected double getValidationDistance() {
+        return validFoesDistance;
     }
 }

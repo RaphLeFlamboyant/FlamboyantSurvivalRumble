@@ -2,22 +2,50 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.ScoreHelper;
-import me.flamboyant.survivalrumble.utils.ScoringTriggerType;
-import me.flamboyant.survivalrumble.utils.TeamHelper;
-import org.bukkit.Location;
+import me.flamboyant.utils.Common;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockFertilizeEvent;
+import org.bukkit.event.entity.EntityBreedEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 
-public class PeasantClass extends APlayerClass {
+import java.util.Arrays;
+import java.util.HashSet;
+
+public class PeasantClass extends APlayerClass implements Listener {
+    private static final float fertilizeAmountReward = 1;
+    private static final float harvestAmountReward = 5;
+    private static final float makingFarmlandAmountReward = 0.2f;
+    private static final float breedingAmountReward = 20;
+    private static final float cattleKillAmountReward = 2;
+    private final String ownerTeam;
+
+    private float leftovers;
+
+    private HashSet<Material> validFarmingMaterial = new HashSet<>(Arrays.asList(
+            Material.CARROTS,
+            Material.POTATOES,
+            Material.BEETROOTS,
+            Material.WHEAT
+    ));
+    private HashSet<EntityType> validEntityType = new HashSet<>(Arrays.asList(
+            EntityType.PIG,
+            EntityType.COW,
+            EntityType.CHICKEN,
+            EntityType.SHEEP,
+            EntityType.RABBIT
+    ));
+
     public PeasantClass(Player owner) {
         super(owner);
-        this.triggers.add(ScoringTriggerType.BLOCK_BREAK);
-        this.triggers.add(ScoringTriggerType.BLOCK_EXPLOSION);
-        this.triggers.add(ScoringTriggerType.BLOCK_PLACE);
+        ownerTeam = data().getPlayerTeam(owner);
 
-        scoringDescription = "Pose des blocs de paille dans ta base";
+        scoringDescription = "Travailler comme un paysan";
     }
 
     @Override
@@ -26,37 +54,71 @@ public class PeasantClass extends APlayerClass {
     }
 
     @Override
-    public void onBlockPlaceTrigger(Player playerWhoBreaks, Block block) {
-        handleBlockModification(block, false);
+    public void enableClass() {
+        super.enableClass();
+        Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
     @Override
-    public void onBlockBreakTrigger(Player playerWhoBreaks, Block block) {
-        handleBlockBreak(block);
+    public void disableClass() {
+        BlockFertilizeEvent.getHandlerList().unregister(this);
+        BlockBreakEvent.getHandlerList().unregister(this);
+        PlayerInteractEvent.getHandlerList().unregister(this);
+        EntityBreedEvent.getHandlerList().unregister(this);
+        EntityDeathEvent.getHandlerList().unregister(this);
     }
 
-    @Override
-    public void onBlockBurnedTrigger(Block block) {
-        handleBlockBreak(block);
+    @EventHandler
+    public void onBlockFertilize(BlockFertilizeEvent event) {
+        if (event.getPlayer() != owner) return;
+        var fertilizedBlocks = event.getBlocks();
+
+        for (var blockState : fertilizedBlocks) {
+            if (validFarmingMaterial.contains(blockState.getType()))
+                earnMoney(fertilizeAmountReward);
+        }
     }
 
-    @Override
-    public void onExplosionTrigger(Block block) {
-        handleBlockBreak(block);
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (event.getPlayer() != owner) return;
+        var brokenBlock = event.getBlock();
+
+        if (validFarmingMaterial.contains(brokenBlock.getType()))
+            earnMoney(harvestAmountReward);
     }
 
-    private void handleBlockBreak(Block block) {
-        handleBlockModification(block, true);
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getPlayer() != owner) return;
+        if (!event.hasItem()) return;
+        if (!event.getItem().getType().toString().contains("HOE")) return;
+        if (event.getClickedBlock() == null) return;
+        if (event.getClickedBlock().getType() != Material.GRASS_BLOCK && event.getClickedBlock().getType() != Material.DIRT) return;
+
+        earnMoney(makingFarmlandAmountReward);
     }
 
-    private void handleBlockModification(Block block, boolean broken) {
-        int coef = broken ? -1 : 1;
-        if (block.getType() != Material.HAY_BLOCK) return;
-        Location location = block.getLocation();
-        String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
-        String ownerTeamName = data().getPlayerTeam(owner);
-        if (concernedTeamName == null || !ownerTeamName.equals(concernedTeamName)) return;
+    @EventHandler
+    public void onEntityBreed(EntityBreedEvent event) {
+        if (event.getBreeder() != owner) return;
+        if (!validEntityType.contains(event.getEntityType())) return;
 
-        GameManager.getInstance().addAddMoney(ownerTeamName, (coef * (int) (10 * ScoreHelper.scoreAltitudeCoefficient(location.getBlockY()))));
+        earnMoney(breedingAmountReward);
+    }
+
+    @EventHandler
+    public void onEntityDeath(EntityDeathEvent event) {
+        if (event.getEntity().getKiller() != owner) return;
+        if ( !validEntityType.contains(event.getEntity().getType())) return;
+
+        earnMoney(cattleKillAmountReward);
+    }
+
+    private void earnMoney(float amount) {
+        amount += leftovers;
+        leftovers = amount % 1f;
+
+        GameManager.getInstance().addAddMoney(ownerTeam, (int) amount);
     }
 }

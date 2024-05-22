@@ -32,6 +32,19 @@ public class ChatColors {
                 + ChatColor.RESET + ChatColor.ITALIC + personalCorpusColor + corpus + "\n";
     }
 
+    public static String personalAnnouncementChaptered(String mainTitle, List<String> chapterTitles, List<String> corpuses) {
+        var msg = "\n" + ChatColor.UNDERLINE + personalTitleColor + mainTitle;
+
+        for (var i = 0; i < chapterTitles.size(); i++) {
+            var title = chapterTitles.get(i);
+            var corpus = corpuses.get(i);
+
+            msg += "\n" + ChatColor.RESET + ChatColor.GOLD + title + ChatColor.RESET + ChatColor.ITALIC + personalCorpusColor + corpus;
+        }
+
+        return msg;
+    }
+
     public static String questAnnouncement(String title, String points, String corpus) {
         return "\n" + ChatColor.GOLD + "[" + questTitleColor + title + ChatColor.GOLD + "]" + ChatColor.WHITE + " - (" + points + " pts)\n"
                 + ChatColor.RESET + ChatColor.ITALIC + questCorpusColor + corpus + "\n";

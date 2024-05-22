@@ -1,21 +1,31 @@
 package me.flamboyant.survivalrumble.playerclass.classobjects;
 
-import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.survivalrumble.utils.*;
-import org.bukkit.Location;
+import me.flamboyant.utils.Common;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 
-public class BunglerClass extends APlayerClass {
-    private static final int scoreCoef = 5;
-    private static final int malusCoef = -4;
+import java.util.HashSet;
+
+public class BunglerClass extends AAttackClass implements Listener {
+    private static final float blocAmountReward = 2f;
+    private static final float foesAwayMalusRatio = 0.05f;
+    private static final double validFoesDistance = 50;
+
+    private HashSet<Block> blocksPlacedByOwnerTeam = new HashSet<>();
 
     public BunglerClass(Player owner) {
         super(owner);
-        this.triggers.add(ScoringTriggerType.BLOCK_BREAK);
 
-        scoringDescription = "Détruire des blocs de construction dans une base adverse";
+        scoringDescription = "Détruire les blocs exposés au ciel dans une base adverse";
     }
 
     @Override
@@ -23,27 +33,92 @@ public class BunglerClass extends APlayerClass {
         return PlayerClassType.BUNGLER;
     }
 
-    public void onBlockBreakTrigger(Player playerWhoBreaks, Block block) {
-        if (playerWhoBreaks != owner) return;
-
-        if (!MaterialHelper.scoringMaterial.containsKey(block.getBlockData().getMaterial())) return;
-        Location location = block.getLocation();
-        String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
-        String ownerTeam = data().getPlayerTeam(owner);
-        if (concernedTeamName == null || ownerTeam.equals(concernedTeamName)) return;
-
-        GameManager.getInstance().addAddMoney(ownerTeam, (int) (scoreCoef * ScoreHelper.scoreAltitudeCoefficient(location.getBlockY())));
+    @Override
+    public void enableClass() {
+        super.enableClass();
+        Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
 
     @Override
-    public void onBlockPlaceTrigger(Player playerWhoBreaks, Block block) {
-        if (!MaterialHelper.scoringMaterial.containsKey(block.getBlockData().getMaterial())) return;
-        String ownerTeam = data().getPlayerTeam(owner);
-        if (!data().getPlayerTeam(playerWhoBreaks).equals(ownerTeam)) return;
-        Location location = block.getLocation();
-        String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
+    public void disableClass() {
+        BlockBreakEvent.getHandlerList().unregister(this);
+        BlockBurnEvent.getHandlerList().unregister(this);
+        BlockExplodeEvent.getHandlerList().unregister(this);
+        EntityExplodeEvent.getHandlerList().unregister(this);
+        BlockPlaceEvent.getHandlerList().unregister(this);
+    }
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        var block = event.getBlock();
+        var playerWhoBreaks = event.getPlayer();
+
+        if (blocksPlacedByOwnerTeam.contains(block)) {
+            blocksPlacedByOwnerTeam.remove(block);
+            return;
+        }
+
+        if (playerWhoBreaks != owner) return;
+
+        var location = block.getLocation();
+        if (location.getWorld().getHighestBlockYAt(location.getBlockX(), location.getBlockZ()) != location.getBlockY())
+            return;
+
+        var concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
+        var ownerTeam = data().getPlayerTeam(owner);
+        if (concernedTeamName == null || ownerTeam.equals(concernedTeamName))
+            return;
+
+        applyAmount(blocAmountReward);
+    }
+
+    @EventHandler
+    public void onBlockBurn(BlockBurnEvent event) {
+        if (blocksPlacedByOwnerTeam.contains(event.getBlock())) {
+            blocksPlacedByOwnerTeam.remove(event.getBlock());
+            return;
+        }
+    }
+
+    @EventHandler
+    public void onBlockExplode(BlockExplodeEvent event) {
+        if (blocksPlacedByOwnerTeam.contains(event.getBlock())) {
+            blocksPlacedByOwnerTeam.remove(event.getBlock());
+            return;
+        }
+    }
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent event) {
+        for (Block block : event.blockList()) {
+            if (blocksPlacedByOwnerTeam.contains(block)) {
+                blocksPlacedByOwnerTeam.remove(block);
+                return;
+            }
+        }
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        var block = event.getBlock();
+        var playerWhoPlaces = event.getPlayer();
+
+        var ownerTeam = data().getPlayerTeam(owner);
+        if (!data().getPlayerTeam(playerWhoPlaces).equals(ownerTeam)) return;
+        var location = block.getLocation();
+        var concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
         if (concernedTeamName == null || ownerTeam.equals(concernedTeamName)) return;
 
-        GameManager.getInstance().addAddMoney(ownerTeam, (int) (malusCoef * ScoreHelper.scoreAltitudeCoefficient(block.getLocation().getBlockY())));
+        blocksPlacedByOwnerTeam.add(block);
+    }
+
+    @Override
+    protected float getMalusRatio() {
+        return foesAwayMalusRatio;
+    }
+
+    @Override
+    protected double getValidationDistance() {
+        return validFoesDistance;
     }
 }

@@ -15,6 +15,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -33,8 +34,6 @@ public class ThiefClass extends ANonVanillaClass implements Listener {
 
     public ThiefClass(Player owner) {
         super(owner);
-
-        this.triggers.add(ScoringTriggerType.BLOCK_PLACE);
     }
 
     @Override
@@ -46,9 +45,13 @@ public class ThiefClass extends ANonVanillaClass implements Listener {
     public PlayerClassData buildClassData() { return new ThiefClassData(); }
 
     @Override
-    protected String getClassDescriptionCorpus() {
-        return "Toute la partie, tu recevra les craft d'un joueur adverse. Les blocs de construction que tu recevras marqueront plus de points si tu " +
-                "les poses dans ta base.";
+    protected String getAbilityDescription() {
+        return "Toute la partie, tu recevra les craft d'un joueur adverse.";
+    }
+
+    @Override
+    protected String getScoringDescription() {
+        return "Pose les blocs volés dans ta base.";
     }
 
     @Override
@@ -59,6 +62,7 @@ public class ThiefClass extends ANonVanillaClass implements Listener {
     @Override
     public void enableClass() {
         super.enableClass();
+        classData = (ThiefClassData) data().getPlayerClassData(owner);
         owner.getInventory().addItem(getPlayerSelectionItem());
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
@@ -70,11 +74,15 @@ public class ThiefClass extends ANonVanillaClass implements Listener {
         PlayerRespawnEvent.getHandlerList().unregister(this);
         InventoryCloseEvent.getHandlerList().unregister(this);
         CraftItemEvent.getHandlerList().unregister(this);
+        BlockPlaceEvent.getHandlerList().unregister(this);
     }
 
-    @Override
-    public void onBlockPlaceTrigger(Player playerWhoBreaks, Block block) {
-        if (playerWhoBreaks != owner) return;
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        var block = event.getBlock();
+        var playerWhoPlaces = event.getPlayer();
+
+        if (playerWhoPlaces != owner) return;
         // TODO : j'ai pas accès au player sur l'event modifier mais le check de location y est déjà fait donc ici ça fait doublon
         String concernedTeam = TeamHelper.getTeamHeadquarterName(block.getLocation());
         String ownerTeam = data().getPlayerTeam(owner);
@@ -96,7 +104,7 @@ public class ThiefClass extends ANonVanillaClass implements Listener {
             owner.openInventory(currentOpenedView.getViewInstance());
         }
         else {
-            lastInteractThief = event.getItem().getItemMeta().getDisplayName().equals("Bloc volé") && event.getItem().containsEnchantment(Enchantment.CHANNELING);
+            lastInteractThief = event.getItem().getItemMeta().getDisplayName().equals("Objet volé");
         }
     }
 
@@ -151,13 +159,7 @@ public class ThiefClass extends ANonVanillaClass implements Listener {
         ItemStack itemCopy = new ItemStack(event.getInventory().getResult().getType(), realQuantity);
 
         ItemMeta meta = itemCopy.getItemMeta();
-        if(MaterialHelper.scoringMaterial.containsKey(itemCopy.getType())) {
-            meta.addEnchant(Enchantment.CHANNELING, 1, true);
-            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-            meta.setDisplayName("Bloc volé");
-        }
-        else
-            meta.setDisplayName("Objet volé");
+        meta.setDisplayName("Objet volé");
         itemCopy.setItemMeta(meta);
 
         owner.getInventory().addItem(itemCopy);

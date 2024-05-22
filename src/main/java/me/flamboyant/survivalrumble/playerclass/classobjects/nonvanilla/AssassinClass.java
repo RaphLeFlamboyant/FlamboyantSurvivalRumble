@@ -56,13 +56,17 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
     public PlayerClassData buildClassData() { return new AssassinClassData(); }
 
     @Override
-    protected String getClassDescriptionCorpus() {
+    protected String getAbilityDescription() {
         return "Utiliser une feuille de papier te donne un contrat sur un joueur au hasard. "
-                + "Tuer le joueur sous contrat te rapporte 500 points. "
                 + "Quand un joueur est sous contrat, utiliser une boussole te permet de connaitre sa position. "
                 + "Au bout de 15 minutes de jeu tout le monde sait que le joueur ciblé est sous contrat. "
                 + "Au bout de 60 minutes de jeu le contrat est annulé."
                 + "Il est possible d'annuler un contrat en faisant un click droit dessus, mais tu ne peux plus lancer de contrat pendant les prochaines 30 minutes.";
+    }
+
+    @Override
+    protected String getScoringDescription() {
+        return "Tuer le joueur sous contrat te rapporte 500 points.";
     }
 
     @Override

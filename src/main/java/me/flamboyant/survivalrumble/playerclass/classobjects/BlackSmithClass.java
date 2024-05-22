@@ -2,14 +2,11 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
-import me.flamboyant.survivalrumble.utils.TeamHelper;
 import me.flamboyant.utils.Common;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 
 import java.util.HashMap;
@@ -21,7 +18,7 @@ public class BlackSmithClass extends APlayerClass implements Listener {
     private int goldBasePoints = 3;
     private int diamondBasePoints = 6;
 
-    private Map<Material, Integer> scoreByMaterial = new HashMap<Material, Integer>() {{
+    private Map<Material, Integer> moneyByMaterial = new HashMap<>() {{
         put(Material.LEATHER_CHESTPLATE, 8 * leatherBasePoints);
         put(Material.LEATHER_BOOTS, 4 * leatherBasePoints);
         put(Material.LEATHER_HELMET, 5 * leatherBasePoints);
@@ -80,12 +77,10 @@ public class BlackSmithClass extends APlayerClass implements Listener {
 
     @EventHandler
     public void onCraftItem(CraftItemEvent event) {
-        if (!event.getWhoClicked().getUniqueId().equals(owner.getUniqueId())) return;
-        String concernedTeamName = TeamHelper.getTeamHeadquarterName(event.getWhoClicked().getLocation());
-        if (!concernedTeamName.equals(data().getPlayerTeam(owner))) return;
-        if (!scoreByMaterial.containsKey(event.getInventory().getResult().getType())) return;
+        if (event.getWhoClicked() != owner) return;
+        if (!moneyByMaterial.containsKey(event.getInventory().getResult().getType())) return;
 
-        int score = scoreByMaterial.get(event.getInventory().getResult().getType());
-        GameManager.getInstance().addAddMoney(concernedTeamName, score);
+        var earnedAmount = moneyByMaterial.get(event.getInventory().getResult().getType());
+        GameManager.getInstance().addAddMoney(data().getPlayerTeam(owner), earnedAmount);
     }
 }

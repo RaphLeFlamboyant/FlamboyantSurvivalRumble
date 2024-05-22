@@ -11,7 +11,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -20,7 +19,6 @@ import java.util.List;
 
 public class MainGameManager implements Listener, ITriggerVisitor {
     private GameTimeManager timeManager = new GameTimeManager();
-    private BlockScoreListener blockScoreListener = new BlockScoreListener();
     private List<ChampionShopManager> championShopManagers = new ArrayList<>();
     private QuestListener questListener = new QuestListener();
     private BukkitTask questTask;
@@ -53,7 +51,6 @@ public class MainGameManager implements Listener, ITriggerVisitor {
             return;
         }
 
-        //blockScoreListener.start();
         PlayerClassMechanicsHelper.getSingleton().enablePlayersClasses();
         PlayerDeathManager.getInstance().start();
         timeManager.launchGameTimeManagement(this);
@@ -78,7 +75,6 @@ public class MainGameManager implements Listener, ITriggerVisitor {
             return;
         }
 
-        //blockScoreListener.stop();
         PlayerClassMechanicsHelper.getSingleton().disablePlayersClasses();
         PlayerDeathManager.getInstance().stop();
         for (ChampionShopManager championShopManager : championShopManagers) {

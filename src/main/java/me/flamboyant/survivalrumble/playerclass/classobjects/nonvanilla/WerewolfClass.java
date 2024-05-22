@@ -37,10 +37,15 @@ public class WerewolfClass extends ANonVanillaClass implements Listener {
     }
 
     @Override
-    protected String getClassDescriptionCorpus() {
+    protected String getAbilityDescription() {
         return "Tu obtiens les effets FORCE 1, SPEED 1 et NIGHT VISION la nuit. Ces effets ne disparaissent pas en "
                 + "consommant un seau de lait. Les potions affectants ces effets ne fonctionneront pas sur toi "
-                + "(que ça soit une potion FORCE 2 ou une potion WEAKNESS). Vous gagnez 250 points part kill de nuit.";
+                + "(que ça soit une potion FORCE 2 ou une potion WEAKNESS).";
+    }
+
+    @Override
+    protected String getScoringDescription() {
+        return "Vous gagnez 250 points part kill de nuit.";
     }
 
     @Override
