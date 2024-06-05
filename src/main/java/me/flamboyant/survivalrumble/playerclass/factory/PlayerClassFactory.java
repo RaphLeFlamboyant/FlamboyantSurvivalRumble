@@ -66,6 +66,8 @@ public class PlayerClassFactory {
                 return new NudistClass(owner);
             case NARCOLEPTIC:
                 return new NarcolepticClass(owner);
+            case ENGINEER:
+                return new EngineerClass(owner);
             default:
                 return new FakeClass(owner);
         }

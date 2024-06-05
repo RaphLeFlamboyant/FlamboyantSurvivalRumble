@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 
@@ -98,7 +99,19 @@ public class EngineerClass extends APlayerClass implements Listener {
         if (!event.getWhoClicked().equals(owner)) return;
         if (!materialToScore.containsKey(event.getInventory().getResult().getType())) return;
 
-        float amount = materialToScore.get(event.getInventory().getResult().getType());
+        int realQuantity = 9999;
+        if (event.isShiftClick()) {
+            int factor = event.getInventory().getResult().getAmount();
+            for (ItemStack item : event.getInventory().getMatrix()) {
+                if (item != null) realQuantity = Math.min(realQuantity, item.getAmount() * factor);
+            }
+            System.out.println("Shift click gave " + realQuantity + " quantity");
+        } else {
+            realQuantity = event.getInventory().getResult().getAmount();
+            System.out.println("Normal click gave " + realQuantity + " quantity");
+        }
+
+        float amount = materialToScore.get(event.getInventory().getResult().getType()) * realQuantity;
         amount += leftovers;
         leftovers = amount % 1f;
 

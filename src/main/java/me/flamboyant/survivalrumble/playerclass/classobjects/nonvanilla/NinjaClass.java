@@ -254,17 +254,18 @@ public class NinjaClass extends ANonVanillaClass implements Listener {
     }
 
     private void updateScoring() {
+        if(targetedPlayer == null) return;
         if (!owner.getWorld().getName().equals(targetedPlayer.getWorld().getName())) return;
 
         var ownerTeam = data().getPlayerTeam(owner);
-        var ownerTeamHqLocation = data().getHeadquarterLocation(ownerTeam);
+        var ownerLocation = owner.getLocation();
         var gain = 0f;
         for (Player player : Common.server.getOnlinePlayers()) {
             if (player.getGameMode() != GameMode.SURVIVAL) continue;
             var playerTeam = data().getPlayerTeam(player);
             if (playerTeam == ownerTeam || playerTeam == null) continue;
 
-            var distance = player.getLocation().distance(ownerTeamHqLocation);
+            var distance = player.getLocation().distance(ownerLocation);
             if (distance > softGainDistance) continue;
 
             if (distance <= hardGainDistance)

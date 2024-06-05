@@ -120,7 +120,7 @@ public class ShamelessClass extends AAttackClass implements Listener {
     @EventHandler
     public void onCraftItem(CraftItemEvent event) {
         if (event.getWhoClicked() != owner) return;
-        applyAmount(2f);
+        applyAmount(2f * event.getInventory().getResult().getAmount());
     }
     
     @EventHandler

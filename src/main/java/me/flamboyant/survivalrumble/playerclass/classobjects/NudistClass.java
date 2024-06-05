@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 public class NudistClass extends AAttackClass {
     private static final int checkInterval = 1;
-    private static final float notNudeMalusWeight = 4f;
+    private static final float notNudeMalusWeight = 7f;
     private static final float biggestGainPerSecond = 25f;
 
     private long lastArmorEquippedCount;
@@ -55,7 +55,7 @@ public class NudistClass extends AAttackClass {
 
         if (lastArmorEquippedCount != armorEquippedCount) {
             cancelGain = true;
-            Bukkit.getScheduler().runTaskLater(Common.plugin, () -> cancelGain = false, 15 * 60 * 20);
+            Bukkit.getScheduler().runTaskLater(Common.plugin, () -> cancelGain = false, 2 * 60 * 20);
         }
         lastArmorEquippedCount = armorEquippedCount;
 
@@ -64,7 +64,7 @@ public class NudistClass extends AAttackClass {
         var ratio = 1f;
 
         if (armorEquippedCount > 0) {
-            ratio = armorEquippedCount / (notNudeMalusWeight + playerInventory.getArmorContents().length);
+            ratio = (notNudeMalusWeight + armorEquippedCount) / (notNudeMalusWeight + playerInventory.getArmorContents().length);
         }
 
         var emptySlotCount = Arrays.stream(playerInventory.getContents()).filter(a -> a == null ||a.getType() == Material.AIR).count();

@@ -66,7 +66,7 @@ public class NarcolepticClass extends APlayerClass implements Listener {
             if (playerTeam == ownerTeam || playerTeam == null) continue;
 
             if (TeamHelper.isLocationInHeadQuarter(player.getLocation(), ownerTeam)) {
-                GameManager.getInstance().addAddMoney(ownerTeam, 25);
+                GameManager.getInstance().addAddMoney(ownerTeam, 15);
             }
         }
     }

@@ -2,6 +2,7 @@ package me.flamboyant.survivalrumble.playerclass.classobjects;
 
 import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
+import me.flamboyant.survivalrumble.utils.TeamHelper;
 import me.flamboyant.utils.Common;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -54,6 +55,9 @@ public class StandardBearerClass extends APlayerClass {
         if (!owner.getWorld().getName().equals("world")) return;
 
         var ownerTeam = data().getPlayerTeam(owner);
+        if (!TeamHelper.isLocationInHeadQuarter(owner.getLocation(), ownerTeam))
+            return;
+
         var ownerTeamHqLocation = data().getHeadquarterLocation(ownerTeam);
         var closestDistance = Double.MAX_VALUE;
         var playerCount = 0;
