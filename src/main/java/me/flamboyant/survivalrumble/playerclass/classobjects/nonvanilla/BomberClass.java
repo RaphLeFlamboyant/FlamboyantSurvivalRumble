@@ -49,6 +49,6 @@ public class BomberClass extends ANonVanillaClass implements Listener {
         event.getPlayer().getWorld().createExplosion(event.getPlayer().getLocation(), 3.5f, true);
         event.getPlayer().setHealth(0);
         String playerTeam = data().getPlayerTeam(owner);
-        GameManager.getInstance().addAddMoney(playerTeam, -200);
+        GameManager.getInstance().addAddMoney(playerTeam, -100);
     }
 }

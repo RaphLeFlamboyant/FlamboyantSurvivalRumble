@@ -13,7 +13,6 @@ public class PlayerClassHelper {
     public static Map<PlayerClassType, PlayerClassMetadata> playerClassMetadata = new HashMap<>() {{
         put(PlayerClassType.WARRIOR, new PlayerClassMetadata(PlayerClassType.WARRIOR, PlayerClassCategory.PVP, Material.DIAMOND_CHESTPLATE, "GUERRIER", Sound.ENTITY_PLAYER_ATTACK_STRONG, "Guerrier ", "Prêt à vous écraser"));
         put(PlayerClassType.SCOUT, new PlayerClassMetadata(PlayerClassType.SCOUT, PlayerClassCategory.ATTACK, Material.TORCH, "ÉCLAIREUR", Sound.BLOCK_GRASS_STEP, "Éclaireur", "connait votre base par coeur"));
-        //put(PlayerClassType.NINJA, new PlayerClassMetadata(PlayerClassType.NINJA, Material.BLACK_STAINED_GLASS_PANE, "NINJA", Sound.ENTITY_PUFFER_FISH_BLOW_OUT, "Ninja", "Toujours proche de vous"));
         //put(PlayerClassType.BANKER, new PlayerClassMetadata(PlayerClassType.BANKER, Material.GOLD_INGOT, "BANQUIER", Sound.BLOCK_CHEST_LOCKED, "Banquier", "Sa richesse est votre perte"));
         put(PlayerClassType.MASON, new PlayerClassMetadata(PlayerClassType.MASON, PlayerClassCategory.SURVIVAL, Material.BRICK, "MAçON", Sound.BLOCK_NETHER_BRICKS_BREAK, "Maçon", "Une défaite pavée de briques"));
         put(PlayerClassType.BUNGLER, new PlayerClassMetadata(PlayerClassType.BUNGLER, PlayerClassCategory.ATTACK, Material.STONE_PICKAXE, "SABOTEUR", Sound.BLOCK_GLASS_BREAK, "Saboteur", "Votre base sera un gruyère"));
@@ -33,11 +32,17 @@ public class PlayerClassHelper {
         put(PlayerClassType.FISHER, new PlayerClassMetadata(PlayerClassType.FISHER, PlayerClassCategory.SURVIVAL, Material.FISHING_ROD, "PÊCHEUR", Sound.ENTITY_FISHING_BOBBER_THROW, "Pêcheur", "Une force tranquille"));
         put(PlayerClassType.BOORISH, new PlayerClassMetadata(PlayerClassType.BOORISH, PlayerClassCategory.DEFENSE, Material.COAL_ORE, "RUSTRE", Sound.ENTITY_PILLAGER_AMBIENT, "Rustre", "Il vit dans une grotte"));
         put(PlayerClassType.HUNTER, new PlayerClassMetadata(PlayerClassType.HUNTER, PlayerClassCategory.SURVIVAL, Material.BEEF, "CHASSEUR", Sound.ENTITY_COW_DEATH, "Chasseur", "Un flair inégalé"));
+        put(PlayerClassType.STANDARDBEARER, new PlayerClassMetadata(PlayerClassType.STANDARDBEARER, PlayerClassCategory.DEFENSE, Material.LIGHT_BLUE_BANNER, "PORTE ETENDARD", Sound.ITEM_GOAT_HORN_SOUND_0, "Porte-Étendard", "Il apprécie votre visite"));
+        put(PlayerClassType.ENGINEER, new PlayerClassMetadata(PlayerClassType.ENGINEER, PlayerClassCategory.SURVIVAL, Material.REDSTONE, "INGÉNIEUR", Sound.ENTITY_VILLAGER_WORK_TOOLSMITH, "Ingénieur", "Il construit des machines"));
+        put(PlayerClassType.SHAMELESS, new PlayerClassMetadata(PlayerClassType.SHAMELESS, PlayerClassCategory.ATTACK, Material.DIRT, "SANS GÊNE", Sound.BLOCK_COMPOSTER_FILL, "Sans Gêne", "Il se croit chez lui"));
+        put(PlayerClassType.NUDIST, new PlayerClassMetadata(PlayerClassType.NUDIST, PlayerClassCategory.ATTACK, Material.LEATHER_LEGGINGS, "NUDISTE", Sound.ITEM_ARMOR_EQUIP_LEATHER, "Nudiste", "Il aime voyager léger"));
+        put(PlayerClassType.NARCOLEPTIC, new PlayerClassMetadata(PlayerClassType.NARCOLEPTIC, PlayerClassCategory.DEFENSE, Material.MAGENTA_BED, "NARCOLEPTIQUE", Sound.ENTITY_FOX_SLEEP, "Narcoleptique", "Dort aux pires moments"));
 
         put(PlayerClassType.BOMBER, new PlayerClassMetadata(PlayerClassType.BOMBER, PlayerClassCategory.NON_VANILLA, Material.TNT_MINECART, "BOMBARDIER FOU", Sound.ENTITY_GENERIC_EXPLODE, "Bombadier Fou", "Pire que 100 creepers"));
         put(PlayerClassType.WEREWOLF, new PlayerClassMetadata(PlayerClassType.WEREWOLF, PlayerClassCategory.NON_VANILLA, Material.BONE, "LOUP GAROU", Sound.ENTITY_WOLF_GROWL, "Loup Garou", "Il salive d'impatience"));
         put(PlayerClassType.ASSASSIN, new PlayerClassMetadata(PlayerClassType.ASSASSIN, PlayerClassCategory.NON_VANILLA, Material.STONE_SWORD, "ASSASSIN", Sound.BLOCK_CHAIN_PLACE, "Assassin", "Vous serez persécutés"));
         put(PlayerClassType.THIEF, new PlayerClassMetadata(PlayerClassType.THIEF, PlayerClassCategory.NON_VANILLA, Material.CHEST, "VOLEUR", Sound.BLOCK_CHEST_OPEN, "Voleur", "Votre stuff est le sien"));
+        put(PlayerClassType.NINJA, new PlayerClassMetadata(PlayerClassType.NINJA, PlayerClassCategory.NON_VANILLA, Material.BLACK_STAINED_GLASS_PANE, "NINJA", Sound.ENTITY_PUFFER_FISH_BLOW_OUT, "Ninja", "Toujours proche de vous"));
 
         put(PlayerClassType.FAKE_CLASS, new PlayerClassMetadata(PlayerClassType.FAKE_CLASS, PlayerClassCategory.PVP, Material.COMMAND_BLOCK, "FAKE_CLASS", Sound.BLOCK_STONE_BUTTON_CLICK_ON, "Fake class", "Si tu vois ça c'est un bug"));
     }};

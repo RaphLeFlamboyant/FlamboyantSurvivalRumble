@@ -2,10 +2,7 @@ package me.flamboyant.survivalrumble.playerclass.factory;
 
 import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.survivalrumble.playerclass.classobjects.*;
-import me.flamboyant.survivalrumble.playerclass.classobjects.nonvanilla.AssassinClass;
-import me.flamboyant.survivalrumble.playerclass.classobjects.nonvanilla.BomberClass;
-import me.flamboyant.survivalrumble.playerclass.classobjects.nonvanilla.ThiefClass;
-import me.flamboyant.survivalrumble.playerclass.classobjects.nonvanilla.WerewolfClass;
+import me.flamboyant.survivalrumble.playerclass.classobjects.nonvanilla.*;
 import org.bukkit.entity.Player;
 
 public class PlayerClassFactory {
@@ -59,6 +56,16 @@ public class PlayerClassFactory {
                 return new AssassinClass(owner);
             case THIEF:
                 return new ThiefClass(owner);
+            case STANDARDBEARER:
+                return new StandardBearerClass(owner);
+            case NINJA:
+                return new NinjaClass(owner);
+            case SHAMELESS:
+                return new ShamelessClass(owner);
+            case NUDIST:
+                return new NudistClass(owner);
+            case NARCOLEPTIC:
+                return new NarcolepticClass(owner);
             default:
                 return new FakeClass(owner);
         }

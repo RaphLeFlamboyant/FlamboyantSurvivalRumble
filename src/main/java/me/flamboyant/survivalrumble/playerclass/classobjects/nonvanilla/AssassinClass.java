@@ -8,6 +8,7 @@ import me.flamboyant.survivalrumble.utils.ChatColors;
 import me.flamboyant.survivalrumble.utils.UsefulConstants;
 import me.flamboyant.utils.Common;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -71,7 +72,7 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
 
     @Override
     public int getScoreMalus() {
-        return -3000;
+        return -2500;
     }
 
     @Override
@@ -167,9 +168,14 @@ public class AssassinClass extends ANonVanillaClass implements Listener {
                 owner.sendMessage(ChatColors.feedback("Tu dois encore attendre " + diff + " minutes avant de pouvoir relancer un contrat"));
                 return;
             }
-            String selectedTeam = data().getTeams().stream().filter(t -> !t.equals(data().getPlayerTeam(owner))).collect(Collectors.toList()).get(Common.rng.nextInt(data().getTeams().size() - 1));
-            List<Player> playersInTeam = data().getPlayers(selectedTeam);
-            classData.targetPlayerId = playersInTeam.get(Common.rng.nextInt(playersInTeam.size())).getUniqueId();
+
+            var ownerTeam = data().getPlayerTeam(owner);
+            var allPlayers = Common.server.getOnlinePlayers()
+                    .stream()
+                    .filter(p -> p.getGameMode() == GameMode.SURVIVAL && data().getPlayerTeam(p) != ownerTeam)
+                    .collect(Collectors.toList());
+
+            classData.targetPlayerId = allPlayers.get(Common.rng.nextInt(allPlayers.size())).getUniqueId();
             paper.setAmount(paper.getAmount() - 1);
             launchContract();
         }

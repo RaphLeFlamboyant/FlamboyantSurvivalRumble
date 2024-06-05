@@ -1,42 +1,40 @@
 package me.flamboyant.survivalrumble.playerclass.classobjects;
 
+import me.flamboyant.survivalrumble.GameManager;
 import me.flamboyant.survivalrumble.data.PlayerClassType;
 import me.flamboyant.utils.Common;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
-public class ScoutClass extends AAttackClass {
-    private static final float scoreRatioInMalus = 0.1f;
-    private static final int minDistDefault = 101;
-
+public class StandardBearerClass extends APlayerClass {
     private BukkitTask intervalTask;
     private int checkInterval = 1;
+    private float leftovers = 0f;
     private HashMap<Integer, Float> scoreBySeconds = new HashMap<>() {{
         put(4, 20f);
         put(10, 5f);
         put(20, 2.5f);
         put(30, 1.7f);
-        put(50, 1f);
-        put(60, 0.6f);
-        put(80, 0.4f);
-        put(100, 0.2f);
+        put(40, 1f);
     }};
     private List<Integer> orderedDistance;
 
-    public ScoutClass(Player owner) {
+    public StandardBearerClass(Player owner) {
         super(owner);
 
-        scoringDescription = "Approche toi autant que possible du centre de la base adverse";
+        scoringDescription = "Les ennemis doivent être proches de ta base quand tu y es";
         orderedDistance = scoreBySeconds.keySet().stream().sorted().collect(Collectors.toList());
     }
 
     @Override
     public PlayerClassType getClassType() {
-        return PlayerClassType.SCOUT;
+        return PlayerClassType.STANDARDBEARER;
     }
 
     @Override
@@ -52,23 +50,32 @@ public class ScoutClass extends AAttackClass {
         Bukkit.getScheduler().cancelTask(intervalTask.getTaskId());
     }
 
-    @Override
-    protected float getMalusRatio() {
-        return scoreRatioInMalus;
-    }
-
-    @Override
-    protected double getValidationDistance() {
-        return minDistDefault;
-    }
-
     private void updateScoring() {
         if (!owner.getWorld().getName().equals("world")) return;
-        String closestTeamHQ = getClosestValidHeadQuarter();
-        if (closestTeamHQ == null) return;
 
-        var amount = getFlatAmount((int) owner.getLocation().distance(data().getHeadquarterLocation(closestTeamHQ)));
-        applyAmount(amount);
+        var ownerTeam = data().getPlayerTeam(owner);
+        var ownerTeamHqLocation = data().getHeadquarterLocation(ownerTeam);
+        var closestDistance = Double.MAX_VALUE;
+        var playerCount = 0;
+        for (Player player : Common.server.getOnlinePlayers()) {
+            if (player.getGameMode() != GameMode.SURVIVAL) continue;
+            var playerTeam = data().getPlayerTeam(player);
+            if (playerTeam == ownerTeam || playerTeam == null) continue;
+
+            var distance = player.getLocation().distance(ownerTeamHqLocation);
+            if (distance > 40) continue;
+
+            if (distance < closestDistance)
+                closestDistance = distance;
+
+            playerCount++;
+        }
+
+        var flatAmount = getFlatAmount((int) closestDistance) * playerCount;
+        flatAmount += leftovers;
+        leftovers = flatAmount % 1f;
+
+        GameManager.getInstance().addAddMoney(data().getPlayerTeam(owner), (int) flatAmount);
     }
 
     private float getFlatAmount(int distToHqCenter) {

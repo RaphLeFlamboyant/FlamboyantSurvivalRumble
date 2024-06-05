@@ -16,7 +16,7 @@ public class CrafterClass extends APlayerClass implements Listener {
     public CrafterClass(Player owner) {
         super(owner);
 
-        scoringDescription = "Crafter, dans ta base, des items que tu n'as pas encore crafté";
+        scoringDescription = "Crafter des items que tu n'as pas encore crafté";
     }
 
     @Override

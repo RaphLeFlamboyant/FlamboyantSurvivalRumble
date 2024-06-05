@@ -56,7 +56,7 @@ public class ThiefClass extends ANonVanillaClass implements Listener {
 
     @Override
     public int getScoreMalus() {
-        return -2500;
+        return -2000;
     }
 
     @Override
