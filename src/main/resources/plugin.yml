@@ -5,15 +5,21 @@ main: me.flamboyant.survivalrumble.Main
 api-version: 1.18
 description: Team battle blabla
 commands:
-  f_sr_gametime:
+  i_gametime:
     description: Get the game timer.
-    permission: f_sr_gametime.use
-  f_sr_questinfo:
-    description: Get the game information.
-    permission: f_sr_gameinfo.use
-  f_sr_check_buff:
+    permission: i_gametime.use
+  i_questinfo:
+    description: Get the game quests - deprecated.
+    permission: i_questinfo.use
+  i_check_buff:
     description: Get the champion buff information.
-    permission: f_sr_check_buff.use
+    permission: i_check_buff.use
+  i_class_selection:
+    description: Get the classes selected by player.
+    permission: i_class_selection.use
+  i_headquarters:
+    description: Get the tema headquarter location.
+    permission: i_headquarters.use
   c_sr_reset_server:
     description: Reset the server config
     permission: sr_reset_server.use
@@ -27,9 +33,13 @@ commands:
     description: Reduces the timer to 0
     permission: bastoooooon.use
 permissions:
-  f_sr_gametime.use:
+  i_gametime.use:
     default: true
-  f_sr_questinfo.use:
+  i_questinfo.use:
     default: true
-  f_sr_check_buff.use:
+  i_check_buff.use:
+    default: true
+  i_class_selection.use:
+    default: true
+  i_headquarters.use:
     default: true

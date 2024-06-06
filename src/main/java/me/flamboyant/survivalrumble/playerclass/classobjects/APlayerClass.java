@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 public abstract class APlayerClass {
     protected Player owner;
     protected String scoringDescription;
+    private boolean firstAttempt = true;
 
     public APlayerClass(Player owner) {
         this.owner = owner;
@@ -30,7 +31,10 @@ public abstract class APlayerClass {
 
     public void enableClass() {
         String message = getClassDescription();
-        owner.sendMessage(message);
+
+        if (firstAttempt)
+            owner.sendMessage(message);
+        firstAttempt = false;
     }
 
     public void disableClass() {

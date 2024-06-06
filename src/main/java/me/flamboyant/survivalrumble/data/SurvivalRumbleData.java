@@ -42,6 +42,10 @@ public class SurvivalRumbleData {
         playerClassDataList.put(playerClass.getClassType(), playerClass.buildClassData());
     }
 
+    public PlayerClassType getPlayerClassType(Player player) {
+        return playersClass.get(player.getUniqueId());
+    }
+
     public PlayerClassData getPlayerClassData(Player player) {
         return playerClassDataList.get(playersClass.get(player.getUniqueId()));
     }

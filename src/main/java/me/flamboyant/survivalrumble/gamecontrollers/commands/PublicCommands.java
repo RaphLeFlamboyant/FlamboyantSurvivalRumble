@@ -27,21 +27,33 @@ public class PublicCommands implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String msg, String[] args) {
         data = SurvivalRumbleData.getSingleton();
 
-        if (cmd.getName().equalsIgnoreCase("f_sr_gametime")) {
+        if (cmd.getName().equalsIgnoreCase("i_gametime")) {
             String message = ChatColors.feedback("" + (data.minutesBeforeEnd / 60) + "h" + (data.minutesBeforeEnd % 60) + "m");
             sender.sendMessage(message);
 
             return true;
         }
-        else if (cmd.getName().equalsIgnoreCase("f_sr_questinfo")) {
-            Player player = (Player) sender;
-            QuestHelper.showQuestMessage(player);
+
+        if (!(sender instanceof Player)) return false;
+        Player player = (Player) sender;
+
+        if (cmd.getName().equalsIgnoreCase("i_questinfo")) {
+            //QuestHelper.showQuestMessage(player);
 
             return true;
         }
-        else if (cmd.getName().equalsIgnoreCase("f_sr_check_buff")) {
-            Player player = (Player) sender;
+        else if (cmd.getName().equalsIgnoreCase("i_check_buff")) {
             printChampionPowers(player);
+
+            return true;
+        }
+        else if (cmd.getName().equalsIgnoreCase("i_class_selection")) {
+            printClassInfo(player);
+
+            return true;
+        }
+        else if (cmd.getName().equalsIgnoreCase("i_headquarters")) {
+            printHeadquarters(player);
 
             return true;
         }
@@ -63,6 +75,29 @@ public class PublicCommands implements CommandExecutor {
         }
 
         player.sendMessage(msg);
+    }
+
+    private void printClassInfo(Player commander) {
+        var msg = "";
+        for (var teamName : data.getTeams()) {
+            msg += "Équipe " + teamName + " :\n";
+            for (var player : data.getPlayers(teamName)) {
+                var className = PlayerClassHelper.playerClassMetadata.get(data.getPlayerClassType(player)).getDisplayName();
+                msg += "- " + player.getDisplayName() + " a la classe " + className + "\n";
+            }
+        }
+
+        commander.sendMessage(ChatHelper.titledMessage("Selection des classes", msg));
+    }
+
+    private void printHeadquarters(Player commander) {
+        var msg = "";
+        for (var teamName : data.getTeams()) {
+            var location = data.getHeadquarterLocation(teamName);
+            msg += "Équipe " + teamName + " : " + location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ() + "\n";
+        }
+
+        commander.sendMessage(ChatHelper.titledMessage("Position des bases", msg));
     }
 
     private String gameInfo() {

@@ -16,9 +16,11 @@ public final class Main extends FlamboyantPlugin {
         DebugCommands debugCommands = new DebugCommands();
         ConsistencyCommands consistencyCommands = new ConsistencyCommands();
 
-        getCommand("f_sr_gametime").setExecutor(publicCommands);
-        getCommand("f_sr_questinfo").setExecutor(publicCommands);
-        getCommand("f_sr_check_buff").setExecutor(publicCommands);
+        getCommand("i_gametime").setExecutor(publicCommands);
+        getCommand("i_questinfo").setExecutor(publicCommands);
+        getCommand("i_check_buff").setExecutor(publicCommands);
+        getCommand("i_class_selection").setExecutor(publicCommands);
+        getCommand("i_headquarters").setExecutor(publicCommands);
 
         getCommand("c_sr_reset_server").setExecutor(consistencyCommands);
 
