@@ -1,6 +1,7 @@
 package me.flamboyant.survivalrumble.powers.impl;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
+import me.flamboyant.survivalrumble.gamecontrollers.assault.AssaultManager;
 import me.flamboyant.survivalrumble.gamecontrollers.assault.IAssaultStepListener;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -11,12 +12,13 @@ public class ShieldRemovalPower implements IChampionPower, IAssaultStepListener 
     @Override
     public void activate(Player powerOwner, int powerLevel) {
         this.powerOwner = powerOwner;
+        AssaultManager.getInstance().addAssaultStepListener(this);
         removeFoesShield();
     }
 
     @Override
     public void deactivate() {
-
+        AssaultManager.getInstance().removeAssaultStepListener(this);
     }
 
     private void removeFoesShield() {

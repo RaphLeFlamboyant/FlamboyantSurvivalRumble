@@ -3,10 +3,12 @@ package me.flamboyant.survivalrumble.gamecontrollers.assault;
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
 import me.flamboyant.survivalrumble.delegates.EntityDamageEventCallback;
 import me.flamboyant.survivalrumble.utils.PlayerStateHelper;
+import me.flamboyant.survivalrumble.utils.Priority;
 import me.flamboyant.survivalrumble.utils.TeamHelper;
 import me.flamboyant.survivalrumble.utils.UsefulConstants;
 import me.flamboyant.utils.ChatHelper;
 import me.flamboyant.utils.Common;
+import me.flamboyant.utils.ItemHelper;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.boss.BarColor;
@@ -20,19 +22,18 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDispenseArmorEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -58,7 +59,8 @@ public class AssaultManager implements Listener {
     private List<IAssaultStepListener> assaultStepListeners = new ArrayList<>();
     private BukkitTask locationDefenderTask;
     private HashMap<String, BossBar> teamNameToChampionBar = new HashMap<>();
-    private List<EntityDamageEventCallback> damageListeningPowers = new ArrayList<>();
+    private List<EntityDamageCallbackPriority> damageListeningPowers = new ArrayList<>();
+    private HashMap<Player, List<ItemStack>> championItems = new HashMap<>();
 
     private static AssaultManager instance;
     protected AssaultManager() {
@@ -74,8 +76,9 @@ public class AssaultManager implements Listener {
     }
 
     public void start() {
-        Bukkit.getWorld(UsefulConstants.overworldName).setGameRule(GameRule.NATURAL_REGENERATION, false);
-        Bukkit.getWorld(UsefulConstants.overworldName).setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
+        var overworld = Bukkit.getWorld(UsefulConstants.overworldName);
+        overworld.setGameRule(GameRule.NATURAL_REGENERATION, false);
+        overworld.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
 
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
         for (String teamName : data.getTeams()) {
@@ -87,6 +90,12 @@ public class AssaultManager implements Listener {
             champion.setGameMode(GameMode.SPECTATOR);
             champion.teleport(teamHq);
             playerLastLocation.put(champion, teamHq);
+            var playerItems = Arrays.stream(champion.getInventory().getContents())
+                    .filter(i -> i != null && !ItemHelper.forbiddenMaterials.contains(i.getType()))
+                    .map(i -> i.clone())
+                    .collect(Collectors.toList());
+            champion.getInventory().clear();
+            championItems.put(champion, playerItems);
             Bukkit.getScheduler().runTaskLater(Common.plugin, () -> countdownPlayer(10, champion), 0);
 
             String targetTeamName = data.getTeamTargetTeam(teamName);
@@ -110,6 +119,7 @@ public class AssaultManager implements Listener {
 
         ChampionPowerManager.getInstance().activateChampionsPowers();
         createBossBars();
+        clearDroppedItems(overworld);
 
         Common.server.getPluginManager().registerEvents(this, Common.plugin);
     }
@@ -121,8 +131,6 @@ public class AssaultManager implements Listener {
         Bukkit.getScheduler().cancelTask(locationDefenderTask.getTaskId());
         PlayerDeathEvent.getHandlerList().unregister(this);
         PlayerRespawnEvent.getHandlerList().unregister(this);
-        PlayerItemConsumeEvent.getHandlerList().unregister(this);
-        PotionSplashEvent.getHandlerList().unregister(this);
         PlayerInteractEvent.getHandlerList().unregister(this);
         PlayerInteractEntityEvent.getHandlerList().unregister(this);
         BlockDropItemEvent.getHandlerList().unregister(this);
@@ -131,22 +139,38 @@ public class AssaultManager implements Listener {
         PlayerItemDamageEvent.getHandlerList().unregister(this);
         PlayerPortalEvent.getHandlerList().unregister(this);
         PlayerJoinEvent.getHandlerList().unregister(this);
+        PlayerItemConsumeEvent.getHandlerList().unregister(this);
+        PotionSplashEvent.getHandlerList().unregister(this);
+        EntityResurrectEvent.getHandlerList().unregister(this);
+        EntityDamageEvent.getHandlerList().unregister(this);
     }
 
-    public void addListener(IAssaultStepListener assaultStepListener) {
+    public void addAssaultStepListener(IAssaultStepListener assaultStepListener) {
         assaultStepListeners.add(assaultStepListener);
     }
 
-    public void removeListener(IAssaultStepListener assaultStepListener) {
+    public void removeAssaultStepListener(IAssaultStepListener assaultStepListener) {
         assaultStepListeners.remove(assaultStepListener);
     }
 
-    public void addListener(EntityDamageEventCallback entityDamageEventCallback) {
-        damageListeningPowers.add(entityDamageEventCallback);
+    public void addEntityDamageListener(EntityDamageEventCallback entityDamageEventCallback, Priority priority) {
+        var callbackPriority = new EntityDamageCallbackPriority();
+        callbackPriority.entityDamageEventCallback = entityDamageEventCallback;
+        callbackPriority.priority = priority;
+        damageListeningPowers.add(callbackPriority);
     }
 
-    public void removeListener(EntityDamageEventCallback entityDamageEventCallback) {
-        damageListeningPowers.remove(entityDamageEventCallback);
+    public void removeEntityDamageListener(EntityDamageEventCallback entityDamageEventCallback) {
+        EntityDamageCallbackPriority callbackToRemove = null;
+        for (var entityDamageCallbackPriority : damageListeningPowers) {
+            if (entityDamageCallbackPriority.entityDamageEventCallback == entityDamageEventCallback) {
+                callbackToRemove = entityDamageCallbackPriority;
+                break;
+            }
+        }
+
+        if (damageListeningPowers != null)
+            damageListeningPowers.remove(callbackToRemove);
     }
 
 
@@ -232,33 +256,10 @@ public class AssaultManager implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        Bukkit.getLogger().info("Player " + event.getPlayer().getDisplayName() + " interacts with item " + event.getItem().getItemMeta().getDisplayName());
+        Bukkit.getLogger().info("Player " + event.getPlayer().getDisplayName() + " interacts with item "
+                + (event.getItem() == null ? "null" : event.getItem().getItemMeta().getDisplayName()));
         onPlayerInteractTriggeredOnForbiddenBloc(event);
         onPlayerInteractWithForbiddenItem(event);
-    }
-
-    @EventHandler
-    public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
-        SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
-        if (data.getTeamChampion(data.getPlayerTeam(event.getPlayer())) != event.getPlayer()) return;
-        if (event.getItem().getType() == Material.POTION
-                || event.getItem().getType() == Material.GOLDEN_APPLE
-                || event.getItem().getType() == Material.ENCHANTED_GOLDEN_APPLE) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
-    public void onPotionSplash(PotionSplashEvent event) {
-        SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
-
-        for (var entity : event.getAffectedEntities()) {
-            if (entity.getType() != EntityType.PLAYER) continue;
-            if (data.getTeamChampion(data.getPlayerTeam((Player)entity)) != entity) continue;
-
-            event.setCancelled(true);
-            return;
-        }
     }
 
     private void onPlayerInteractTriggeredOnForbiddenBloc(PlayerInteractEvent event) {
@@ -343,6 +344,55 @@ public class AssaultManager implements Listener {
         player.setGameMode(GameMode.SPECTATOR);
     }
 
+    @EventHandler
+    public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
+        SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
+        if (data.getTeamChampion(data.getPlayerTeam(event.getPlayer())) != event.getPlayer()) return;
+        if (event.getItem().getType() == Material.POTION
+                || event.getItem().getType() == Material.GOLDEN_APPLE
+                || event.getItem().getType() == Material.ENCHANTED_GOLDEN_APPLE) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPotionSplash(PotionSplashEvent event) {
+        SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
+
+        for (var entity : event.getAffectedEntities()) {
+            if (entity.getType() != EntityType.PLAYER) continue;
+            if (data.getTeamChampion(data.getPlayerTeam((Player)entity)) != entity) continue;
+
+            event.setCancelled(true);
+            return;
+        }
+    }
+
+    @EventHandler
+    public void onEntityResurrect(EntityResurrectEvent event) {
+        SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
+        var entity = event.getEntity();
+        if (entity.getType() != EntityType.PLAYER) return;
+        var player = (Player)entity;
+        if (data.getTeamChampion(data.getPlayerTeam(player)) != entity) return;
+
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onEntityDamageEvent(EntityDamageEvent event) {
+        for (var priority : Priority.values()) {
+            for (var entityDamageCallbackPriority : damageListeningPowers) {
+                if (entityDamageCallbackPriority.priority != priority) continue;
+
+                entityDamageCallbackPriority.entityDamageEventCallback.onEntityDamageEvent(event);
+
+                if (event.isCancelled())
+                    return;
+            }
+        }
+    }
+
     private void locationBasedActions() {
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
         for (String teamName : data.getTeams()) {
@@ -383,8 +433,14 @@ public class AssaultManager implements Listener {
         Location location = player.getLocation();
 
         var data = SurvivalRumbleData.getSingleton();
-        if (data.getTeamChampion(data.getPlayerTeam(player)) != player)
+        if (data.getTeamChampion(data.getPlayerTeam(player)) != player) {
             location = new Location(location.getWorld(), location.getX(), location.getWorld().getHighestBlockYAt(location) + 1, location.getZ());
+        }
+        else {
+            for (var item : championItems.get(player)) {
+                player.getInventory().addItem(item);
+            }
+        }
         player.teleport(location);
         player.setGameMode(GameMode.SURVIVAL);
         PlayerStateHelper.resetPlayerState(player);
@@ -424,6 +480,13 @@ public class AssaultManager implements Listener {
             var champion = SurvivalRumbleData.getSingleton().getTeamChampion(teamName);
 
             teamNameToChampionBar.get(teamName).setProgress(champion.getHealth() / champion.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+        }
+    }
+
+    private void clearDroppedItems(World world) {
+        for (var entity : world.getEntities()) {
+            if (entity.getType() != EntityType.DROPPED_ITEM) continue;
+            entity.remove();
         }
     }
 }

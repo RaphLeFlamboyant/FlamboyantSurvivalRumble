@@ -1,6 +1,7 @@
 package me.flamboyant.survivalrumble.powers.impl;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
+import me.flamboyant.survivalrumble.gamecontrollers.assault.AssaultManager;
 import me.flamboyant.survivalrumble.gamecontrollers.assault.IAssaultStepListener;
 import me.flamboyant.utils.Common;
 import org.bukkit.Bukkit;
@@ -24,12 +25,14 @@ public class EnemiesDetectionPower implements IChampionPower, IAssaultStepListen
     public void activate(Player powerOwner, int powerLevel) {
         this.powerOwner = powerOwner;
 
+        AssaultManager.getInstance().addAssaultStepListener(this);
         refreshAssaultPlayers();
         playerDetectionTask = Bukkit.getScheduler().runTaskTimer(Common.plugin, () -> detectClosePlayers(), 40, 40);
     }
 
     @Override
     public void deactivate() {
+        AssaultManager.getInstance().removeAssaultStepListener(this);
         Bukkit.getScheduler().cancelTask(playerDetectionTask.getTaskId());
     }
 

@@ -1,6 +1,7 @@
 package me.flamboyant.survivalrumble.powers.impl;
 
 import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
+import me.flamboyant.survivalrumble.gamecontrollers.assault.AssaultManager;
 import me.flamboyant.survivalrumble.gamecontrollers.assault.IAssaultStepListener;
 import me.flamboyant.utils.Common;
 import org.bukkit.Bukkit;
@@ -23,11 +24,13 @@ public class BalanceComeBackPower extends AComeBackPower implements IAssaultStep
 
     @Override
     protected void onActivate() {
+        AssaultManager.getInstance().addAssaultStepListener(this);
         refreshAssaultPlayers();
     }
 
     @Override
     protected void onDeactivate() {
+        AssaultManager.getInstance().removeAssaultStepListener(this);
         if (hasAlreadyBeenUsed) {
             Bukkit.getScheduler().cancelTask(poisonTask.getTaskId());
         }

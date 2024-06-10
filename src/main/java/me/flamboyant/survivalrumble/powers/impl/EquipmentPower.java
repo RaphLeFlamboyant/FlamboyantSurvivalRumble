@@ -14,7 +14,7 @@ public class EquipmentPower implements IChampionPower {
     public void activate(Player powerOwner, int powerLevel) {
         List<Material> materials;
 
-        powerOwner.getInventory().addItem(new ItemStack(Material.SHIELD));
+        addItem(powerOwner, new ItemStack(Material.SHIELD));
 
         switch (powerLevel) {
             case 1 :

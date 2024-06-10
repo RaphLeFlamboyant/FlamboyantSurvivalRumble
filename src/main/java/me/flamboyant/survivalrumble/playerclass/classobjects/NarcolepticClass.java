@@ -14,8 +14,6 @@ import org.bukkit.event.player.PlayerBedLeaveEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 public class NarcolepticClass extends APlayerClass implements Listener {
-    private static final int validDistance = 35;
-
     private BukkitTask sleepTask;
 
     public NarcolepticClass(Player owner) {
@@ -40,7 +38,8 @@ public class NarcolepticClass extends APlayerClass implements Listener {
         PlayerBedEnterEvent.getHandlerList().unregister(this);
         PlayerBedLeaveEvent.getHandlerList().unregister(this);
 
-        Bukkit.getScheduler().cancelTask(sleepTask.getTaskId());
+        if (sleepTask != null)
+            Bukkit.getScheduler().cancelTask(sleepTask.getTaskId());
     }
 
     @EventHandler

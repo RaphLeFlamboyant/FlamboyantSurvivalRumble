@@ -2,10 +2,8 @@ package me.flamboyant.survivalrumble.powers.impl;
 
 import me.flamboyant.survivalrumble.delegates.EntityDamageEventCallback;
 import me.flamboyant.survivalrumble.gamecontrollers.assault.AssaultManager;
-import me.flamboyant.utils.Common;
+import me.flamboyant.survivalrumble.utils.Priority;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 public class NoFallDamagePower implements IChampionPower, EntityDamageEventCallback {
@@ -15,12 +13,12 @@ public class NoFallDamagePower implements IChampionPower, EntityDamageEventCallb
     public void activate(Player powerOwner, int powerLevel) {
         this.powerOwner = powerOwner;
 
-        AssaultManager.getInstance().addListener(this);
+        AssaultManager.getInstance().addEntityDamageListener(this, Priority.HIGH);
     }
 
     @Override
     public void deactivate() {
-        AssaultManager.getInstance().removeListener(this);
+        AssaultManager.getInstance().removeEntityDamageListener(this);
     }
 
     @Override

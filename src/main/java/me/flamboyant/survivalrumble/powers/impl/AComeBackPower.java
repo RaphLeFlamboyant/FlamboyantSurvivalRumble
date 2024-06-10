@@ -2,11 +2,9 @@ package me.flamboyant.survivalrumble.powers.impl;
 
 import me.flamboyant.survivalrumble.delegates.EntityDamageEventCallback;
 import me.flamboyant.survivalrumble.gamecontrollers.assault.AssaultManager;
-import me.flamboyant.utils.Common;
+import me.flamboyant.survivalrumble.utils.Priority;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 public abstract class AComeBackPower implements IChampionPower, EntityDamageEventCallback {
@@ -21,14 +19,14 @@ public abstract class AComeBackPower implements IChampionPower, EntityDamageEven
 
         hasAlreadyBeenUsed = false;
 
-        AssaultManager.getInstance().addListener(this);
+        AssaultManager.getInstance().addEntityDamageListener(this, Priority.LAST);
 
         onActivate();
     }
 
     @Override
     public void deactivate() {
-        AssaultManager.getInstance().removeListener(this);
+        AssaultManager.getInstance().removeEntityDamageListener(this);
         onDeactivate();
     }
 

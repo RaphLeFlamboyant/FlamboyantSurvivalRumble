@@ -16,8 +16,8 @@ public class ReviveComeBackPower extends AComeBackPower {
 
         var players = SurvivalRumbleData.getSingleton().getAttackingPlayers(powerOwner);
         var rng = Common.rng.nextInt(players.size());
-        players.get(rng).damage(0);
         players.get(rng).getInventory().clear();
+        players.get(rng).damage(0);
     }
 
     @Override
