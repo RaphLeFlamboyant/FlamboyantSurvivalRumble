@@ -41,6 +41,7 @@ public class GameTimeManager {
             case 1:
                 for (var player : Bukkit.getOnlinePlayers()) {
                     player.sendTitle("1mn restante", "", 2, 56, 2);
+                    Bukkit.broadcastMessage(ChatHelper.importantMessage("1mn restante"));
                 }
                 Bukkit.getScheduler().runTaskLater(Common.plugin, () -> doCountdown(59), 20);
                 break;
