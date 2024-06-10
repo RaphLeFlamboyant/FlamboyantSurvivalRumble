@@ -23,7 +23,7 @@ import java.util.HashMap;
 
 public class ElectricianClass extends APlayerClass implements Listener {
     // TODO : ajouter une écoute de mouvements par piston pour maj la liste de location (via BlockPistonExtendEvent par ex)
-    private HashMap<Material, Integer> scoreByBlockType = new HashMap<Material, Integer>() {{
+    private HashMap<Material, Integer> scoreByBlockType = new HashMap<>() {{
         put(Material.COAL_BLOCK, 1);
         put(Material.IRON_BLOCK, 5);
         put(Material.GOLD_BLOCK, 5);

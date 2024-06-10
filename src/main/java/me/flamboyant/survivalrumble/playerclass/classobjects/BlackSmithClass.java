@@ -16,7 +16,7 @@ public class BlackSmithClass extends APlayerClass implements Listener {
     private int leatherBasePoints = 2;
     private int ironBasePoints = 2;
     private int goldBasePoints = 3;
-    private int diamondBasePoints = 6;
+    private int diamondBasePoints = 7;
 
     private Map<Material, Integer> moneyByMaterial = new HashMap<>() {{
         put(Material.LEATHER_CHESTPLATE, 8 * leatherBasePoints);

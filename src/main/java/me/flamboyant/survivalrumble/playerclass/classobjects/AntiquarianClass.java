@@ -15,10 +15,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AntiquarianClass extends APlayerClass implements Listener {
-    private int pointsByRarity = 25;
+    private int pointsByRarity = 35;
     private AntiquarianClassData classData;
 
-    private Map<Material, Integer> scoreByMaterial = new HashMap<Material, Integer>() {{
+    private Map<Material, Integer> scoreByMaterial = new HashMap<>() {{
         put(Material.HEART_OF_THE_SEA, pointsByRarity * 10);
         put(Material.WITHER_SKELETON_SKULL, pointsByRarity * 40);
         put(Material.SPONGE, pointsByRarity * 10);

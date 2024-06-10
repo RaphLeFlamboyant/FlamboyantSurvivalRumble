@@ -39,7 +39,7 @@ public class DefeatistClass extends APlayerClass implements Listener {
         if (killed == owner && killer != null) {
             String teamName = data().getPlayerTeam(owner);
             if (!data().getPlayerTeam(killer).equals(teamName)) {
-                GameManager.getInstance().addAddMoney(teamName, 50);
+                GameManager.getInstance().addAddMoney(teamName, 125);
             }
         }
     }

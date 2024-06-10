@@ -42,6 +42,6 @@ public class FisherClass extends APlayerClass implements Listener {
         String concernedTeamName = TeamHelper.getTeamHeadquarterName(location);
         if (concernedTeamName == null || !data().getPlayerTeam(owner).equals(concernedTeamName)) return;
 
-        GameManager.getInstance().addAddMoney(concernedTeamName, 5);
+        GameManager.getInstance().addAddMoney(concernedTeamName, 10);
     }
 }

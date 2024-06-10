@@ -14,8 +14,8 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 public class BoorishClass extends APlayerClass implements Listener {
     private static final int validDistance = 100;
-    private static final int hitMoneyReward = 10;
-    private static final int killMoneyReward = 50;
+    private static final int hitMoneyReward = 15;
+    private static final int killMoneyReward = 200;
 
     public BoorishClass(Player owner) {
         super(owner);

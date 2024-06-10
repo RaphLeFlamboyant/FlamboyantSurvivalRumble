@@ -48,6 +48,6 @@ public class HunterClass extends APlayerClass implements Listener {
         if (!isTier1 && !tier2EntityTypes.contains(event.getEntity().getType())) return;
 
         String ownerTeam = data().getPlayerTeam(owner);
-        GameManager.getInstance().addAddMoney(ownerTeam, isTier1 ? 1 : 2);
+        GameManager.getInstance().addAddMoney(ownerTeam, isTier1 ? 1 : 3);
     }
 }
