@@ -54,7 +54,6 @@ public class PlayerDeathManager implements Listener, WorkflowVisitor<DeathWorkfl
         return instance;
     }
 
-    //TODO
     public void start() {
         Bukkit.getWorld(UsefulConstants.overworldName).setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
 

@@ -42,7 +42,8 @@ public class SetupListener implements Listener {
     private ParameterView parametersSelectionView;
     private HashMap<Player, String> playersTeam = new HashMap<>();
     private EnumParameter<StartStuffKind> stuffParameter;
-    private IntParameter timeParameter;
+    private IntParameter hourTimeParameter;
+    private IntParameter minutesTimeParameter;
 
     private List<Player> claimingCaptainPlayers = new ArrayList<>();
 
@@ -62,7 +63,8 @@ public class SetupListener implements Listener {
         claimingCaptainPlayers.clear();
 
         stuffParameter = new EnumParameter<>(Material.IRON_SWORD, "Stuff de départ", "Stuff de départ", StartStuffKind.class);
-        timeParameter = new IntParameter(Material.CLOCK, "Durée avant final", "En quarts d'heure", 16, 16, 32);
+        hourTimeParameter = new IntParameter(Material.CLOCK, "Durée avant final", "Heures", 3, 0, 10);
+        minutesTimeParameter = new IntParameter(Material.CLOCK, "Durée avant final", "Minutes", 0, 0, 59);
 
         opPlayer.getInventory().clear();
         opPlayer.getInventory().setItem(0, getParametersItem());
@@ -70,7 +72,7 @@ public class SetupListener implements Listener {
         opPlayer.getInventory().setItem(5, getLaunchItem());
         opPlayer.getInventory().setItem(8, getCancelItem());
 
-        parametersSelectionView = new ParameterView(Arrays.asList(stuffParameter, timeParameter));
+        parametersSelectionView = new ParameterView(Arrays.asList(stuffParameter, hourTimeParameter, minutesTimeParameter));
 
         for (Player player : Common.server.getOnlinePlayers()) {
             if (player != opPlayer)
@@ -202,7 +204,7 @@ public class SetupListener implements Listener {
 
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
 
-        data.minutesBeforeEnd = 15 * timeParameter.getValue();
+        data.minutesBeforeEnd = hourTimeParameter.getValue() * 60 + minutesTimeParameter.getValue();
 
         for (Player player : playersTeam.keySet()) {
             String teamName = playersTeam.get(player);
