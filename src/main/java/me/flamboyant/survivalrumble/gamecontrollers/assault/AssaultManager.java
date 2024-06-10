@@ -21,6 +21,7 @@ import org.bukkit.event.block.BlockDispenseArmorEvent;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
@@ -74,6 +75,8 @@ public class AssaultManager implements Listener {
 
     public void start() {
         Bukkit.getWorld(UsefulConstants.overworldName).setGameRule(GameRule.NATURAL_REGENERATION, false);
+        Bukkit.getWorld(UsefulConstants.overworldName).setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
+
         SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
         for (String teamName : data.getTeams()) {
             Player champion = data.getTeamChampion(teamName);
@@ -112,9 +115,14 @@ public class AssaultManager implements Listener {
     }
 
     public void stop() {
+        Bukkit.getWorld(UsefulConstants.overworldName).setGameRule(GameRule.NATURAL_REGENERATION, true);
+        Bukkit.getWorld(UsefulConstants.overworldName).setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, false);
+
         Bukkit.getScheduler().cancelTask(locationDefenderTask.getTaskId());
         PlayerDeathEvent.getHandlerList().unregister(this);
         PlayerRespawnEvent.getHandlerList().unregister(this);
+        PlayerItemConsumeEvent.getHandlerList().unregister(this);
+        PotionSplashEvent.getHandlerList().unregister(this);
         PlayerInteractEvent.getHandlerList().unregister(this);
         PlayerInteractEntityEvent.getHandlerList().unregister(this);
         BlockDropItemEvent.getHandlerList().unregister(this);
@@ -224,8 +232,33 @@ public class AssaultManager implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
+        Bukkit.getLogger().info("Player " + event.getPlayer().getDisplayName() + " interacts with item " + event.getItem().getItemMeta().getDisplayName());
         onPlayerInteractTriggeredOnForbiddenBloc(event);
         onPlayerInteractWithForbiddenItem(event);
+    }
+
+    @EventHandler
+    public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
+        SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
+        if (data.getTeamChampion(data.getPlayerTeam(event.getPlayer())) != event.getPlayer()) return;
+        if (event.getItem().getType() == Material.POTION
+                || event.getItem().getType() == Material.GOLDEN_APPLE
+                || event.getItem().getType() == Material.ENCHANTED_GOLDEN_APPLE) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPotionSplash(PotionSplashEvent event) {
+        SurvivalRumbleData data = SurvivalRumbleData.getSingleton();
+
+        for (var entity : event.getAffectedEntities()) {
+            if (entity.getType() != EntityType.PLAYER) continue;
+            if (data.getTeamChampion(data.getPlayerTeam((Player)entity)) != entity) continue;
+
+            event.setCancelled(true);
+            return;
+        }
     }
 
     private void onPlayerInteractTriggeredOnForbiddenBloc(PlayerInteractEvent event) {
