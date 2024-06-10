@@ -78,20 +78,22 @@ public class PublicCommands implements CommandExecutor {
     }
 
     private void printClassInfo(Player commander) {
-        var msg = "";
+        var msg = "\n";
         for (var teamName : data.getTeams()) {
             msg += "Équipe " + teamName + " :\n";
             for (var player : data.getPlayers(teamName)) {
                 var className = PlayerClassHelper.playerClassMetadata.get(data.getPlayerClassType(player)).getDisplayName();
                 msg += "- " + player.getDisplayName() + " a la classe " + className + "\n";
             }
+            msg += "\n";
         }
+        msg += "\n";
 
         commander.sendMessage(ChatHelper.titledMessage("Selection des classes", msg));
     }
 
     private void printHeadquarters(Player commander) {
-        var msg = "";
+        var msg = "\n";
         for (var teamName : data.getTeams()) {
             var location = data.getHeadquarterLocation(teamName);
             msg += "Équipe " + teamName + " : " + location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ() + "\n";

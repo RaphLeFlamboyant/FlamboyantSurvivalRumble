@@ -1,7 +1,6 @@
 package me.flamboyant.survivalrumble.powers.impl;
 
-import me.flamboyant.survivalrumble.data.SurvivalRumbleData;
-import org.bukkit.entity.EntityType;
+import me.flamboyant.utils.Common;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,12 +11,13 @@ public class FriendlyMobsPower implements IChampionPower, Listener {
 
     @Override
     public void activate(Player powerOwner, int powerLevel) {
+        Common.server.getPluginManager().registerEvents(this, Common.plugin);
         this.powerOwner = powerOwner;
     }
 
     @Override
     public void deactivate() {
-
+        EntityTargetEvent.getHandlerList().unregister(this);
     }
 
     @EventHandler

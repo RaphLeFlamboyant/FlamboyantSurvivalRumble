@@ -24,7 +24,7 @@ public class EquipmentPower implements IChampionPower {
 
                 for (Material material : materials) {
                     ItemStack item = new ItemStack(material);
-                    powerOwner.getInventory().addItem(item);
+                    addItem(powerOwner, item);
                 }
                 break;
             case 2:
@@ -34,7 +34,7 @@ public class EquipmentPower implements IChampionPower {
 
                 for (Material material : materials) {
                     ItemStack item = new ItemStack(material);
-                    powerOwner.getInventory().addItem(item);
+                    addItem(powerOwner, item);
                 }
                 break;
             case 3:
@@ -44,7 +44,7 @@ public class EquipmentPower implements IChampionPower {
 
                 for (Material material : materials) {
                     ItemStack item = new ItemStack(material);
-                    powerOwner.getInventory().addItem(item);
+                    addItem(powerOwner, item);
                 }
                 break;
             case 4:
@@ -54,7 +54,7 @@ public class EquipmentPower implements IChampionPower {
 
                 for (Material material : materials) {
                     ItemStack item = new ItemStack(material);
-                    powerOwner.getInventory().addItem(item);
+                    addItem(powerOwner, item);
                 }
                 break;
             case 5:
@@ -64,7 +64,7 @@ public class EquipmentPower implements IChampionPower {
 
                 for (Material material : materials) {
                     ItemStack item = new ItemStack(material);
-                    powerOwner.getInventory().addItem(item);
+                    addItem(powerOwner, item);
                 }
                 break;
             case 6,7,8,9,10:
@@ -72,38 +72,41 @@ public class EquipmentPower implements IChampionPower {
                 var item = new ItemStack(Material.NETHERITE_CHESTPLATE);
                 item.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, Math.min(4, enchantmentLevel));
                 item.addEnchantment(Enchantment.THORNS, Math.max(0, enchantmentLevel - 3));
-                powerOwner.getInventory().addItem(item);
+                addItem(powerOwner, item);
 
                 item = new ItemStack(Material.NETHERITE_BOOTS);
                 item.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, Math.min(4, enchantmentLevel));
                 item.addEnchantment(Enchantment.PROTECTION_FALL, Math.min(4, enchantmentLevel));
                 item.addEnchantment(Enchantment.DEPTH_STRIDER, Math.max(0, enchantmentLevel - 4) * 3);
                 item.addEnchantment(Enchantment.SOUL_SPEED, Math.max(0, enchantmentLevel - 4) * 3);
-                powerOwner.getInventory().addItem(item);
+                addItem(powerOwner, item);
 
                 item = new ItemStack(Material.NETHERITE_HELMET);
                 item.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, Math.min(4, enchantmentLevel));
                 item.addEnchantment(Enchantment.OXYGEN, Math.max(0, enchantmentLevel - 4) * 3);
-                powerOwner.getInventory().addItem(item);
+                addItem(powerOwner, item);
 
                 item = new ItemStack(Material.NETHERITE_LEGGINGS);
                 item.addEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, Math.min(4, enchantmentLevel));
                 item.addEnchantment(Enchantment.SWIFT_SNEAK, Math.max(0, enchantmentLevel - 4) * 3);
-                powerOwner.getInventory().addItem(item);
+                addItem(powerOwner, item);
 
                 item = new ItemStack(Material.NETHERITE_SWORD);
                 item.addEnchantment(Enchantment.DAMAGE_ALL, enchantmentLevel);
                 item.addEnchantment(Enchantment.SWEEPING_EDGE, Math.max(0, enchantmentLevel - 2));
                 item.addEnchantment(Enchantment.KNOCKBACK, Math.max(0, enchantmentLevel - 4) * 2);
+                addItem(powerOwner, item);
 
                 item = new ItemStack(Material.NETHERITE_AXE);
                 item.addEnchantment(Enchantment.DAMAGE_ALL, enchantmentLevel);
                 item.addEnchantment(Enchantment.DIG_SPEED, enchantmentLevel);
+                addItem(powerOwner, item);
 
                 item = new ItemStack(Material.NETHERITE_PICKAXE);
                 item.addEnchantment(Enchantment.DIG_SPEED, enchantmentLevel);
                 item = new ItemStack(Material.NETHERITE_SHOVEL);
                 item.addEnchantment(Enchantment.DIG_SPEED, enchantmentLevel);
+                addItem(powerOwner, item);
                 break;
         }
     }
@@ -111,5 +114,26 @@ public class EquipmentPower implements IChampionPower {
     @Override
     public void deactivate() {
 
+    }
+
+    private void addItem(Player player, ItemStack item) {
+        if (item.getType().toString().contains("CHESTPLATE")) {
+            player.getInventory().setChestplate(item);
+        }
+        else if (item.getType().toString().contains("HELMET")) {
+            player.getInventory().setHelmet(item);
+        }
+        else if (item.getType().toString().contains("BOOTS")) {
+            player.getInventory().setBoots(item);
+        }
+        else if (item.getType().toString().contains("LEGGINGS")) {
+            player.getInventory().setLeggings(item);
+        }
+        else if (item.getType().toString().contains("SHIELD")) {
+            player.getInventory().setItemInOffHand(item);
+        }
+        else {
+            player.getInventory().addItem(item);
+        }
     }
 }

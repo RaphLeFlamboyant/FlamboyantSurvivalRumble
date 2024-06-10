@@ -74,6 +74,7 @@ public class ChampionPowerManager {
         put(ChampionPowerType.EFFECT_JUMP, JumpEffectPower::new);
         put(ChampionPowerType.EFFECT_FIRE_RESISTANCE, FireResistanceEffectPower::new);
         put(ChampionPowerType.EFFECT_WATER_BREATHING, WaterBreathingEffectPower::new);
+        put(ChampionPowerType.EFFECT_SATURATION, SaturationEffectPower::new);
 
         put(ChampionPowerType.MOB_FRIEND, FriendlyMobsPower::new);
         put(ChampionPowerType.ENEMIES_DETECTION, EnemiesDetectionPower::new);

@@ -351,7 +351,7 @@ public class AssaultManager implements Listener {
 
         var data = SurvivalRumbleData.getSingleton();
         if (data.getTeamChampion(data.getPlayerTeam(player)) != player)
-            location = new Location(location.getWorld(), location.getX(), location.getWorld().getHighestBlockYAt(location), location.getZ());
+            location = new Location(location.getWorld(), location.getX(), location.getWorld().getHighestBlockYAt(location) + 1, location.getZ());
         player.teleport(location);
         player.setGameMode(GameMode.SURVIVAL);
         PlayerStateHelper.resetPlayerState(player);

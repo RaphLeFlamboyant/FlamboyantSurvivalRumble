@@ -5,6 +5,7 @@ import me.flamboyant.utils.ItemHelper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -25,6 +26,7 @@ public abstract class ASpellPower implements IChampionPower, Listener {
     public void deactivate() {
         powerOwner.setCooldown(getSpellItem().getType(), 0);
         PlayerInteractEvent.getHandlerList().unregister(this);
+        PlayerDropItemEvent.getHandlerList().unregister(this);
         onDeactivate();
     }
 
@@ -38,6 +40,14 @@ public abstract class ASpellPower implements IChampionPower, Listener {
         if (applySpellEffect())
             powerOwner.setCooldown(getSpellItem().getType(), getCooldown());
         applySpellEffect();
+    }
+
+    @EventHandler
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
+        if (event.getPlayer() != powerOwner) return;
+        if (!ItemHelper.isExactlySameItemKind(event.getItemDrop().getItemStack(), getSpellItem())) return;
+
+        event.setCancelled(true);
     }
 
     protected void onActivate() {
