@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 public class SurvivalRumbleData {
     public int minutesBeforeEnd = 240;
     protected List<String> teams = new ArrayList<>();
+    protected List<PlayerLight> playerLights = new ArrayList<>();
     protected HashMap<UUID, String> playersTeam = new HashMap<>();
     protected Map<String, List<UUID>> playersByTeam = new HashMap<>();
     protected HashMap<String, Integer> teamMoney = new HashMap<>();
@@ -127,12 +128,14 @@ public class SurvivalRumbleData {
         teamHeadquarterLocation.remove(teamName);
         teamChampion.remove(teamName);
 
-        for (UUID playerId : playersTeam.keySet().stream().toList()) {
+        for (var playerLight : new ArrayList<>(playerLights)) {
+            var playerId = playerLight.uuid;
             if (playersTeam.get(playerId).equals(teamName)) {
                 playersTeam.remove(playerId);
                 PlayerClassType classType = playersClass.get(playerId);
                 playersClass.remove(playerId);
                 playerClassDataList.remove(classType);
+                playerLights.remove(playerLight);
             }
         }
     }
@@ -143,6 +146,11 @@ public class SurvivalRumbleData {
             Bukkit.getLogger().warning("Tempted to add player " + player.getDisplayName() + " to the team " + teamName + " but is already in the team " + playersTeam.get(player.getUniqueId()));
             return;
         }
+
+        var playerLight = new PlayerLight();
+        playerLight.playerName = player.getDisplayName();
+        playerLight.uuid = player.getUniqueId();
+        playerLights.add(playerLight);
 
         playersTeam.put(player.getUniqueId(), teamName);
         playersByTeam.get(teamName).add(player.getUniqueId());
@@ -206,5 +214,35 @@ public class SurvivalRumbleData {
         }
 
         teamHeadquarterLocation.put(teamName, location);
+    }
+
+    public void onConnect(Player player) {
+        if (playersTeam.containsKey(player.getUniqueId())) return;
+
+        for (var playerLight : playerLights) {
+            if (!playerLight.playerName.equals(player.getDisplayName())) continue;
+            var oldId = playerLight.uuid;
+            Bukkit.getLogger().warning("Player with name " + player.getDisplayName() + " has UUID = " + oldId
+                    + " but is now " + player.getUniqueId());
+
+            var teamName = playersTeam.get(oldId);
+            playersTeam.put(player.getUniqueId(), teamName);
+            playersTeam.remove(oldId);
+
+            var players = playersByTeam.get(teamName);
+            players.add(player.getUniqueId());
+            players.remove(oldId);
+
+            var classType = playersClass.get(oldId);
+            playersClass.put(player.getUniqueId(), classType);
+            playersClass.remove(oldId);
+
+            if (teamChampion.get(teamName) == oldId) {
+                teamChampion.put(teamName, player.getUniqueId());
+            }
+
+            playerLight.uuid = player.getUniqueId();
+            break;
+        }
     }
 }

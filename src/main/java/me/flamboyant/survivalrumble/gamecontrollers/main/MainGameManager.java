@@ -105,6 +105,8 @@ public class MainGameManager implements Listener, ITriggerVisitor {
     @EventHandler
     public void onPlayerConnects(PlayerJoinEvent event) {
         var player = event.getPlayer();
+        SurvivalRumbleData.getSingleton().onConnect(player);
+
         if (SurvivalRumbleData.getSingleton().getPlayerTeam(player) != null) return;
 
         player.setGameMode(GameMode.SPECTATOR);
